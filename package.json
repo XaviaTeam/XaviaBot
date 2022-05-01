@@ -21,7 +21,7 @@
     "Zyros",
     "FuryCS"
   ],
-  "author": "",
+  "author": "DimensityDU",
   "license": "MIT",
   "dependencies": {
     "@xaviabot/fca-unofficial": "^1.0.6",
