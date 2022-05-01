@@ -97,7 +97,7 @@ const load = async (path, client) => {
                 }
             }
 
-            if (config.options && config.options != null && typeof config.options === 'object') {
+            if (this.options && this.options != null && typeof this.options === 'object') {
                 const optionsPATH = client.rootPath + '/config/commandOptions.json';
                 if (!existsSync(optionsPATH)) {
                     writeFileSync(optionsPATH, JSON.stringify({}, null, 4));
@@ -109,9 +109,12 @@ const load = async (path, client) => {
                     writeFileSync(optionsPATH, JSON.stringify({}, null, 4));
                 }
                 const options = JSON.parse(optionsFile);
-                for (const key in config.options) {
-                    if (!options.hasOwnProperty(key) && config.options[key] != null) {
-                        options[key] = config.options[key];
+                if (!options.hasOwnProperty(this.name)) {
+                    options[this.name] = {};
+                }
+                for (const key in this.options) {
+                    if (!options.hasOwnProperty(key) && this.options[key] != null) {
+                        options[this.name][key] = this.options[key];
                     }
                 }
                 writeFileSync(optionsPATH, JSON.stringify(options, null, 4));

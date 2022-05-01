@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
 
 export default function(client) {
     return new Promise(async (resolve) => {
@@ -13,7 +13,11 @@ export default function(client) {
     
         const commandsPath = client.mainPath + '/plugins/commands/';
         client.modules.loader(commandsPath, client).then(client => {
-            client.comamndOptions = JSON.parse(readFileSync(client.rootPath + '/config/commandOptions.json'));
+            const comamndOptionsPath = client.rootPath + '/config/commandOptions.json';
+            if (!existsSync(comamndOptionsPath)) {
+                writeFileSync(comamndOptionsPath, JSON.stringify({}));
+            }
+            client.comamndOptions = JSON.parse(readFileSync(comamndOptionsPath));
             resolve(client);
         })
     })
