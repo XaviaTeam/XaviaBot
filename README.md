@@ -90,7 +90,7 @@ npm install && npm start
 [Mail](mailto:dungto76@gmail.com)<br />
 • **Zyros** (Co-Author):
 [Instagram](https://www.instagram.com/zyroser/)
-[Twitter](https://twitter.com/zyrosrichard)
+[Discord](https://discordapp.com/users/684252812296847424)
 [Github](https://github.com/zyross)
 
 ## Donation
