@@ -89,9 +89,9 @@ npm install && npm start
 [Github](https://github.com/RFS-ADRENO) -
 [Mail](mailto:dungto76@gmail.com)<br />
 • **Zyros** (Co-Author):
-[Instagram](https://www.instagram.com/zyroser/)
-[Discord](https://discordapp.com/users/684252812296847424)
-[Github](https://github.com/zyross)
+[Instagram](https://www.instagram.com/zyroser/) -
+[Discord](https://discordapp.com/users/684252812296847424) -
+[Github](https://github.com/zyross) -
 
 ## Donation
 
