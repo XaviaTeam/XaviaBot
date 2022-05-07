@@ -1,4 +1,5 @@
 import { execSync, spawn } from 'child_process';
+import { writeFileSync, existsSync, statSync } from 'fs';
 import { logger } from './utils.js';
 import { } from 'dotenv/config';
 
@@ -75,12 +76,34 @@ function upNodeReplit() {
 		logger.error("Xavia requires Node 14 or higher. Please update your version of Node.");
 		process.exit(0);
 	}
+
+	//suggested by MintDaL
+	if (isGlitch) {
+		const WATCH_FILE = {
+			"restart": {
+				"include": [
+					"\\.json"
+				]
+			},
+			"throttle": 3000
+		}
+
+		if (!existsSync(process.cwd() + '/watch.json') || !statSync(process.cwd() + '/watch.json').isFile()) {
+			logger.warn("Glitch environment detected. Creating watch.json...");
+			writeFileSync(process.cwd() + '/watch.json', JSON.stringify(WATCH_FILE, null, 2));
+		}
+	}
 	
 	if (isGitHub) {
 		logger.warn("Running on GitHub is not recommended.");
 	}
 })();
 //end
+
+
+//Restart Loop
+const _1_MINUTE = 60000;
+let restartCount = 0;
 
 
 function Xavia() {
@@ -90,7 +113,8 @@ function Xavia() {
 	});
 
 	child.on("close", async (code) => {
-		if (code !== 0) {
+		handleRestartCount();
+		if (code !== 0 && restartCount < 5) {
 			logger.error(`An error occurred with exit code ${code}`);
 			logger.warn("Restarting Xavia...");
 			await new Promise(resolve => setTimeout(resolve, 2000));
@@ -102,3 +126,10 @@ function Xavia() {
 	});
 };
 Xavia();
+
+function handleRestartCount() {
+	restartCount++;
+	setTimeout(() => {
+		restartCount--;
+	}, _1_MINUTE);
+}

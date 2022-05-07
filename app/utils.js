@@ -69,9 +69,12 @@ function listen(api, db) {
         db,
         controllers: controllers(api, db)
     });
+    
 
     logger.system('Xavia is ready!');
     console.log(`====== ${Date.now() - client.startTime}ms ======`);
+
+
     return (err, event) => {
         if (err) {
             if (err.error && err.error == 'Not logged in.' && client.config.AUTO_LOGIN == true) {
@@ -86,7 +89,14 @@ function listen(api, db) {
         }
         printEvent(event);
 
+
         if (Object.values(client.data.monitorServerPerThread).some(server => server == event.threadID)) return;
+        if (
+            client.maintenance == true &&
+            !client.data.monitorServers.some(server => server == event.threadID)
+        ) return;
+
+
         switch (event.type) {
             case "message":
             case "message_reply":

@@ -2,21 +2,16 @@
 async function checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, fs) {
     const { isJSON, logger, aes } = client.modules;
     const { readFileSync, writeFileSync, existsSync } = fs;
-    const { join } = await import('path');
-    
-    APPSTATE_PATH = join(process.cwd(), '../', APPSTATE_PATH);
     const appState = readFileSync(APPSTATE_PATH, 'utf8');
 
     if (!existsSync(APPSTATE_PATH)) {
-        logger.info('Appstate file not found!');
-        throw new Error();
+        throw 'Appstate file not found!';
     } else {
         logger.info('Appstate file found!');
     }
     
     if (!APPSTATE_SECRET_KEY) {
-        logger.info('APPSTATE_SECRET_KEY not found!');
-        throw new Error();
+        throw 'APPSTATE_SECRET_KEY not found!';
     }
 
     var objAppState;
@@ -27,8 +22,7 @@ async function checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, fs) {
             objAppState = JSON.parse(decryptedAppState);
         } catch (err) {
             console.log(err);
-            logger.error('Appstate file is not valid JSON / could not be decrypted');
-            throw new Error();
+            throw 'Appstate file is not valid JSON / could not be decrypted';
         }
     } else {
         objAppState = JSON.parse(appState);

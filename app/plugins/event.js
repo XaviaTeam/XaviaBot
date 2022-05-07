@@ -220,7 +220,7 @@ export default async function ({ api, event, db, controllers }) {
                         await db.set('threads', allThreads);
                         if (getMonitorServerPerThread[threadID]) {
                             const authorName = await Users.getName(author);
-                            const atlertMsg = `"_author_" has changed approval mode to "_new_"`;
+                            let atlertMsg = `"_author_" has changed approval mode to "_new_"`;
                             atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_new_', getThreadInfo.approvalMode);
                         }
                     }

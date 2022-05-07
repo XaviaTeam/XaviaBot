@@ -14,7 +14,7 @@ export default async function loadClient() {
         mainPath: process.cwd(),
         comamndOptions: new Object(),
         maintenance: new Boolean(),
-        version: '1.2.0'
+        version: '1.2.4'
     };
     return new Promise(async (resolve, reject) => {
         modules(defaultClient)

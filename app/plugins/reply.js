@@ -15,45 +15,57 @@ export default async function({ api, event, db, controllers, reply }) {
                 return;
             }
 
-            let succeed = failed = [];
+            let succeed = [],
+                failed = [],
+                msg = null,
+                promiseJobs = [];
+
             if (query == 'approve') {
                 for (const i of chosenGroup) {
                     if (i == NaN || isNaN(i)) continue;
                     if (i - 1 > list.length) continue;
                     const group = list[i - 1];
                     const getThread = await Threads.checkThread(group.threadID) || {};
-                    const Prefix = getThread.data ? getThread.data.prefix : client.config.PREFIX;
-                    api.sendMessage(
-                        `Your group has been approved!\n\n${client.config.NAME} connected!\nUse ${Prefix}help to see all commands.`,
-                        group.threadID,
-                        (err) => {
-                            if (err) {
-                                failed.push(group.threadID);
-                            } else succeed.push(group.threadID);;
-                        }
-                    );
+                    const Prefix = getThread.data.prefix || client.config.PREFIX;
+                    promiseJobs.push(new Promise(async resolve => {
+                        api.sendMessage(
+                            `Your group has been approved!\n\n${client.config.NAME} connected!\nUse ${Prefix}help to see all commands.`,
+                            group.threadID,
+                            (err) => {
+                                if (err) {
+                                    logger.error(err);
+                                    failed.push(group.threadID);
+                                } else succeed.push(group.threadID);
+                                resolve();
+                            }
+                        );
+                    }));
                 }
             } else if (query == 'reject') {
                 for (const i of chosenGroup) {
                     if (i == NaN || isNaN(i)) continue;
                     if (i - 1 > list.length) continue;
                     const group = list[i - 1];
-                    api.sendMessage(
-                        `Your group has been rejected!`,
-                        group.threadID,
-                        (err) => {
-                            if (err) {
-                                failed.push(group.threadID);
-                            } else api.removeUserFromGroup(
-                                group.threadID,
-                                botID,
-                                (err) => {
-                                    if (err) {
-                                        failed.push(group.threadID);
-                                    } else succeed.push(group.threadID);;
-                                });
-                        }
-                    );
+                    promiseJobs.push(new Promise(async resolve => {
+                        api.sendMessage(
+                            `Your group has been rejected!`,
+                            group.threadID,
+                            (err) => {
+                                if (err) {
+                                    failed.push(group.threadID);
+                                } else api.removeUserFromGroup(
+                                    group.threadID,
+                                    botID,
+                                    (err) => {
+                                        if (err) {
+                                            logger.error(err);
+                                            failed.push(group.threadID);
+                                        } else succeed.push(group.threadID);
+                                        resolve();
+                                    });
+                            }
+                        );
+                    }));
                 }
             } else {
                 return api.sendMessage(
@@ -62,12 +74,15 @@ export default async function({ api, event, db, controllers, reply }) {
                     messageID
                 )
             }
-            api.unsendMessage(reply.messageID);
-            let msg = query.charAt(0).toUpperCase() + query.slice(1) + 'ed' + succeed.length + ' group(s).';
-            if (failed.length > 0) {
-                msg += `\nFailed to ${query} ${failed.length} groups:\n${failed.join(', ')}`;
-            }
-            api.sendMessage(msg, threadID, messageID);
+
+            Promise.all(promiseJobs).then(() => {
+                api.unsendMessage(reply.messageID);
+                msg = query.charAt(0).toUpperCase() + query.slice(1) + 'ed' + succeed.length + ' group(s).';
+                if (failed.length > 0) {
+                    msg += `\nFailed to ${query} ${failed.length} groups:\n${failed.join(', ')}`;
+                }
+                api.sendMessage(msg, threadID, messageID);
+            });
             break;
         }
         case 'boxSettings': {

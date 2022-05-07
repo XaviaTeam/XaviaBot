@@ -1,6 +1,6 @@
 'use strict';
 export const config = {
-    name: "Example",
+    name: "Image",
     nsfw: ["hentai"],
     description: {
         "about": "Image Provider",
@@ -35,30 +35,33 @@ function Anime( api, event, args, type ) {
     const key = args[0];
     if (!key) {
         api.sendMessage("Please provide a tag", threadID, messageID);
-        return;
+    } else {
+        const data = type == "sfw" ? sfw : nsfw;
+        if (!data.hasOwnProperty(key)) {
+            api.sendMessage(`Tag not found\nAvailable tags:\n${Object.keys(data).join(', ')}`, threadID, messageID);
+        } else {
+            const requestURL = nekoDomain + data[key];
+            get(requestURL)
+                .then(async (res) => {
+                    const { url } = res.data;
+                    try {
+                        const imageStream = (await get(url, { responseType: 'stream' })).data;
+                        const msg = {
+                            body: `Link: ${url}`,
+                            attachment: imageStream,
+                        }
+                        api.sendMessage(msg, threadID, messageID);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
     }
-    const data = type == "sfw" ? sfw : nsfw;
-    if (!data.hasOwnProperty(key)) {
-        return api.sendMessage(`Tag not found\nAvailable tags:\n${Object.keys(data).join(', ')}`, threadID, messageID);
-    }
-    const requestURL = nekoDomain + data[key];
-    get(requestURL)
-        .then(async (res) => {
-            const { url } = res.data;
-            try {
-                const imageStream = (await get(url, { responseType: 'stream' })).data;
-                const msg = {
-                    body: `Link: ${url}`,
-                    attachment: imageStream,
-                }
-                api.sendMessage(msg, threadID, messageID);
-            } catch (err) {
-                console.log(err);
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        });
+
+    return;
 }
 
 function sfw({api, event, args}) {

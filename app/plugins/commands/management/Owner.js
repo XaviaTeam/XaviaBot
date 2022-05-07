@@ -1,6 +1,6 @@
 'use strict';
 export const config = {
-    name: "BotAdminManager",
+    name: "BotManager",
     description: {
         "about": "Basic Commands",
         "commands": {
@@ -22,10 +22,10 @@ export const config = {
     permissions: [2],
     map: {
         "maintenance": setMaintenance,
-        "monitor": monitor,
-        "restart": restart,
-        "pending": pending,
-        "stats": stats
+        monitor,
+        restart,
+        pending,
+        stats
     },
     dependencies: ['process-stats'],
     cooldown: {
@@ -76,6 +76,8 @@ function setMaintenance({ api, event, args, db }) {
         client.maintenance = query;
         return true;
     }
+
+    return;
 }
 
 async function monitor({ api, event, args, db }) {
@@ -89,7 +91,7 @@ async function monitor({ api, event, args, db }) {
             if (client.data.monitorServers.includes(tid)) {
                 api.sendMessage('This TID is already a monitor server', threadID, messageID);
             } else {
-                return api.sendMessage('Testing...', tid, async (err) => {
+                api.sendMessage('Testing...', tid, async (err) => {
                     if (err) {
                         api.sendMessage('This TID is not a valid server', threadID, messageID);
                     } else {
@@ -129,6 +131,8 @@ async function monitor({ api, event, args, db }) {
     } else {
         api.sendMessage('Invalid query, please use add/del', threadID, messageID);
     }
+
+    return;
 }
 
 function restart({ api, event }) {
@@ -142,32 +146,36 @@ async function pending({ api, event }) {
     try {
         var SPAM = await api.getThreadList(100, null, ["OTHER"]) || [];
         var PENDING = await api.getThreadList(100, null, ["PENDING"]) || [];
+
+        const list = [...SPAM, ...PENDING].filter(group => group.isSubscribed && group.isGroup);
+        msg += list.map((group, index) => `${index + 1}. ${group.name} (${group.threadID}`).join('\n');
+        api.sendMessage(
+            body,
+            threadID,
+            (err, info) => {
+                client.replies.push({
+                    messageID: info.messageID,
+                    type: 'pending',
+                    list,
+                    author: event.senderID
+                })
+            }
+        )
     } catch (e) {
-        return api.sendMessage('Can\'t get Threads List...', threadID, messageID);
+        api.sendMessage('Can\'t get Threads List...', threadID, messageID);
     }
 
-    const list = [...SPAM, ...PENDING].filter(group => group.isSubscribed && group.isGroup);
-    msg += list.map((group, index) => `${index + 1}. ${group.name} (${group.threadID}`).join('\n');
-    return api.sendMessage(
-        body,
-        threadID,
-        (err, info) => {
-            client.replies.push({
-                messageID: info.messageID,
-                type: 'pending',
-                list,
-                author: event.senderID
-            })
-        }
-    )
+    return;
 }
 
 async function stats({ api, event, controllers }) {
     const procStats = libs['process-stats']();
     const { memTotal, memFree, uptime, memUsed } = procStats();
     procStats.destroy();
+
     const servedThreads = await controllers.Threads.getAll() || [];
     const servingThreads = servedThreads.filter(thread => thread.info.isSubscribed == true) || [];
+
     let msg = `
     Memory: ${((memTotal.value - memFree.value) / 1073741824).toFixed(2)} GB / ${memTotal.pretty} (${memUsed.pretty} used)
     Uptime: ${uptime.pretty}
@@ -176,6 +184,7 @@ async function stats({ api, event, controllers }) {
     TotalMonitors: ${Object.keys(client.data.monitorServerPerThread).length + client.data.monitorServers.length} Server(s)
     AdminMonitors: ${client.data.monitorServers.length} Server(s)
     `.replace(/^ +/gm, '');
+
     api.sendMessage(msg, event.threadID, event.messageID);
     return;
 }

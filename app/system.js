@@ -3,8 +3,9 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import login from '@xaviabot/fca-unofficial';
 import loadClient from './client/index.js';
 import { logger, listen } from './utils.js';
-import express from 'express';
 import { } from 'dotenv/config';
+import express from 'express';
+import { join } from 'path';
 
 
 const { APPSTATE_PATH, APPSTATE_SECRET_KEY } = process.env;
@@ -41,7 +42,7 @@ async function start() {
 
         await booting(logger);
     } catch (err) {
-        console.error(err);
+        logger.error(err);
         return process.exit(0);
     }
 }
@@ -74,7 +75,7 @@ function refreshState(api) {
     setInterval(() => {
         const newAppState = api.getAppState();
         const encryptedAppState = client.modules.aes.encrypt(JSON.stringify(newAppState), APPSTATE_SECRET_KEY);
-        writeFileSync(APPSTATE_PATH, encryptedAppState);
+        writeFileSync(join(process.cwd(), '../', APPSTATE_PATH), encryptedAppState);
     }, _2HOUR);
 }
 
@@ -84,7 +85,7 @@ function autoReloadApplication() {
 
 function loginState() {
     return new Promise((resolve, reject) => {
-        client.modules.checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, { readFileSync, writeFileSync, existsSync })
+        client.modules.checkAppstate(join(process.cwd(), '../', APPSTATE_PATH), APPSTATE_SECRET_KEY, { readFileSync, writeFileSync, existsSync })
             .then(appState => {
                 const options = client.config.FCA_OPTIONS;
 

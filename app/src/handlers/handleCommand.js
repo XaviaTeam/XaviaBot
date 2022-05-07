@@ -1,4 +1,4 @@
-//Should i make it reply "noCommand" if the command is not found?
+//Should i make it reply "noCommand"/"underMaintenance" if the command is not found/under maintenance?
 
 const text = {
     // "noCommand": "No command found. Type %1help for a list of commands.",
@@ -6,7 +6,7 @@ const text = {
     "noPermission": "You do not have permission to use this command.",
     "cooldown": "You can use this command again in %1 seconds.",
     "error": "An error occurred while executing this command.",
-    "underMaintenance": "The bot is currently under maintenance. Please try again later."
+    // "underMaintenance": "The bot is currently under maintenance. Please try again later."
 }
 
 const getText = (key, ...args) => {
@@ -26,8 +26,10 @@ export default function ({ api, db, controllers }) {
         if (!body.startsWith(PREFIX)) {
             return;
         }
-        const command = args.shift().slice(PREFIX.length).toLowerCase();
-        const commandArgs = args;
+        
+        const args_prefix_removed = args.join(" ").slice(PREFIX.length).split(" ");
+        const command = args_prefix_removed[0].toLowerCase();
+        const commandArgs = args_prefix_removed.slice(1);
 
         if (client.commands.has(command)) {
             const threadInfo = await Threads.getInfo(threadID) || {};
@@ -52,16 +54,10 @@ export default function ({ api, db, controllers }) {
             if (botAdminIDs.includes(senderID) && !threadAdminIDs.some(e => e == senderID)) {
                 userPermission = 2;
             };
-            if (botAdminIDs.includes(senderID) && !threadAdminIDs.some(e => e == senderID)) {
+            if (botAdminIDs.includes(senderID) && threadAdminIDs.some(e => e == senderID)) {
                 userPermission = [1, 2];
             };
-
-            if (client.maintenance == true && !client.data.monitorServers.includes(threadID))
-                if (userPermission != 2 && userPermission != [1, 2] && command != 'maintenance' && command != 'setMonitor')
-                    return api.sendMessage(
-                        getText('underMaintenance'),
-                        threadID
-                    );
+            
 
             if (!Array.isArray(commandData.permissions)) {
                 commandData.permissions = [commandData.permissions];

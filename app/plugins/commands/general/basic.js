@@ -1,31 +1,34 @@
 'use strict';
 export const config = {
-    name: "Example",
+    name: "BasicCommands",
     description: {
         "about": "Basic Commands",
         "commands": {
             "help": "List all commands",
             "translate": "Translate text to English",
-            "ping": "Get bot's delay in ms"
+            "ping": "Get bot's delay in ms",
+            "echo": "Echo back the message",
         }
     },
     usage: {
         "help": "[command_name]",
         "translate": "[lang] [text]",
-        "ping": ""
+        "ping": "",
+        "echo": "[text]",
     },
     credits: "Xavia",
     permissions: [0, 1, 2],
     map: {
-        "help": help,
-        "ping": ping,
-        "translate": translate
+        help,
+        ping,
+        translate,
+        echo
     },
-    dependencies: ['axios'],
     cooldown: {
         "help": 5,
         "translate": 5,
-        "ping": 5
+        "ping": 5,
+        "echo": 5
     }
 }
 
@@ -63,30 +66,48 @@ function help({ api, event, args, controllers }) {
             msg += `» Cooldown: ${command.cooldown}s\n`;
         }
     }
-    return api.sendMessage(msg, threadID, messageID);
+
+    api.sendMessage(msg, threadID, messageID);
+    return;
 }
 
 function ping({ api, event }) {
     const { threadID, messageID } = event;
     const start = Date.now();
-    return api.sendMessage('Pong!', threadID, () => {
+
+    api.sendMessage('Pong!', threadID, () => {
         const end = Date.now();
         const delay = end - start;
-        return api.sendMessage(`Delay: ${delay}ms`, threadID);
+        api.sendMessage(`Delay: ${delay}ms`, threadID);
     }, messageID);
+    
+    return;
 }
 
 function translate({ api, event, args }) {
     const { threadID, messageID } = event;
     const lang = args[0];
     const text = args.slice(1).join(' ');
+
+    if (!lang) return api.sendMessage('Please specify a language!', threadID, messageID);
+    if (!text) return api.sendMessage('Please specify a text!', threadID, messageID);
+
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${lang}&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-    return get(url)
+    get(url)
         .then(res => {
             const translation = res.data[0][0][0];
-            return api.sendMessage(`Translation: ${translation}`, threadID, messageID);
+            api.sendMessage(`Translation: ${translation}`, threadID, messageID);
         })
         .catch(err => {
-            return api.sendMessage(`Translation failed: ${err}`, threadID, messageID);
+            api.sendMessage(`Translation failed: ${err}`, threadID, messageID);
         });
+
+    return;
+}
+
+function echo({ api, event, args }) {
+    if (args.length > 0) {
+        api.sendMessage(args.join(' '), event.threadID);
+    }
+    return;
 }
