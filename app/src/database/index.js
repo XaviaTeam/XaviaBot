@@ -12,12 +12,9 @@ import { join } from 'path';
 import isJSON from '../modules/isJSON.js';
 
 const defaultSettings = {
-    maxConnection: 10,
-    currentConnection: 0,
-    maxRetry: 10,
-    retryAfter: 500,
+    structures: {},
     storage: process.cwd() + '/src/database/JSON/',
-    structures: {}
+    backupStorage: process.cwd() + '/src/database/JSON/backup/'
 }
 
 class database {
@@ -31,6 +28,10 @@ class database {
             mkdirSync(this.storage, { recursive: true });
         }
 
+        if (!existsSync(this.backupStorage) || !statSync(this.backupStorage).isDirectory()) {
+            mkdirSync(this.backupStorage, { recursive: true });
+        }
+
         for (const structure in this.structures) {
             this.checkStructure(structure);
             const path = join(this.storage, `${structure}.json`);
@@ -41,134 +42,136 @@ class database {
         }
     }
 
-    authenticate() {
-        if (this.currentConnection > 0) {
-            throw new Error('Database is busy.');
-        }
-        this.currentConnection = 1;
+    backup() {
+        return new Promise((resolve, reject) => {
+            const backupPath = join(this.backupStorage, 'backup.json');
+            this.getAll()
+                .then(data => {
+                    let obj = {
+                        data,
+                        edited: new Date()
+                    }
+                    writeFileSync(backupPath, JSON.stringify(obj, null, 4));
+                    resolve();
+                }).catch(error => {
+                    reject(error);
+                });
+        });
     }
 
-    close() {
-        this.maxConnection = 0;
-    }
-
-    checkConnection() {
-        if (this.currentConnection == 0) {
-            return 'Database is not connected.';
-        }
-        if (this.currentConnection >= this.maxConnection) {
-            throw new Error('Maximum number of connections reached.');
-        }
-        return true;
+    restore() {
+        return new Promise((resolve, reject) => {
+            const backupPath = join(this.backupStorage, 'backup.json');
+            if (existsSync(backupPath)) {
+                try {
+                    const content = readFileSync(backupPath, 'utf8');
+                    if (!isJSON(content)) {
+                        reject(getLang('database.error.JSONNotValid', { structure }));
+                    }
+                    const { data } = JSON.parse(content);
+                    for (const structure in data) {
+                        const path = join(this.storage, `${structure}.json`);
+                        writeFileSync(path, JSON.stringify(data[structure], null, 4));
+                    }
+                    resolve();
+                } catch (error) {
+                    reject(error);
+                }
+            } else {
+                reject(getLang('database.error.backupNotFound'));
+            }
+        });
     }
 
     checkStructure(structure) {
         if (!this.structures[structure]) {
-            throw new Error('structure is not defined.');
+            throw new Error(getLang('database.error.structureNotDefined'));
         }
         if (typeof this.structures[structure] != 'function') {
-            throw new Error('structure is not a function/class.');
+            throw new Error(getLang('database.error.structureNotValid'));
         }
-        const index = this.structures[structure] ? 0 : 1;
-        if (index === -1) return 1;
-        return 0;
+        return true;
     }
 
     getDataFromStructures(structure) {
-        return structure == 'Admin' ? new this.structures[structure]({}, [], false) : [];
+        return structure == 'Moderator' ? new this.structures[structure]({}, [], false) : [];
     }
 
     getAll() {
-        const data = {};
-        for (const structure in this.structures) {
-            const path = join(this.storage, `${structure}.json`);
-            if (
-                this.checkStructure(structure) == 0 &&
-                existsSync(path) &&
-                statSync(path).isFile()
-            ) {
-                const content = readFileSync(path, 'utf8');
-                if (!isJSON(content)) {
-                    throw new Error(`${structure} is not a valid JSON file.`);
+        return new Promise((resolve, reject) => {
+            const data = {};
+            for (const structure in this.structures) {
+                const path = join(this.storage, `${structure}.json`);
+                if (
+                    this.checkStructure(structure) &&
+                    existsSync(path) &&
+                    statSync(path).isFile()
+                ) {
+                    const content = readFileSync(path, 'utf8');
+                    if (!isJSON(content)) {
+                        reject(getLang('database.error.JSONNotValid', { structure }));
+                    }
+                    data[structure] = JSON.parse(content);
+                } else {
+                    data[structure] = this.getDataFromStructures(structure);
                 }
-                data[structure] = JSON.parse(content);
-            } else {
-                data[structure] = this.getDataFromStructures(structure);
             }
-        }
-        return data;
+            resolve(data);
+        });
     }
 
     get(structure) {
-        structure = structure.charAt(0).toUpperCase() + structure.slice(1);
-        let data;
-        const path = join(this.storage, `${structure}.json`);
-        if (existsSync(path)) {
-            const content = readFileSync(path, 'utf8');
-            if (!isJSON(content)) {
-                throw new Error(`${structure} is not a valid JSON file.`);
+        return new Promise((resolve, reject) => {
+            structure = structure.charAt(0).toUpperCase() + structure.slice(1);
+            let data;
+            const path = join(this.storage, `${structure}.json`);
+            if (existsSync(path)) {
+                const content = readFileSync(path, 'utf8');
+                if (!isJSON(content)) {
+                    reject(getLang('database.error.JSONNotValid', { structure }));
+                }
+                data = JSON.parse(content);
+            } else {
+                data = this.getDataFromStructures(structure);
             }
-            data = JSON.parse(content);
-        } else {
-            data = this.getDataFromStructures(structure);
-        }
-        return data;
+            resolve(data);
+        });
     }
 
-    async set(structure, data) {
-        return await new Promise((resolve, reject) => {
+    set(structure, data) {
+        return new Promise((resolve, reject) => {
             structure = structure.charAt(0).toUpperCase() + structure.slice(1);
-            let tempInt = this.maxRetry;
-            try {
-                let check = this.checkConnection();
-                if (check != true) reject(check);
-            } catch (e) {
-                if (tempInt <= 0) {
-                    reject(e);
-                }
-                tempInt--;
-                setTimeout(() => this.set(structure, data), this.retryAfter);
-            };
-            if (structure == 'Admin' && Array.isArray(data)) {
-                reject('Data for Admin should be an object.');
+            if (structure == 'Moderator' && Array.isArray(data)) {
+                reject(getLang('database.error.moderatorDataNotValid'));
             }
-            if (!data || (!Array.isArray(data) && structure != 'Admin')) {
-                reject('Data is not defined or is not an array.');
+            if (!data || (!Array.isArray(data) && structure != 'Moderator')) {
+                reject(getLang('database.error.dataNotValid'));
             }
-            this.currentConnection++;
             const path = join(this.storage, `${structure}.json`);
             writeFileSync(path, JSON.stringify(data, null, 4));
-            this.currentConnection--;
             resolve();
         });
     }
 
-    async empty(structure) {
-        return await new Promise((resolve, reject) => {
-            let tempInt = this.maxRetry;
+    empty(structure) {
+        return new Promise((resolve, reject) => {
             try {
-                let check = this.checkConnection();
-                if (check != true) reject(check);
-            } catch (e) {
-                if (tempInt <= 0) {
-                    reject(e);
+                if (!structure) {
+                    for (const structure in this.structures) {
+                        const path = join(this.storage, `${structure}.json`);
+                        const dataFormat = this.getDataFromStructures(structure);
+                        writeFileSync(path, JSON.stringify(dataFormat, null, 4));
+                    }
+                } else {
+                    this.checkStructure(structure);
+                    const path = join(this.storage, `${structure}.json`);
+                    const dataFormat = this.getDataFromStructures(structure);
+                    writeFileSync(path, JSON.stringify(dataFormat, null, 4));
                 }
-                tempInt--;
-                setTimeout(() => this.empty(structure), this.retryAfter);
-            };
-            this.currentConnection++;
-            if (!structure) {
-                for (const structure in this.structures) {
-                    writeFileSync(`${this.storage}${structure}.json`, JSON.stringify([], null, 4));
-                }
-            } else {
-                this.checkStructure(structure);
-                const path = join(this.storage, `${structure}.json`);
-                const dataFormat = this.getDataFromStructures(structure);
-                writeFileSync(path, JSON.stringify(dataFormat, null, 4));
+                resolve();
+            } catch (error) {
+                reject(error);
             }
-            this.currentConnection--;
-            resolve();
         });
     }
 }

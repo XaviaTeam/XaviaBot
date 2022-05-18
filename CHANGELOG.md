@@ -1,3 +1,14 @@
+## v1.3.0 - 2022/05/19
+- Better Cache Handling, **automatically** clear cache when booting up
+- Better Role: `ADMINS` => `MODERATORS`, `botadmin` => `moderator`, `groupadmin` => `admin`, etc.
+- Check For Updates
+- **MULTILANG SUPPORT** with **getLang** method
+- Remade Event Handler: **Split into multiple files**
+- New Database feature: **Backup/Restore**
+- Remade Dashboard
+- Optimize Source Code
+
+
 ## v1.2.4 - 2022/05/08
 - Added CHANGELOG.md
 - Fix Restart Loop Memory Leak

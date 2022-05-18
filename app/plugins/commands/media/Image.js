@@ -28,17 +28,28 @@ export const config = {
     }
 }
 
-function Anime( api, event, args, type ) {
+export const langData = {
+    "en_US": {
+        "anime.error.missingTag": "Please provide a tag",
+        "anime.error.tagNotFound": "Tag not found, available tags:\n\n{tags}"
+    },
+    "vi_VN": {
+        "anime.error.missingTag": "Vui lòng cung cấp một thẻ",
+        "anime.error.tagNotFound": "Thẻ không hợp lệ, các thẻ hiện có:\n\n{tags}"
+    }
+}
+
+function Anime(api, event, args, getLang, type) {
     const nekoDomain = 'https://nekos.life/api/v2';
     const { threadID, messageID } = event;
     const { sfw, nsfw } = client.data;
     const key = args[0];
     if (!key) {
-        api.sendMessage("Please provide a tag", threadID, messageID);
+        api.sendMessage(getLang('anime.error.missingTag'), threadID, messageID);
     } else {
         const data = type == "sfw" ? sfw : nsfw;
         if (!data.hasOwnProperty(key)) {
-            api.sendMessage(`Tag not found\nAvailable tags:\n${Object.keys(data).join(', ')}`, threadID, messageID);
+            api.sendMessage(getLang('anime.error.tagNotFound', { tags: Object.keys(data).join(', ') }), threadID, messageID);
         } else {
             const requestURL = nekoDomain + data[key];
             get(requestURL)
@@ -64,12 +75,12 @@ function Anime( api, event, args, type ) {
     return;
 }
 
-function sfw({api, event, args}) {
-    Anime(api, event, args, "sfw");
+function sfw({ api, event, args, getLang }) {
+    Anime(api, event, args, getLang, "sfw");
 }
 
-function nsfw({api, event, args}) {
-    Anime(api, event, args, "nsfw");
+function nsfw({ api, event, args, getLang }) {
+    Anime(api, event, args, getLang, "nsfw");
 }
 
 export function onLoad() {

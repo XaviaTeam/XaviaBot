@@ -6,7 +6,7 @@
  */
 
 export default function (client) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
         const data = {
             message: new Array(),
             threadIDs: new Array(),
@@ -15,17 +15,23 @@ export default function (client) {
             monitorServers: new Array(),
             monitorServerPerThread: new Object()
         };
-        
-        const { Threads, Users, Admin } = client.db.getAll();
+
+        const { Threads, Users, Moderator } = await client.db.getAll();
 
         data.threadIDs = Threads.map(thread => thread.id);
         data.userIDs = Users.map(user => user.id);
-        data.monitorServers = Admin['monitorServers'];
-        data.monitorServerPerThread = Admin['monitorServerPerThread'];
-        client.maintenance = Admin['maintenance'];
+        data.monitorServers = Moderator['monitorServers'];
+        data.monitorServerPerThread = Moderator['monitorServerPerThread'];
+        client.maintenance = Moderator['maintenance'];
+
+        for (const thread of Threads) {
+            if (thread.data.monitor && !data.monitorServerPerThread[thread.id]) {
+                data.monitorServerPerThread[thread.id] = thread.data.monitor;
+            }
+        }
 
         client.data = data;
-        client.modules.logger.custom('Connected to database.', 'DATABASE');
+        client.modules.logger.custom(getLang("client.data.connected"), 'DATABASE');
 
         resolve(client);
     });

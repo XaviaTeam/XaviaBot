@@ -1,7 +1,6 @@
-export default async function({ api, event, db, controllers, reply }) {
-    const { threadID, messageID, body, args, senderID } = event;
-    const { Threads, Users } = controllers;
-    const { logger } = client.modules;
+export default async function ({ api, event, db, controllers, reply }) {
+    const { threadID, messageID, args, senderID } = event;
+    const { Threads } = controllers;
 
     switch (reply.type) {
         case 'pending': {
@@ -11,7 +10,7 @@ export default async function({ api, event, db, controllers, reply }) {
             const query = args[0] ? args[0].toLowerCase() : '';
             const chosenGroup = args.slice(1);
             if (chosenGroup.length == 0) {
-                api.sendMessage('Missing input.', threadID, messageID);
+                api.sendMessage(getLang('plugins.reply.pending.error.invalidQuery'), threadID, messageID);
                 return;
             }
 
@@ -29,11 +28,14 @@ export default async function({ api, event, db, controllers, reply }) {
                     const Prefix = getThread.data.prefix || client.config.PREFIX;
                     promiseJobs.push(new Promise(async resolve => {
                         api.sendMessage(
-                            `Your group has been approved!\n\n${client.config.NAME} connected!\nUse ${Prefix}help to see all commands.`,
+                            getLang('plugins.reply.pending.approved', {
+                                NAME: client.config.NAME,
+                                PREFIX: Prefix
+                            }),
                             group.threadID,
                             (err) => {
                                 if (err) {
-                                    logger.error(err);
+                                    console.error(err);
                                     failed.push(group.threadID);
                                 } else succeed.push(group.threadID);
                                 resolve();
@@ -48,7 +50,7 @@ export default async function({ api, event, db, controllers, reply }) {
                     const group = list[i - 1];
                     promiseJobs.push(new Promise(async resolve => {
                         api.sendMessage(
-                            `Your group has been rejected!`,
+                            getLang('plugins.reply.pending.rejected'),
                             group.threadID,
                             (err) => {
                                 if (err) {
@@ -58,7 +60,7 @@ export default async function({ api, event, db, controllers, reply }) {
                                     botID,
                                     (err) => {
                                         if (err) {
-                                            logger.error(err);
+                                            console.error(err);
                                             failed.push(group.threadID);
                                         } else succeed.push(group.threadID);
                                         resolve();
@@ -69,18 +71,23 @@ export default async function({ api, event, db, controllers, reply }) {
                 }
             } else {
                 return api.sendMessage(
-                    'Invalid query, please use approve/reject',
+                    getLang('plugins.reply.pending.error.invalidQuery'),
                     threadID,
                     messageID
                 )
             }
 
             Promise.all(promiseJobs).then(() => {
+                msg = getLang(`plugins.reply.pending.${query}.success`, {
+                    SUCCEED: succeed.length,
+                    SUCCEED_LIST: succeed.join('\n'),
+                });
+                if (failed.length > 0) msg += `\n${getLang(`plugins.reply.pending.${query}.failed`, {
+                    FAILED: failed.length,
+                    FAILED_LIST: failed.join('\n')
+                })}`;
+
                 api.unsendMessage(reply.messageID);
-                msg = query.charAt(0).toUpperCase() + query.slice(1) + 'ed' + succeed.length + ' group(s).';
-                if (failed.length > 0) {
-                    msg += `\nFailed to ${query} ${failed.length} groups:\n${failed.join(', ')}`;
-                }
                 api.sendMessage(msg, threadID, messageID);
             });
             break;
@@ -108,16 +115,18 @@ export default async function({ api, event, db, controllers, reply }) {
                     } else {
                         boxData[setting] = !boxData[setting];
                     }
-                    succeed.push(`${setting} => ${boxData[setting] ? 'enabled' : 'disabled'}`);
+                    succeed.push(`${setting} => ${boxData[setting] ? getLang('enabled') : getLang('disabled')}`);
                 }
             }
             try {
                 await Threads.setData(threadID, boxData);
-                let msg = `» Box settings changed:\n` + succeed.map(e => `- ${e}`).join('\n');
+                let msg = getLang('plugins.reply.boxsettings.success', {
+                    SETTINGS: succeed.map(e => `- ${e}`).join('\n'),
+                });
                 api.sendMessage(msg, threadID, () => {
                     api.unsendMessage(reply.messageID);
                 }, messageID);
-                
+
             } catch (err) {
                 console.log(err);
             }

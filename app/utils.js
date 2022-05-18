@@ -1,5 +1,5 @@
 'use strict';
-import moment from 'moment-timezone'; 
+import moment from 'moment-timezone';
 const logger = {
     info: (args) => {
         //Green for the tag, reset for the message
@@ -69,7 +69,7 @@ function listen(api, db) {
         db,
         controllers: controllers(api, db)
     });
-    
+
 
     logger.system('Xavia is ready!');
     console.log(`====== ${Date.now() - client.startTime}ms ======`);
@@ -78,7 +78,7 @@ function listen(api, db) {
     return (err, event) => {
         if (err) {
             if (err.error && err.error == 'Not logged in.' && client.config.AUTO_LOGIN == true) {
-                logger.warn('Not logged in, trying to login with email and password...');
+                logger.warn(getLang('system.utils.autoLogin'));
                 process.env.APPSTATE_PATH = '../' + process.env.APPSTATE_PATH;
 
                 import('../login.js');

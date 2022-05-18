@@ -1,0 +1,71 @@
+# checkAppstate.js
+modules.checkAppstate.parsingError: "appstate file is not valid JSON / could not be decrypted"
+modules.checkAppstate.error.noSecretKey: "APPSTATE_SECRET_KEY is not defined!"
+modules.checkAppstate.error.noAppstate: "appstate file not found!"
+modules.checkAppstate.foundAppstate: "appstate file found!"
+modules.checkAppstate.decrypting: "Decrypting appstate file..."
+modules.checkAppstate.encrypting: "Encrypting appstate file..."
+
+# loader.js
+modules.loader.installingDependency: "Installing {dependency}."
+modules.loader.dependencyInstalled: "Installed {dependency}."
+modules.loader.error.dependencyInstallFailed: "{dependency} could not be installed."
+modules.loader.error.moduleExists: "Module {moduleName} already exists."
+modules.loader.error.noMap: "Module map is not defined."
+modules.loader.warn.commandCooldownNotValid: "Cooldown for command {commandName} is not valid, defaulting to 5 seconds."
+modules.loader.warn.moduleCooldownNotValid: "Cooldown for module {moduleName} is not valid, defaulting to 5 seconds per command."
+modules.loader.warn.commandOptionsFound: "Command options file is not valid JSON, creating new one."
+modules.loader.error.commandExists: "Command {commandName} already exists."
+modules.loader.error.commandNotFunction: "Can't load command {commandName}, {functionName} is not a function."
+modules.loader.error.onLoad: "Error while executing onLoad function for module {moduleName}:"
+modules.loader.modulesLoaded: "Loaded {moduleCount} module(s)."
+modules.loader.commandsLoaded: "----> {commandCount} command(s)."
+
+# database/index.js
+database.error.structureNotDefined: "Structure is not defined."
+database.error.structureNotValid: "Structure is not a function/class."
+database.error.JSONNotValid: "{structure}.json is not a valid JSON file."
+database.error.moderatorDataNotValid: "Data for Moderator should be an object."
+database.error.dataNotValid: "Data is not defined or is not an array."
+database.error.backupNotFound: "Backup file not found."
+database.error.backupFailed: "Backup failed, trying to restore previous backup."
+database.error.restoreFailed: "Restore failed, please check your backup file manually."
+
+# client
+client.config.loaded: "Config loaded, trying to connect to database..."
+client.data.connected: "Connected to database."
+
+# system.js
+system.start.clientLoaded: "Client loaded, booting..."
+system.utils.autoLogin: "Not logged in, trying to login with email and password..."
+
+# server.js
+server.started: "Xavia is running on port {port}."
+server.refreshingStats: "Refreshing Stats Data..."
+
+# handlers
+handlers.commands.nsfwNotAllowed": "This thread doesn't allow nsfw commands."
+handlers.commands.noPermission": "You do not have permission to use this command."
+handlers.commands.error": "An error occurred while executing this command."
+
+# resend
+plugins.resend.noMessage: "• {author} has unsend a message."
+plugins.resend.unsendNoMessageButAttach: "• {author} has unsend {attachmentsCount} attachment(s):"
+plugins.resend.unsendMessageAndAttach: "• {author} has unsend a message with {attachmentsCount} attachment(s):\n\n{message}"
+plugins.resend.unsendMessage: "• {author} has unsend a message:\n\n{message}"
+
+# reply
+# PENDING
+plugins.reply.pending.approved: "Your group has been approved!\n\n{NAME} connected.\nUse {PREFIX}help to see all commands."
+plugins.reply.pending.rejected: "Your group has been rejected!"
+plugins.reply.pending.error.invalidQuery: "Invalid query, please use approve/reject"
+plugins.reply.pending.approve.success: "Approved {SUCCESS} group(s):\n{SUCCESS_LIST}"
+plugins.reply.pending.reject.success: "Rejected {SUCCESS} group(s):\n{SUCCESS_LIST}"
+plugins.reply.pending.approve.failed: "Failed to approve {FAILED} group(s):\n{FAILED_LIST}"
+plugins.reply.pending.reject.failed: "Failed to reject {FAILED} group(s):\n{FAILED_LIST}"
+# BOX SETTINGS
+plugins.reply.boxsettings.success: "» Box settings changed:\n{SETTINGS}"
+
+# others
+enabled: "Enabled"
+disabled: "Disabled"

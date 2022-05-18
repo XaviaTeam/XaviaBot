@@ -1,4 +1,3 @@
-import config from "./config/index.js";
 import { } from 'dotenv/config'
 import login from '@xaviabot/fca-unofficial';
 import { writeFileSync } from "fs";

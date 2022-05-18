@@ -84,23 +84,26 @@ npm install && npm start
 ## Authors
 
 • **DimensityDU** (Lead Author):
+[Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
-[Github](https://github.com/RFS-ADRENO) -
 [Mail](mailto:dungto76@gmail.com)<br />
+• **FuryCS** (Co-Author):
+[Github](https://github.com/FuryCSProducer) -
+[Discord](https://discord.gg/FuryZone) -
+[Facebook](https://facebook.com/FuryCSPianist)<br />
 • **Zyros** (Co-Author):
+[Github](https://github.com/zyross) -
 [Instagram](https://www.instagram.com/zyroser/)
-[Discord](https://discordapp.com/users/684252812296847424)
-[Github](https://github.com/zyross)
 
 ## Donation
 
 • Enjoy our Project? Give us a star or a donation!<br />
 • Donate us via:<br />
-&nbsp;&nbsp;&nbsp;» Paypal: 0963648822<br />
-&nbsp;&nbsp;&nbsp;» Momo: 0963648822<br />
+&nbsp;&nbsp;&nbsp;» [Paypal](https://www.paypal.com/paypalme/dungto213)<br />
+&nbsp;&nbsp;&nbsp;» [Momo](https://me.momo.vn/gMIMulsaUqsbf6iAiXt3)<br />
 &nbsp;&nbsp;&nbsp;» [Buy me a Coffee!](https://www.buymeacoffee.com/dimensityDU)
 
 ## License
 • This project is licensed under the MIT License<br />
-• Go to [LICENSE](https://github.com/RFS-ADRENO/xavia/blob/main/LICENSE) file
+• Go to [LICENSE](https://github.com/XaviaTeam/XaviaBot/blob/main/LICENSE) file

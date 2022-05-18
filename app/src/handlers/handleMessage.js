@@ -6,7 +6,7 @@ for (const key in messageFunctions) {
     registeredFunctions.set(key, messageFunctions[key]);
 }
 
-export default function ({api, db, controllers}) {
+export default function ({ api, db, controllers }) {
     return async function ({ event }) {
         if (event.senderID == botID) return;
         if (client.maintainance && !client.config.debugThreads.includes(event.threadID)) return;
@@ -22,7 +22,7 @@ export default function ({api, db, controllers}) {
                 newEvent.body = input.toLowerCase();
             }
             try {
-                value.execute({api, event: newEvent, db, controllers});
+                value.execute({ api, event: newEvent, db, controllers });
             } catch (err) {
                 console.log(err);
             }

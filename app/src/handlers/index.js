@@ -5,7 +5,7 @@ import handleCommand from './handleCommand.js';
 import handleEvent from './handleEvent.js';
 import handleUnsend from './handleUnsend.js';
 
-export default function({ api, db, controllers }) {
+export default function ({ api, db, controllers }) {
     return {
         handleMessage: handleMessage({ api, db, controllers }),
         handleReaction: handleReaction({ api, db, controllers }),

@@ -2,54 +2,55 @@ import { execSync, spawn } from 'child_process';
 import { writeFileSync, existsSync, statSync } from 'fs';
 import { logger } from './utils.js';
 import { } from 'dotenv/config';
-
+import semver from 'semver';
+import axios from 'axios';
 
 
 //handling environments - source: some where on github
 //begin
 const isGlitch = (
-    process.env.PROJECT_DOMAIN !== undefined &&
-    process.env.PROJECT_INVITE_TOKEN !== undefined &&
-    process.env.API_SERVER_EXTERNAL !== undefined &&
-    process.env.PROJECT_REMIX_CHAIN !== undefined
+	process.env.PROJECT_DOMAIN !== undefined &&
+	process.env.PROJECT_INVITE_TOKEN !== undefined &&
+	process.env.API_SERVER_EXTERNAL !== undefined &&
+	process.env.PROJECT_REMIX_CHAIN !== undefined
 );
 
 const isReplit = (
-    process.env.REPLIT_DB_URL !== undefined &&
-    process.env.REPL_ID !== undefined &&
-    process.env.REPL_IMAGE !== undefined &&
-    process.env.REPL_LANGUAGE !== undefined &&
-    process.env.REPL_OWNER !== undefined &&
-    process.env.REPL_PUBKEYS !== undefined &&
-    process.env.REPL_SLUG !== undefined
+	process.env.REPLIT_DB_URL !== undefined &&
+	process.env.REPL_ID !== undefined &&
+	process.env.REPL_IMAGE !== undefined &&
+	process.env.REPL_LANGUAGE !== undefined &&
+	process.env.REPL_OWNER !== undefined &&
+	process.env.REPL_PUBKEYS !== undefined &&
+	process.env.REPL_SLUG !== undefined
 )
 
 const isGitHub = (
-    process.env.GITHUB_ENV !== undefined &&
-    process.env.GITHUB_EVENT_PATH !== undefined &&
-    process.env.GITHUB_REPOSITORY_OWNER !== undefined &&
-    process.env.GITHUB_RETENTION_DAYS !== undefined &&
-    process.env.GITHUB_HEAD_REF !== undefined &&
-    process.env.GITHUB_GRAPHQL_URL !== undefined &&
-    process.env.GITHUB_API_URL !== undefined &&
-    process.env.GITHUB_WORKFLOW !== undefined &&
-    process.env.GITHUB_RUN_ID !== undefined &&
-    process.env.GITHUB_BASE_REF !== undefined &&
-    process.env.GITHUB_ACTION_REPOSITORY !== undefined &&
-    process.env.GITHUB_ACTION !== undefined &&
-    process.env.GITHUB_RUN_NUMBER !== undefined &&
-    process.env.GITHUB_REPOSITORY !== undefined &&
-    process.env.GITHUB_ACTION_REF !== undefined &&
-    process.env.GITHUB_ACTIONS !== undefined &&
-    process.env.GITHUB_WORKSPACE !== undefined &&
-    process.env.GITHUB_JOB !== undefined &&
-    process.env.GITHUB_SHA !== undefined &&
-    process.env.GITHUB_RUN_ATTEMPT !== undefined &&
-    process.env.GITHUB_REF !== undefined &&
-    process.env.GITHUB_ACTOR !== undefined &&
-    process.env.GITHUB_PATH !== undefined &&
-    process.env.GITHUB_EVENT_NAME !== undefined &&
-    process.env.GITHUB_SERVER_URL !== undefined
+	process.env.GITHUB_ENV !== undefined &&
+	process.env.GITHUB_EVENT_PATH !== undefined &&
+	process.env.GITHUB_REPOSITORY_OWNER !== undefined &&
+	process.env.GITHUB_RETENTION_DAYS !== undefined &&
+	process.env.GITHUB_HEAD_REF !== undefined &&
+	process.env.GITHUB_GRAPHQL_URL !== undefined &&
+	process.env.GITHUB_API_URL !== undefined &&
+	process.env.GITHUB_WORKFLOW !== undefined &&
+	process.env.GITHUB_RUN_ID !== undefined &&
+	process.env.GITHUB_BASE_REF !== undefined &&
+	process.env.GITHUB_ACTION_REPOSITORY !== undefined &&
+	process.env.GITHUB_ACTION !== undefined &&
+	process.env.GITHUB_RUN_NUMBER !== undefined &&
+	process.env.GITHUB_REPOSITORY !== undefined &&
+	process.env.GITHUB_ACTION_REF !== undefined &&
+	process.env.GITHUB_ACTIONS !== undefined &&
+	process.env.GITHUB_WORKSPACE !== undefined &&
+	process.env.GITHUB_JOB !== undefined &&
+	process.env.GITHUB_SHA !== undefined &&
+	process.env.GITHUB_RUN_ATTEMPT !== undefined &&
+	process.env.GITHUB_REF !== undefined &&
+	process.env.GITHUB_ACTOR !== undefined &&
+	process.env.GITHUB_PATH !== undefined &&
+	process.env.GITHUB_EVENT_NAME !== undefined &&
+	process.env.GITHUB_SERVER_URL !== undefined
 )
 
 
@@ -60,7 +61,7 @@ function upNodeReplit() {
 	})
 }
 
-(async() => {
+(async () => {
 	//CHECK NODE VERSION IF IS EQUAL OR GREATER THAN 14.0.0
 	if (process.version.slice(1).split('.')[0] < 14) {
 		if (isReplit) {
@@ -93,12 +94,30 @@ function upNodeReplit() {
 			writeFileSync(process.cwd() + '/watch.json', JSON.stringify(WATCH_FILE, null, 2));
 		}
 	}
-	
+
 	if (isGitHub) {
 		logger.warn("Running on GitHub is not recommended.");
 	}
 })();
 //end
+
+
+// CHECK UPDATE
+logger.custom("Checking for updates...", "UPDATE");
+axios.get('https://raw.githubusercontent.com/XaviaTeam/XaviaBot/main/package.json')
+	.then(res => {
+		const { version } = res.data;
+		const currentVersion = JSON.parse(readFileSync('./package.json')).version;
+		if (semver.lt(currentVersion, version)) {
+			logger.warn(`New version available: ${version}`);
+			logger.warn(`Current version: ${currentVersion}`);
+		} else {
+			logger.custom("No updates available.", "UPDATE");
+		}
+	})
+	.catch(err => {
+		logger.error('Failed to check for updates.');
+	});
 
 
 //Restart Loop
@@ -125,7 +144,6 @@ function Xavia() {
 		}
 	});
 };
-Xavia();
 
 function handleRestartCount() {
 	restartCount++;
@@ -133,3 +151,5 @@ function handleRestartCount() {
 		restartCount--;
 	}, _1_MINUTE);
 }
+
+Xavia();

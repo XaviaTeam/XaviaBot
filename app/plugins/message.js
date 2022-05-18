@@ -1,7 +1,7 @@
 export default {
     tagAll: {
         caseSenstive: true,//automatically lowercase the body if false
-        execute: async ({api, event, db, controllers}) => {
+        execute: async ({ api, event, db, controllers }) => {
             if (event.body == '@all' || event.body == '@everyone') {
                 const threadInfo = await controllers.Threads.getInfo(event.threadID) || {};
                 if (!threadInfo.hasOwnProperty('participantIDs')) return;

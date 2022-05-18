@@ -1,0 +1,71 @@
+# checkAppstate.js
+modules.checkAppstate.parsingError: "file appstate không hợp lệ / không thể giải mã được"
+modules.checkAppstate.error.noSecretKey: "APPSTATE_SECRET_KEY chưa được xác định!"
+modules.checkAppstate.error.noAppstate: "Không tìm thấy file appstate"
+modules.checkAppstate.foundAppstate: "Đã tìm thấy file appstate"
+modules.checkAppstate.decrypting: "Đang giải mã file appstate..."
+modules.checkAppstate.encrypting: "Đang mã hóa file appstate..."
+
+# loader.js
+modules.loader.installingDependency: "Đang cài đặt {dependency}."
+modules.loader.dependencyInstalled: "Đã cài thành công {dependency}."
+modules.loader.error.dependencyInstallFailed: "{dependency} cài đặt thất bại."
+modules.loader.error.moduleExists: "Mô-đun{moduleName} đã tồn tại."
+modules.loader.error.noMap: "Map của mô-đun chưa xác định."
+modules.loader.warn.commandCooldownNotValid: "Thời gian chờ cho lệnh {commandName} không hợp lệ, mặc định về 5 giây."
+modules.loader.warn.moduleCooldownNotValid: "Thời gian chờ cho mô-đun {moduleName} không hợp lệ, mặc định về 5 giây cho từng lệnh."
+modules.loader.warn.commandOptionsFound: "File cấu hình cho các lệnh không phải là một file JSON, đang tạo mới."
+modules.loader.error.commandExists: "Lệnh {commandName} đã tồn tại."
+modules.loader.error.commandNotFunction: "Không thể tải lệnh {commandName}, {functionName} không phải là một function."
+modules.loader.error.onLoad: "Đã có lỗi xảy ra khi thực thi onLoad function của mô-đun {moduleName}:"
+modules.loader.modulesLoaded: "Đã tải thành công {moduleCount} mô-đun(s)."
+modules.loader.commandsLoaded: "----> {commandCount} lệnh(s)."
+
+# database/index.js
+database.error.structureNotDefined: "Structure chưa được xác định."
+database.error.structureNotValid: "Structure không phải là một function/class."
+database.error.JSONNotValid: "{structure}.json không phải là một file JSON hợp lệ."
+database.error.moderatorDataNotValid: "Data cho Moderator phải là một object."
+database.error.dataNotValid: "Data không xác định / không phải là một array."
+database.error.backupNotFound: "Không tìm thấy file sao lưu."
+database.error.backupFailed: "Sao lưu thất bại, tiến hành khôi phục bản sao lưu trước đó."
+database.error.restoreFailed: "Khôi phục thất bại, vui lòng kiểm tra lại file sao lưu của bạn."
+
+# client
+client.config.loaded: "Cấu hình thành công, đang kết nối đến CSDL."
+client.data.connected: "Kết nối thành công CSDL."
+
+# system.js
+system.start.clientLoaded: "Tải thành công client, đang khởi động..."
+system.utils.autoLogin: "Có vẻ cookies đã hỏng, đang thử đăng nhập lại bằng tài khoản và mật khẩu."
+
+# server.js
+server.started: "Xavia đang chạy tại cổng {port}."
+server.refreshingStats: "Đang làm mới số liệu thống kê..."
+
+# handlers
+handlers.commands.nsfwNotAllowed": "Nhóm này không cho phép các lệnh nsfw."
+handlers.commands.noPermission": "Bạn không đủ quyền hạn để sử dụng."
+handlers.commands.error": "Đã có lỗi xảy ra."
+
+# resend
+plugins.resend.noMessage: "• {author} vừa gỡ một tin nhắn nào đó."
+plugins.resend.unsendNoMessageButAttach: "• {author} vừa gỡ {attachmentsCount} tệp đính kèm:"
+plugins.resend.unsendMessageAndAttach: "• {author} vừa gỡ một tin nhắn với {attachmentsCount} tệp đính kèm:\n\n{message}"
+plugins.resend.unsendMessage: "• {author} vừa gỡ một tin nhắn:\n\n{message}"
+
+# reply
+# PENDING
+plugins.reply.pending.approved: "Nhóm của bạn đã được phê duyệt!\n\n{NAME} đã kết nối.\nSử dụng {PREFIX}help để xem danh sách lệnh."
+plugins.reply.pending.rejected: "Nhóm của bạn đã bị từ chối!"
+plugins.reply.pending.error.invalidQuery: "Lựa chọn không hợp lệ, dùng: approve/reject"
+plugins.reply.pending.approve.success: "Đã phê duyệt {SUCCESS} nhóm:\n{SUCCESS_LIST}"
+plugins.reply.pending.reject.success: "Đã từ chối {SUCCESS} nhóm:\n{SUCCESS_LIST}"
+plugins.reply.pending.approve.failed: "Không thể phê duyệt {FAILED} nhóm:\n{FAILED_LIST}"
+plugins.reply.pending.reject.failed: "Không thể từ chối {FAILED} nhóm:\n{FAILED_LIST}"
+# BOX SETTINGS
+plugins.reply.boxsettings.success: "» Đã thay đổi cài đặt nhóm:\n{SETTINGS}"
+
+# others
+enabled: "Bật"
+disabled: "Tắt"

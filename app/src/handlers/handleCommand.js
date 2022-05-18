@@ -1,21 +1,3 @@
-//Should i make it reply "noCommand"/"underMaintenance" if the command is not found/under maintenance?
-
-const text = {
-    // "noCommand": "No command found. Type %1help for a list of commands.",
-    "nsfwNotAllowed": "This thread doesn't allow nsfw commands.",
-    "noPermission": "You do not have permission to use this command.",
-    "cooldown": "You can use this command again in %1 seconds.",
-    "error": "An error occurred while executing this command.",
-    // "underMaintenance": "The bot is currently under maintenance. Please try again later."
-}
-
-const getText = (key, ...args) => {
-    if (text[key]) {
-        return text[key].replace(/%(\d+)/g, (match, p1) => args[p1 - 1]);
-    }
-    return key;
-}
-
 export default function ({ api, db, controllers }) {
     const { Users, Threads } = controllers;
     return async function ({ event }) {
@@ -26,7 +8,7 @@ export default function ({ api, db, controllers }) {
         if (!body.startsWith(PREFIX)) {
             return;
         }
-        
+
         const args_prefix_removed = args.join(" ").slice(PREFIX.length).split(" ");
         const command = args_prefix_removed[0].toLowerCase();
         const commandArgs = args_prefix_removed.slice(1);
@@ -37,12 +19,12 @@ export default function ({ api, db, controllers }) {
                 await Users.getInfo(senderID) || {};
             }
             const threadAdminIDs = threadInfo.adminIDs || [];
-            const botAdminIDs = client.config.ADMINS || [];
+            const botModeratorIDs = client.config.MODERATORS || [];
 
             const commandData = client.commands.get(command);
             if (commandData.nsfw == true) {
                 if (threadData.nsfw == false) {
-                    api.sendMessage(getText("nsfwNotAllowed"), threadID, messageID);
+                    api.sendMessage(getLang("handlers.commands.nsfwNotAllowed"), threadID, messageID);
                     return;
                 }
             }
@@ -51,13 +33,13 @@ export default function ({ api, db, controllers }) {
             if (threadAdminIDs.some(e => e.id == senderID)) {
                 userPermission = 1;
             };
-            if (botAdminIDs.includes(senderID) && !threadAdminIDs.some(e => e == senderID)) {
+            if (botModeratorIDs.includes(senderID) && !threadAdminIDs.some(e => e == senderID)) {
                 userPermission = 2;
             };
-            if (botAdminIDs.includes(senderID) && threadAdminIDs.some(e => e == senderID)) {
+            if (botModeratorIDs.includes(senderID) && threadAdminIDs.some(e => e == senderID)) {
                 userPermission = [1, 2];
             };
-            
+
 
             if (!Array.isArray(commandData.permissions)) {
                 commandData.permissions = [commandData.permissions];
@@ -65,7 +47,7 @@ export default function ({ api, db, controllers }) {
             if (Array.isArray(userPermission)) {
                 if (!commandData.permissions.some(e => userPermission.includes(e))) {
                     api.sendMessage(
-                        getText('noPermission'),
+                        getLang('handlers.commands.noPermission'),
                         threadID,
                         messageID
                     );
@@ -73,7 +55,7 @@ export default function ({ api, db, controllers }) {
                 }
             } else if (!commandData.permissions.includes(userPermission)) {
                 api.sendMessage(
-                    getText('noPermission'),
+                    getLang('handlers.commands.noPermission'),
                     threadID,
                     messageID
                 );
@@ -87,7 +69,7 @@ export default function ({ api, db, controllers }) {
                         return api.setMessageReaction(
                             '🕓',
                             messageID,
-                            () => {},
+                            () => { },
                             true
                         )
                     }
@@ -100,12 +82,24 @@ export default function ({ api, db, controllers }) {
 
             client.commandCooldowns.set(senderID, client.commandCooldowns.get(senderID).set(command, Date.now()));
 
+
+            const getModuleName = (command) => {
+                for (const [key, value] of client.commandModules) {
+                    if (value.includes(command)) {
+                        return key;
+                    }
+                }
+            }
+            const moduleName = getModuleName(command);
+            const getLangForCommand = (key, objectData) => getLang(key, objectData, moduleName);
+
             //run command
             try {
                 await commandData.execute({
                     api,
                     event,
                     args: commandArgs,
+                    getLang: getLangForCommand,
                     db,
                     controllers,
                     userPermission
@@ -113,18 +107,11 @@ export default function ({ api, db, controllers }) {
             } catch (err) {
                 console.log(err);
                 api.sendMessage(
-                    getText('error'),
+                    getLang('handlers.commands.error'),
                     threadID,
                     messageID
                 );
             }
         }
-        // else {
-        //     api.sendMessage(
-        //         getText('noCommand', PREFIX),
-        //         threadID,
-        //         messageID
-        //     );
-        // }
     }
 }

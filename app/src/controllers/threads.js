@@ -4,15 +4,15 @@ import imgbbUploader from 'imgbb-uploader';
 import { logger } from '../../utils.js';
 
 const imgbb_key = process.env.IMGBB_KEY;
-export default function(api, db) {
-    function getAll() {
-        return db.get('threads') || [];
+export default function (api, db) {
+    async function getAll() {
+        return await db.get('threads') || [];
     }
     async function getInfoApi(tid) {
         tid = tid.toString();
         const newThreadInfo = await api.getThreadInfo(tid) || {};
 
-        const threads = db.get('threads');
+        const threads = await db.get('threads');
         const threadIndex = threads.findIndex(item => item.id === tid);
 
         let newImageURL = newThreadInfo.imageSrc;
@@ -33,7 +33,7 @@ export default function(api, db) {
         }
 
         delete newThreadInfo.userInfo;
-        
+
         if (threadIndex > -1) {
             threads[threadIndex].info = newThreadInfo;
         } else {
@@ -48,10 +48,10 @@ export default function(api, db) {
                     monitor: null
                 }
             };
-            
+
             threads.push(newThread);
         }
-        db.set('threads', threads);
+        await db.set('threads', threads);
         return newThreadInfo;
     }
     async function checkThread(tid) {
@@ -59,7 +59,7 @@ export default function(api, db) {
         if (Object.values(client.data.monitorServerPerThread).some(server => server == tid)) return false;
         tid = tid.toString();
         try {
-            const threads = db.get('threads');
+            const threads = await db.get('threads');
             const thread = threads.find(item => item.id === tid);
 
             if (thread) {
@@ -79,7 +79,7 @@ export default function(api, db) {
                         active: true
                     }
                 }
-                
+
                 threads.push(newThread);
                 await db.set('threads', threads);
                 return newThread;
@@ -120,7 +120,7 @@ export default function(api, db) {
             return false;
         }
         try {
-            const threads = db.get('threads');
+            const threads = await db.get('threads');
             const index = threads.findIndex(item => item.id === tid);
             threads[index].data = data;
             await db.set('threads', threads);

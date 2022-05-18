@@ -28,9 +28,9 @@ node_modules/
 *.jpeg
 .env
 app/plugins/cache/*
-!app/plugins/cache/.gitkeep
+!app/plugins/cache/README.txt
 app/src/controllers/cache/*
-!app/src/controllers/cache/.gitkeep
+!app/src/controllers/cache/README.txt
 app/src/database/JSON/
 appstate.json
 fbstate.json

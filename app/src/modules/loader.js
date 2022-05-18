@@ -8,7 +8,9 @@
 
 'use strict';
 import { readdirSync, readFileSync, writeFileSync, statSync, existsSync } from 'fs';
+import { pathToFileURL } from 'node:url';
 import { execSync } from 'child_process';
+import { logger } from '../../utils.js';
 
 
 const defaultModule = {
@@ -21,9 +23,42 @@ const defaultModule = {
     cooldown: 5,
 }
 
-const load = async (path, client) => {
-    const { logger, isJSON } = client.modules;
-    class module {
+const installDependency = (dependency) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!libs.hasOwnProperty(dependency)) {
+                const dpdcPackage = await import(dependency);
+                libs[dependency] = dpdcPackage.default || dpdcPackage;
+            }
+            resolve();
+        } catch (e) {
+            logger.custom(getLang('modules.loader.installingDependency', { dependency }), 'LOADER');
+            try {
+                await new Promise(async (resolve) => {
+                    execSync('npm install --save ' + dependency, {
+                        stdio: 'inherit',
+                        shell: true,
+                        cwd: client.rootPath
+                    });
+                    setTimeout(() => resolve(), 500);
+                });
+                if (!libs.hasOwnProperty(dependency)) {
+                    const dpdcPackage = await import(dependency);
+                    libs[dependency] = dpdcPackage.default || dpdcPackage;
+                }
+                logger.info(getLang('modules.loader.dependencyInstalled', { dependency }));
+                resolve();
+            } catch (err) {
+                console.log(err);
+                reject(getLang('modules.loader.error.dependencyInstallFailed', { dependency }));
+            }
+        }
+    })
+}
+
+const loadCommands = async (path, client) => {
+    const { isJSON } = client.modules;
+    class commandModule {
         constructor(data) {
             const { file, config, onLoad, category } = data;
             const moduleData = Object.assign(defaultModule, Object.assign(config, { category }));
@@ -33,20 +68,23 @@ const load = async (path, client) => {
             }
 
             this.name = this.name || file.split('.')[0];
+            if (client.commandModules.has(this.name)) throw new Error(getLang('modules.loader.error.moduleExists', { moduleName: this.name }));
+
+            this.commandNames = [];
             this['onLoad'] = onLoad;
 
-            if (!this.map) throw new Error('Module map is not defined.');
+            if (!this.map) throw new Error(getLang('modules.loader.error.noMap'));
 
             if (this.cooldown && typeof this.cooldown === 'object') {
                 for (const [key] of Object.entries(this.map)) {
                     if (this.cooldown[key] == null || typeof this.cooldown[key] !== 'number') {
-                        logger.warn(`Cooldown for command ${key} is not valid, defaulting to 5 seconds.`);
+                        logger.warn(getLang('modules.loader.warn.commandCooldownNotValid', { commandName: key }));
                         this.cooldown[key] = 5;
                     }
                 }
             } else {
                 this.cooldown = (this.cooldown && this.cooldown != NaN && typeof this.cooldown == 'number') ? this.cooldown : 5;
-                logger.warn(`Cooldown for module ${this.name} is not valid, defaulting to 5 seconds per command.`);
+                logger.warn(getLang('modules.loader.warn.moduleCooldownNotValid', { moduleName: this.name }));
                 for (const key of Object.keys(this.map)) {
                     this.cooldown[key] = this.cooldown;
                 }
@@ -104,7 +142,7 @@ const load = async (path, client) => {
                 }
                 const optionsFile = readFileSync(optionsPATH, 'utf8');
                 if (!isJSON(optionsFile)) {
-                    logger.error('Command options file is not valid JSON, creating new one.');
+                    logger.warn(getLang('modules.loader.warn.commandOptionsFound'));
                     writeFileSync(optionsPATH + '.bak', optionsFile);
                     writeFileSync(optionsPATH, JSON.stringify({}, null, 4));
                 }
@@ -121,68 +159,64 @@ const load = async (path, client) => {
             }
         }
 
-        async loadDependencies() {
-            const { dependencies } = this;
-            if (dependencies.length > 0) {
-                for (const dependency of dependencies) {
-                    try {
-                        if (!libs.hasOwnProperty(dependency)) {
-                            const dpdcPackage = await import(dependency);
-                            libs[dependency] = dpdcPackage.default || dpdcPackage;
-                        }
-                    } catch (e) {
-                        logger.custom(`Installing ${dependency} dependency.`, 'LOADER');
+        loadDependencies() {
+            return new Promise(async (resolve) => {
+                const { dependencies } = this;
+                if (dependencies.length > 0) {
+                    for (const dependency of dependencies) {
                         try {
-                            await new Promise(async (resolve) => {
-                                execSync('npm install --save ' + dependency, {
-                                    stdio: 'inherit',
-                                    shell: true,
-                                    cwd: client.rootPath
-                                });
-                                setTimeout(() => resolve(), 500);
-                            });
-                            if (!libs.hasOwnProperty(dependency)) {
-                                const dpdcPackage = await import(dependency);
-                                libs[dependency] = dpdcPackage.default || dpdcPackage;
-                            }
-                            logger.info(`${dependency} installed.`);
-                        } catch (err) {
-                            console.log(err)
-                            logger.error(`Dependency ${dependency} could not be installed.`);
+                            await installDependency(dependency);
+                        } catch (e) {
+                            logger.error(e);
                         }
                     }
                 }
-            }
+                resolve();
+            });
+        }
+
+        loadLanguage(langData) {
+            return new Promise(async (resolve) => {
+                const { LANGUAGE } = client.config;
+                if (langData.hasOwnProperty(LANGUAGE)) {
+                    moduleLangData[this.name] = langData[LANGUAGE] || langData['en-US'];
+                }
+                resolve();
+            });
         }
 
         loadCommand(key, value) {
-            const info = {
-                name: key.toLowerCase(),
-                nsfw: this.nsfw.includes(key) ? true : false,
-                description: this.description.commands[key],
-                usage: this.usage[key],
-                category: this.category.toUpperCase(),
-                credits: this.credits,
-                permissions: this.permissions,
-                cooldown: this.cooldown[key]
-            }
-            if (typeof value === 'function') {
-                if (client.commands.has(info.name)) throw new Error(`Command ${info.name} already exists.`);
-                info.execute = value;
-            } else {
-                throw new Error(`Can't load command ${info.name}, ${value} is not a function.`);
-            }
-            if (this.onLoad) {
-                (async () => {
-                    try {
-                        await this.onLoad({ db: client.db });
-                    } catch (e) {
-                        logger.error(`Error while executing onLoad function for module ${this.name}:`);
-                        logger.error(e);
-                    }
-                })();
-            }
-            client.commands.set(info.name, info);
+            return new Promise(async (resolve) => {
+                const info = {
+                    name: key.toLowerCase(),
+                    nsfw: this.nsfw.includes(key) ? true : false,
+                    description: this.description.commands[key],
+                    usage: this.usage[key],
+                    category: this.category.toUpperCase(),
+                    credits: this.credits,
+                    permissions: this.permissions,
+                    cooldown: this.cooldown[key]
+                }
+                if (typeof value === 'function') {
+                    if (client.commands.has(info.name)) throw new Error(getLang('modules.loader.error.commandExists', { commandName: info.name }));
+                    info.execute = value;
+                } else {
+                    throw new Error(getLang('modules.loader.error.commandNotFunction', { commandName: info.name, functionName: value }));
+                }
+                if (this.onLoad) {
+                    (async () => {
+                        try {
+                            await this.onLoad({ db: client.db });
+                        } catch (e) {
+                            logger.error(getLang('modules.loader.error.onLoad', { moduleName: this.name }));
+                            logger.error(e);
+                        }
+                    })();
+                }
+                this.commandNames.push(info.name);
+                client.commands.set(info.name, info);
+                resolve();
+            });
         }
     }
 
@@ -194,24 +228,24 @@ const load = async (path, client) => {
         if (categoryStat.isDirectory() && category != 'cache' && category != 'Example') {
             const allCommand = readdirSync(categoryPath).filter(file => file.endsWith('.js'));
             await Promise.all(allCommand.map(async (file) => {
-                let commandPath = categoryPath + '/' + file;
-                let commandStat = statSync(commandPath);
+                const commandPath = categoryPath + '/' + file;
+                const commandStat = statSync(commandPath);
                 if (commandStat.isFile()) {
                     try {
-                        commandPath = '../../plugins/commands/' + category + '/' + file;
-
-                        const commandData = await import(commandPath);
-                        const { config, onLoad } = commandData;
-                        const mdl = new module({
+                        const commandData = await import(pathToFileURL(commandPath));
+                        const { config, onLoad, langData } = commandData;
+                        const mdl = new commandModule({
                             file,
                             config,
                             onLoad,
                             category
                         });
-                        mdl.loadDependencies();
+                        await mdl.loadDependencies();
+                        if (langData) await mdl.loadLanguage(langData);
                         await Promise.all(Object.entries(mdl.map).map(async ([key, value]) => {
                             try {
-                                mdl.loadCommand(key, value);
+                                await mdl.loadCommand(key, value);
+                                client.commandModules.set(mdl.name, mdl.commandNames);
                             } catch (e) {
                                 logger.error(e + ` at ${file}`);
                             }
@@ -224,9 +258,34 @@ const load = async (path, client) => {
             }));
         }
     }));
-    logger.system(`Loaded ${moduleCount} module(s).`);
-    logger.system(`----> ${client.commands.size} command(s).`);
+    logger.system(getLang('modules.loader.modulesLoaded', { moduleCount }));
+    logger.system(getLang('modules.loader.commandsLoaded', { commandCount: client.commands.size }));
     return client;
 };
 
-export default load;
+const loadEvents = async (path, client) => {
+    const allEvent = readdirSync(path);
+    await Promise.all(allEvent.map(async (file) => {
+        let eventPath = path + file;
+        let eventStat = statSync(eventPath);
+        if (eventStat.isFile()) {
+            try {
+                const eventData = (await import(pathToFileURL(eventPath))).default;
+                client.events.set(file.split('.')[0], eventData);
+            } catch (e) {
+                logger.error(e + ` at ${file}`);
+            }
+        }
+    }));
+
+    return client;
+}
+
+
+export default function loadPlugins(commandPath, eventPath, client) {
+    return new Promise(async (resolve) => {
+        client = await loadCommands(commandPath, client);
+        client = await loadEvents(eventPath, client);
+        resolve(client);
+    });
+};

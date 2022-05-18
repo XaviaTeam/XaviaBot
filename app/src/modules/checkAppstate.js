@@ -1,35 +1,42 @@
 'use strict';
+import { } from 'dotenv/config';
+
+
 async function checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, fs) {
     const { isJSON, logger, aes } = client.modules;
     const { readFileSync, writeFileSync, existsSync } = fs;
-    const appState = readFileSync(APPSTATE_PATH, 'utf8');
+    const { join } = await import('path');
+
+    APPSTATE_PATH = join(process.cwd(), '../', APPSTATE_PATH);
 
     if (!existsSync(APPSTATE_PATH)) {
-        throw 'Appstate file not found!';
+        throw new Error(getLang('modules.checkAppstate.error.noAppstate'));
     } else {
-        logger.info('Appstate file found!');
+        logger.custom(getLang('modules.checkAppstate.foundAppstate'), 'LOGIN');
     }
-    
+
     if (!APPSTATE_SECRET_KEY) {
-        throw 'APPSTATE_SECRET_KEY not found!';
+        throw getLang('modules.checkAppstate.error.noSecretKey');
     }
+
+
+    const appState = readFileSync(APPSTATE_PATH, 'utf8');
 
     var objAppState;
     if (!isJSON(appState)) {
         try {
-            logger.info('Decrypting appstate file...');
+            logger.custom(getLang('modules.checkAppstate.decrypting'), 'LOGIN');
             const decryptedAppState = aes.decrypt(appState, APPSTATE_SECRET_KEY);
             objAppState = JSON.parse(decryptedAppState);
         } catch (err) {
             console.log(err);
-            throw 'Appstate file is not valid JSON / could not be decrypted';
+            throw getLang('modules.checkAppstate.parsingError');
         }
     } else {
         objAppState = JSON.parse(appState);
-        logger.info('Encrypting appstate file...');
+        logger.custom(getLang('modules.checkAppstate.encrypting'), 'LOGIN');
         const encryptedAppState = aes.encrypt(JSON.stringify(objAppState), APPSTATE_SECRET_KEY);
         writeFileSync(APPSTATE_PATH, encryptedAppState);
-        logger.info('Appstate file encrypted!');
     }
     return objAppState;
 }

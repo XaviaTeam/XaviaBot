@@ -1,13 +1,13 @@
 import { logger } from '../../utils.js';
-export default function(api, db) {
-    function getAll() {
-        return db.get('users') || [];
+export default function (api, db) {
+    async function getAll() {
+        return await db.get('users') || [];
     }
     async function getInfoApi(uid) {
         uid = uid.toString();
         const newUserInfo = (await api.getUserInfo(uid))[uid] || {};
-        
-        const users = db.get('users');
+
+        const users = await db.get('users');
         const userIndex = users.findIndex(item => item.id === uid);
         if (userIndex > -1) {
             users[userIndex].info = newUserInfo;
@@ -23,22 +23,22 @@ export default function(api, db) {
 
             users.push(newUser);
         }
-        db.set('users', users);
+        await db.set('users', users);
         return newUserInfo;
     }
     async function checkUser(uid) {
         uid = uid.toString();
         try {
-            const users = db.get('users');
+            const users = await db.get('users');
             const user = users.find(item => item.id === uid);
-            
+
             if (user) {
                 return user;
             } else {
                 const getUser = await getInfoApi(uid);
                 if (Object.keys(getUser).length < 0) {
                     return false;
-                } 
+                }
                 const newUser = {
                     id: uid,
                     info: getUser,
@@ -47,7 +47,7 @@ export default function(api, db) {
                         banned: false
                     }
                 }
-                
+
                 users.push(newUser);
                 await db.set('users', users);
                 return newUser;
