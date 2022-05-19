@@ -91,10 +91,7 @@ npm install && npm start
 • **FuryCS** (Co-Author):
 [Github](https://github.com/FuryCSProducer) -
 [Discord](https://discord.gg/FuryZone) -
-[Facebook](https://facebook.com/FuryCSPianist)<br />
-• **Zyros** (Co-Author):
-[Github](https://github.com/zyross) -
-[Instagram](https://www.instagram.com/zyroser/)
+[Facebook](https://facebook.com/FuryCSPianist)
 
 ## Donation
 
