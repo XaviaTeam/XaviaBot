@@ -25,6 +25,7 @@
   "dependencies": {
     "@xaviabot/fca-unofficial": "^1.0.6",
     "axios": "^0.26.1",
+    "canvas": "^2.9.1",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
