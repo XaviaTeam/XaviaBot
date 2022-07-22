@@ -57,7 +57,7 @@ mv -f .env.example .env
   .env
 ```
 APPSTATE_SECRET_KEY=your_key_here
-APPSTATE_PATH=appstate.json
+APPSTATE_PATH=./appstate.json
 EMAIL=
 PASSWORD=
 OTPKEY=
