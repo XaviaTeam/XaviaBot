@@ -7,7 +7,8 @@ export default async function ({ api, event, db, controllers }) {
     const getMonitorServerPerThread = client.data.monitorServerPerThread;
 
     let monitorID = null,
-        atlertMsg = null;
+        atlertMsg = null,
+        reversing = false;
 
     if (Object.keys(getThreadInfo).length === 0) return;
     switch (event.logMessageType) {
@@ -17,13 +18,12 @@ export default async function ({ api, event, db, controllers }) {
                 const newName = logMessageData.name;
                 let smallCheck = false;
 
-                atlertMsg = '"_author_" has changed group name to "_new_"';
                 if (getThreadData.noChangeBoxName == true) {
                     const isBot = author == botID;
                     const isReversing = client.data.temps.some(i => i.type == 'noChangeBoxName' && i.threadID == threadID);
                     if (!(isBot && isReversing)) {
                         client.data.temps.push({ type: 'noChangeBoxName', threadID: threadID });
-                        atlertMsg += '\nGroup does not allow name change so it has been ignored.';
+                        reversing = true;
                         api.setTitle(oldName, threadID, () => {
                             client.data.temps.splice(client.data.temps.indexOf({ type: 'noChangeBoxName', threadID: threadID }), 1);
                         });
@@ -39,7 +39,14 @@ export default async function ({ api, event, db, controllers }) {
                 }
                 if (!smallCheck && getMonitorServerPerThread[threadID]) {
                     const authorName = await Users.getName(author);
-                    atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_new_', newName);
+                    atlertMsg = getLang("plugins.events.thread-update.name.changed", {
+                        authorName: authorName,
+                        authorId: author,
+                        newName: newName
+                    });
+                    if (reversing) {
+                        atlertMsg += getLang("plugins.events.thread-update.name.reversed");
+                    }
                     monitorID = getMonitorServerPerThread[threadID];
                 }
             }
@@ -57,8 +64,12 @@ export default async function ({ api, event, db, controllers }) {
                     if (getMonitorServerPerThread[threadID]) {
                         const authorName = await Users.getName(author);
 
-                        atlertMsg = '"_author_" has changed group color from "_old_" to "_new_"';
-                        atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_old_', oldColor).replace('_new_', newColor);
+                        atlertMsg = getLang("plugins.events.thread-update.color.changed", {
+                            authorName: authorName,
+                            authorId: author,
+                            oldColor: oldColor,
+                            newColor: newColor
+                        })
                         if (logMessageData.hasOwnProperty('theme_name_with_subtitle')) {
                             atlertMsg += `\n • Theme: ${logMessageData.theme_name_with_subtitle}`;
                         }
@@ -71,12 +82,17 @@ export default async function ({ api, event, db, controllers }) {
                     const allThreads = await Threads.getAll();
                     const threadIndex = allThreads.findIndex(e => e.id == threadID);
 
-                    atlertMsg = '"_author_" has changed group emoji from "_old_" to "_new_"';
                     allThreads[threadIndex].info.emoji = newEmoji;
                     await db.set('threads', allThreads);
                     if (getMonitorServerPerThread[threadID]) {
                         const authorName = await Users.getName(author);
-                        atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_old_', oldEmoji).replace('_new_', newEmoji);
+
+                        atlertMsg = getLang("plugins.events.thread-update.emoji.changed", {
+                            authorName: authorName,
+                            authorId: author,
+                            oldEmoji: oldEmoji,
+                            newEmoji: newEmoji
+                        })
                         monitorID = getMonitorServerPerThread[threadID];
                     }
                 }
@@ -92,8 +108,11 @@ export default async function ({ api, event, db, controllers }) {
                 if (getMonitorServerPerThread[threadID]) {
                     const authorName = await Users.getName(author);
 
-                    atlertMsg = `"_author_" has changed approval mode to "_new_"`;
-                    atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_new_', getThreadInfo.approvalMode);
+                    atlertMsg = getLang("plugins.events.thread-update.approvalMode.changed", {
+                        authorName: authorName,
+                        authorId: author,
+                        newApprovalMode: getThreadInfo.approvalMode
+                    })
                     monitorID = getMonitorServerPerThread[threadID];
                 }
             }
@@ -123,8 +142,12 @@ export default async function ({ api, event, db, controllers }) {
                     const authorName = await Users.getName(author);
                     const targetName = await Users.getName(targetID);
 
-                    atlertMsg = `"_author_" has ${typeofEvent == 'remove_admin' ? 'removed' : 'added'} "_target_" to the admin list.`;
-                    atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_target_', targetName);
+                    atlertMsg = getLang(`plugins.events.thread-update.admins.${typeofEvent == 'remove_admin' ? 'removed' : 'added'}`, {
+                        authorName: authorName,
+                        authorId: author,
+                        targetName: targetName,
+                        targetId: targetID
+                    })
                     monitorID = getMonitorServerPerThread[threadID];
                 }
             }

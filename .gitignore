@@ -34,3 +34,4 @@ app/src/controllers/cache/*
 app/src/database/JSON/
 appstate.json
 fbstate.json
+*.bak

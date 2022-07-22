@@ -18,37 +18,55 @@ export default async function ({ api, event, db, controllers }) {
     if (logMessageData.addedParticipants.some(i => i.userFbId == botID)) {
         if (getThreadInfo.isSubscribed == false) getThreadInfo.isSubscribed = true;
         for (const server of client.data.monitorServers) {
-            api.sendMessage(`Bot has been added to ${getThreadInfo.name || threadID} (${threadID}) by ${authorName} (${author})`, server);
+            api.sendMessage(getLang("plugins.events.subcribe.addSelf"), {
+                threadName: getThreadInfo.name || threadID,
+                threadId: threadID,
+                authorName: authorName,
+                authorId: author
+            }, server);
         }
-        const Prefix = getThreadData.prefix || client.config.PREFIX;
-        api.changeNickname(`[ ${Prefix} ] ${(!client.config.BOTNAME) ? "Xavia" : client.config.BOTNAME}`, threadID, botID);
-        api.sendMessage(`Connected successfully!\nUse ${Prefix}help to list all commands.`, threadID, () => {
+        const PREFIX = getThreadData.prefix || client.config.PREFIX;
+        api.changeNickname(`[ ${PREFIX} ] ${(!client.config.BOTNAME) ? "Xavia" : client.config.BOTNAME}`, threadID, botID);
+        api.sendMessage(getLang("plugins.events.subcribe.connected", { PREFIX }), threadID, () => {
             if (!getMonitorServerPerThread[threadID]) {
                 const newMonitorName = `${threadID} - Monitor`;
                 api.createNewGroup([botID, author], newMonitorName, async (err, info) => {
-                    if (err) api.sendMessage(`Couldn't create new monitor for this group.`, threadID, () => console.log(err));
+                    if (err) api.sendMessage(getLang("plugins.events.subcribe.error.createMonitor"), threadID, () => console.error(err));
                     else {
                         const getModeratorData = await db.get('moderator');
                         getModeratorData.monitorServerPerThread[threadID] = info;
                         await db.set('moderator', getModeratorData);
 
                         client.data.monitorServerPerThread[threadID] = info;
-                        api.sendMessage(`Group ${threadID} will be monitored here.`, info);
+                        api.sendMessage(getLang("plugins.events.subcribe.createdMonitor", { threadId: threadID }), info);
                     };
                 });
             }
         });
     } else if (getMonitorServerPerThread[threadID]) {
-        const joinNameArray = [];
+        const joinNameArray = [], mentions = [];
         for (const id in logMessageData.addedParticipants) {
             const joinName = logMessageData.addedParticipants[id].fullName;
             joinNameArray.push(joinName);
+            mentions.push({
+                id: logMessageData.addedParticipants[id].userFbId,
+                tag: joinName
+            })
         }
-        let getMsg = `${authorName} added to group ${joinNameArray.length} member(s):\n${joinNameArray.join(', ')}`;
-        api.sendMessage(getMsg, getMonitorServerPerThread[threadID], (err) => {
-            if (err) console.log(err);
+
+        api.sendMessage({
+            body: getLang("plugins.events.subcribe.addMembers", {
+                authorName: authorName,
+                authorId: author,
+                membersLength: joinNameArray.length,
+                members: joinNameArray.join(', ')
+            }),
+            mentions
+        }, getMonitorServerPerThread[threadID], (err) => {
+            if (err) console.error(err);
         });
     }
+
     const allThreads = await Threads.getAll();
     const threadIndex = allThreads.findIndex(e => e.id == threadID);
     getThread.info = getThreadInfo;

@@ -1,6 +1,6 @@
 export default async function ({ api, event, db, controllers }) {
-    const { threadID, author, logMessageData } = event;
-    const { Threads, Users } = controllers;
+    const { threadID, logMessageData } = event;
+    const { Users } = controllers;
 
 
 
@@ -8,7 +8,7 @@ export default async function ({ api, event, db, controllers }) {
 
     if (!getMonitorServerPerThread[threadID]) return;
 
-    const typeofCall = logMessageData.video ? 'video ' : '';
+    const typeofCall = logMessageData.video ? 'Video' : '';
     let atlertMsg = null,
         monitorID = getMonitorServerPerThread[threadID];
 
@@ -16,19 +16,24 @@ export default async function ({ api, event, db, controllers }) {
     if (logMessageData.event == "group_call_started") {
         const authorName = await Users.getName(logMessageData.caller_id);
 
-        atlertMsg = '"_author_" has started a _typeofCall_call.';
-        atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_typeofCall_', typeofCall);
+        atlertMsg = getLang(`plugins.events.thread-call.started${typeofCall}Call`, {
+            authorName: authorName,
+            authorId: logMessageData.caller_id
+        })
     } else if (logMessageData.event == "group_call_ended") {
         const callDuration = transformTime(logMessageData.call_duration);
 
-        atlertMsg = '_typeofCall_Call has ended, duration: _time_';
-        atlertMsg = atlertMsg.replace('_typeofCall_', typeofCall).replace('_time_', callDuration);
+        atlertMsg = getLang(`plugins.events.thread-call.ended${typeofCall}Call`, {
+            callDuration: callDuration
+        })
 
     } else if (logMessageData.joining_user) {
         const authorName = await Users.getName(logMessageData.joining_user);
 
-        atlertMsg = '"_author_" has joined the _typeofCall_call.';
-        atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_typeofCall_', typeofCall);
+        atlertMsg = getLang(`plugins.events.thread-call.joined${typeofCall}Call`, {
+            authorName: authorName,
+            authorId: logMessageData.joining_user
+        })
     }
 
     api.sendMessage(atlertMsg, monitorID);
@@ -42,7 +47,6 @@ function transformTime(time) {
     let minutes = Math.floor((time - (hours * 3600)) / 60);
     let seconds = time - (hours * 3600) - (minutes * 60);
 
-    //Add 0 if less than 10
     if (hours < 10) hours = "0" + hours;
     if (minutes < 10) minutes = "0" + minutes;
     if (seconds < 10) seconds = "0" + seconds;

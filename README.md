@@ -3,11 +3,15 @@
 # Xavia
 
 • A Facebook Chat Bot made by XaviaTeam<br />
-• This Project will turn your boring Facebook account into a ***Facebook Chat Bot*** with a lot of Features
+• This Project will turn your Facebook account into a ***Facebook Chat Bot*** with a lot of Features
+
+![illustration](https://i.ibb.co/Qfnpq0g/image-2022-07-23-011502426.png)
+
+<hr />
 
 ## Requirements
 
-• [NodeJS](https://nodejs.org/en/) v14.x
+• [NodeJS](https://nodejs.org/en/) v16.x
 
 ## Installation
 
@@ -66,8 +70,8 @@ IMGBB_KEY=your_imgbb_key
  The port will be used to open a web server for 24/7 trick
 <br /><br />
 
- Open `./config/index.js` and config your bot<br />
- Such as `ADMINS` `FCA_OPTIONS`
+ Open `./config/config.main.json` and config your bot<br />
+ Such as `MODERATORS` `PREFIX` `NAME`
 
 
 • Install dependencies & Run
@@ -75,7 +79,8 @@ IMGBB_KEY=your_imgbb_key
 ```bash
 npm install && npm start
 ```
-
+## Documentations
+- See: [XaviaBot Documentation](https://github.com/XaviaTeam/XaviaBot/blob/main/DOCS.md)
 
 ## Contributing
 • Pull requests are welcome.<br/>
@@ -87,11 +92,13 @@ npm install && npm start
 [Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
-[Mail](mailto:dungto76@gmail.com)<br />
+[Mail](mailto:xaviateam@protonmail.com)<br />
 • **FuryCS** (Co-Author):
 [Github](https://github.com/FuryCSProducer) -
-[Discord](https://discord.gg/FuryZone) -
+[Discord](https://discord.gg/TrueSpades) -
 [Facebook](https://facebook.com/FuryCSPianist)
+<br /><br />
+• Many thanks to TesterTeam for all the testing, feedbacks and the other Bot Projects ([c3cbot](https://github.com/c3cbot/legacy-c3cbot) - [miraibot](https://github.com/miraiPr0ject/miraiv2) - [kb2abot](https://github.com/kb2ateam/kb2abot-client)) that inspired me to create XaviaBot
 
 ## Donation
 

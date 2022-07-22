@@ -9,7 +9,7 @@ export default async function ({ api, event, db, controllers }) {
 
     if (Object.keys(getThreadInfo).length === 0) return;
     getThreadInfo.participantIDs.splice(getThreadInfo.participantIDs.indexOf(String(logMessageData.leftParticipantFbId)), 1);
-    const type = (author == logMessageData.leftParticipantFbId) ? "has left" : "has been kicked out from";
+    const type = (author == logMessageData.leftParticipantFbId) ? "left" : "kicked";
     const authorName = await Users.getName(author);
 
     if (logMessageData.leftParticipantFbId == botID) {
@@ -17,7 +17,12 @@ export default async function ({ api, event, db, controllers }) {
 
         for (const server of client.data.monitorServers) {
             if (server != threadID) {
-                api.sendMessage(`Bot ${type} ${getThreadInfo.name} (${threadID}) ${type == "has been kicked out from" ? ` by ${authorName} (${author})` : ''}`, server);
+                api.sendMessage(getLang(`plugins.events.unsubcribe.bot.${type}`, {
+                    authorName: authorName,
+                    authorId: author,
+                    threadName: getThreadInfo.name,
+                    threadId: threadID
+                }), server);
             } else {
                 client.data.monitorServers.splice(client.data.monitorServers.indexOf(server), 1);
                 const getSettings = await db.get('Moderator');
@@ -31,9 +36,13 @@ export default async function ({ api, event, db, controllers }) {
         }
     } else if (getMonitorServerPerThread[threadID]) {
         const leftName = await Users.getName(logMessageData.leftParticipantFbId);
-        const getMsg = `${leftName} ${type} ${getThreadInfo.name}${type == "has been kicked out from" ? ` by ${authorName}` : ''}`;
-        api.sendMessage(getMsg, getMonitorServerPerThread[threadID], (err) => {
-            if (err) console.log(err);
+        api.sendMessage(getLang(`plugins.events.unsubcribe.${type}`, {
+            authorName: authorName,
+            authorId: author,
+            leftName: leftName,
+            leftId: logMessageData.leftParticipantFbId
+        }), getMonitorServerPerThread[threadID], (err) => {
+            if (err) console.error(err);
         });
     };
 

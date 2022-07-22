@@ -19,12 +19,12 @@ export default function (port = 3000, db) {
         //OPEN DASHBOARD SERVER
 
         app.set('view engine', 'ejs');
-        app.set('views', './src/server/views');
+        app.set('views', './app/src/server/views');
 
         app.use(cors());
         app.use(helmet());
 
-        app.use('/static', express.static('./src/server/public'));
+        app.use('/static', express.static('./app/src/server/public'));
 
         app.get('/', checkData, (req, res) => {
             res.render('index', {
@@ -38,6 +38,10 @@ export default function (port = 3000, db) {
                 SERVING: statsData.servingThreads
             });
         });
+
+        app.get('/api/uptime', (req, res) => {
+            res.json({ uptime: msToHHMMSS(process.uptime() * 1000) });
+        })
 
         app.listen(port, () => {
             client.modules.logger.system(getLang('server.started', { port }));

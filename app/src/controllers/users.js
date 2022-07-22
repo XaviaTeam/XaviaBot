@@ -42,8 +42,8 @@ export default function (api, db) {
                 const newUser = {
                     id: uid,
                     info: getUser,
-                    money: 0,
                     data: {
+                        money: 0,
                         banned: false
                     }
                 }
@@ -88,7 +88,9 @@ export default function (api, db) {
             return false;
         }
         try {
-            user.data = data;
+            const users = await db.get('users');
+            const userIndex = users.findIndex(item => item.id === uid);
+            users[userIndex].data = data;
             await db.set('users', users);
             return true;
         } catch (err) {

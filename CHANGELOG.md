@@ -1,3 +1,17 @@
+## v1.4.0 - 2022/07/22
+- New Plugin Format
+- Removed message.js, reaction.js and reply.js on plugins
+- Added CLI, maybe...
+- Added [DOCS.md](https://github.com/XaviaTeam/XaviaBot/blob/main/DOCS.md) for plugins, database, etc.
+- Added some functions to global
+- Config is now JSON
+- Remade loader.js
+- Update Lang files
+- Optimize Packages
+- Optimize Source Code
+- Ready for Official Release
+
+
 ## v1.3.0 - 2022/05/19
 - Better Cache Handling, **automatically** clear cache when booting up
 - Better Role: `ADMINS` => `MODERATORS`, `botadmin` => `moderator`, `groupadmin` => `admin`, etc.
@@ -33,7 +47,7 @@
 ## v1.1.0 - 2022/04/29
 - Fix Client
 - Fix Appstate Path
-- Changed from modules to pluginss
+- Changed from modules to plugins
 - Config JSON to JS/JSON
 - Optimize Source Code
 

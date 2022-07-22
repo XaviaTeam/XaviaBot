@@ -5,10 +5,10 @@
  * Feel free to contribute!
  */
 
-export default function (client) {
+export default function () {
     return new Promise(async (resolve) => {
         const data = {
-            message: new Array(),
+            messages: new Array(),
             threadIDs: new Array(),
             userIDs: new Array(),
             temps: new Array(),
@@ -33,6 +33,6 @@ export default function (client) {
         client.data = data;
         client.modules.logger.custom(getLang("client.data.connected"), 'DATABASE');
 
-        resolve(client);
+        resolve();
     });
 }

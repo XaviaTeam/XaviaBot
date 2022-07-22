@@ -6,15 +6,13 @@
 //TODO
 //Lock JSONs when authentication is done to prevent unauthorized access
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, statSync } from 'fs';
-import { join } from 'path';
-
-import isJSON from '../modules/isJSON.js';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join, resolve } from 'path';
 
 const defaultSettings = {
     structures: {},
-    storage: process.cwd() + '/src/database/JSON/',
-    backupStorage: process.cwd() + '/src/database/JSON/backup/'
+    storage: './app/src/database/JSON/',
+    backupStorage: './app/src/database/JSON/backup/'
 }
 
 class database {
@@ -24,18 +22,21 @@ class database {
             this[key] = settings[key];
         }
 
-        if (!existsSync(this.storage) || !statSync(this.storage).isDirectory()) {
+        this['storage'] = resolve(this['storage']);
+        this['backupStorage'] = resolve(this['backupStorage']);
+
+        if (!isExists(this.storage, 'dir')) {
             mkdirSync(this.storage, { recursive: true });
         }
 
-        if (!existsSync(this.backupStorage) || !statSync(this.backupStorage).isDirectory()) {
+        if (!isExists(this.backupStorage, 'dir')) {
             mkdirSync(this.backupStorage, { recursive: true });
         }
 
         for (const structure in this.structures) {
             this.checkStructure(structure);
             const path = join(this.storage, `${structure}.json`);
-            if (!existsSync(path) || !statSync(path).isFile()) {
+            if (!isExists(path, 'file')) {
                 let dataFormat = this.getDataFromStructures(structure);
                 writeFileSync(path, JSON.stringify(dataFormat, null, 4));
             }
@@ -62,7 +63,7 @@ class database {
     restore() {
         return new Promise((resolve, reject) => {
             const backupPath = join(this.backupStorage, 'backup.json');
-            if (existsSync(backupPath)) {
+            if (isExists(backupPath, 'file')) {
                 try {
                     const content = readFileSync(backupPath, 'utf8');
                     if (!isJSON(content)) {
@@ -104,8 +105,7 @@ class database {
                 const path = join(this.storage, `${structure}.json`);
                 if (
                     this.checkStructure(structure) &&
-                    existsSync(path) &&
-                    statSync(path).isFile()
+                    isExists(path, 'file')
                 ) {
                     const content = readFileSync(path, 'utf8');
                     if (!isJSON(content)) {
@@ -125,7 +125,7 @@ class database {
             structure = structure.charAt(0).toUpperCase() + structure.slice(1);
             let data;
             const path = join(this.storage, `${structure}.json`);
-            if (existsSync(path)) {
+            if (isExists(path, 'file')) {
                 const content = readFileSync(path, 'utf8');
                 if (!isJSON(content)) {
                     reject(getLang('database.error.JSONNotValid', { structure }));

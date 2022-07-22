@@ -1,7 +1,7 @@
-import axios from 'axios';
 import config from '../config/index.js';
 import yaml from 'js-yaml';
 import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 
 const NEW_GLOBAL = {
@@ -12,15 +12,15 @@ const NEW_GLOBAL = {
     tempData: new Object(),
     getLang: new Function(),
     systemLangData: new Object(),
-    moduleLangData: new Object(),
-    get: new Function()
+    pluginLangData: new Object()
 }
 
 NEW_GLOBAL.systemLangData = loadLanguage();
-NEW_GLOBAL.getLang = function (key, objectData, module) {
+NEW_GLOBAL.getLang = function (key, objectData, plugin) {
     if (!key || typeof key !== 'string') return '';
+    if (!objectData || typeof objectData !== 'object' || Array.isArray(objectData)) objectData = {};
 
-    let gottenData = module ? moduleLangData[module][key] : systemLangData[key];
+    let gottenData = plugin ? pluginLangData[plugin][key] : systemLangData[key];
     for (const dataKey in objectData) {
         gottenData = gottenData.replace(`{${dataKey}}`, objectData[dataKey]);
     }
@@ -31,14 +31,13 @@ NEW_GLOBAL.getLang = function (key, objectData, module) {
 function loadLanguage() {
     try {
         const language = config.LANGUAGE || 'en_US';
-        const languageData = yaml.load(readFileSync(process.cwd() + `/languages/${language}.yml`));
+        const languageData = yaml.load(readFileSync(resolve(`./app/languages/${language}.yml`), 'utf8'));
         return languageData;
     } catch (err) {
-        console.log(err);
+        console.error(err);
         process.exit(0);
     }
 }
 
-NEW_GLOBAL.get = axios.get;
 
 export default NEW_GLOBAL;

@@ -1,13 +1,20 @@
+import * as common from './common.js';
+
+for (const func in common) {
+    global[func] = common[func];
+}
+
+
 import aes from './aes.js';
-import circle from './circle.js';
 import loader from './loader.js';
-import isJSON from './isJSON.js';
 import checkAppstate from './checkAppstate.js';
+import * as getEnvironments from './environments.get.js';
+
 
 export default {
     aes,
-    circle,
     loader,
-    isJSON,
-    checkAppstate
+    checkAppstate,
+    getEnvironments
+
 }

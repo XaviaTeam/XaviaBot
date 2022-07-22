@@ -1,13 +1,14 @@
-import { } from 'dotenv/config'
-import login from '@xaviabot/fca-unofficial';
+import { } from "dotenv/config"
+import login from "@xaviabot/fca-unofficial";
 import { writeFileSync } from "fs";
+import { resolve } from "path";
 import aes from "./app/src/modules/aes.js";
 import { logger } from "./app/utils.js";
 
 const option = {
     logLevel: "silent",
     forceLogin: true,
-    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.8 (KHTML, like Gecko)"
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0"
 };
 
 const loginData = {
@@ -29,16 +30,16 @@ const OTPKEY = process.env.OTPKEY
 
 login(loginData, option, async (err, api) => {
     if (err) {
-        const otpkey = OTPKEY.replace(/\s/g, '');
+        const otpkey = OTPKEY.replace(/\s/g, "");
         switch (err.error) {
             case "login-approval":
                 if (otpkey) {
-                    const getToken = await import('totp-generator');
+                    const getToken = await import("totp-generator");
                     const token = getToken.default(otpkey);
                     err.continue(token);
                 }
                 else {
-                    const { createInterface } = await import('readline');
+                    const { createInterface } = await import("readline");
                     const rl = createInterface({
                         input: process.stdin,
                         output: process.stdout
@@ -58,8 +59,8 @@ login(loginData, option, async (err, api) => {
     }
     const appState = api.getAppState();
     const encryptedAppState = aes.encrypt(JSON.stringify(appState), process.env.APPSTATE_SECRET_KEY);
-    writeFileSync(process.env.APPSTATE_PATH, encryptedAppState);
-    logger.info('Successfully logged in and saved appstate.');
+    writeFileSync(resolve(process.env.APPSTATE_PATH), JSON.stringify(encryptedAppState), "utf8");
+    logger.info("Successfully logged in and saved appstate.");
     process.exit(1);
 });
 

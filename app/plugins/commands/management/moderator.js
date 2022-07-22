@@ -1,40 +1,8 @@
-'use strict';
-export const config = {
+export const info = {
     name: "BotManager",
-    description: {
-        "about": "Basic Commands",
-        "commands": {
-            "maintenance": "Maintance Bot",
-            "monitor": "Set Monitor Server",
-            "restart": "Restart Bot",
-            "pending": "Approve/Reject pending Group",
-            "stats": "Bot Stats"
-        }
-    },
-    usage: {
-        "maintenance": "[on/off]",
-        "monitor": "[add/del] [TID]",
-        "restart": "",
-        "pending": "",
-        "stats": ""
-    },
+    about: "Basic bot management commands",
     credits: "Xavia",
-    permissions: [2],
-    map: {
-        "maintenance": setMaintenance,
-        monitor,
-        restart,
-        pending,
-        stats
-    },
-    dependencies: ['process-stats'],
-    cooldown: {
-        "maintenance": 5,
-        "monitor": 5,
-        "restart": 5,
-        "pending": 30,
-        "stats": 5
-    }
+    dependencies: ['process-stats']
 }
 
 export const langData = {
@@ -54,6 +22,13 @@ export const langData = {
         "monitor.error.invalidQuery": "Invalid Query, use `add` or `del`",
         "restart": "Restarting...",
         "pending.error.emptyList": "Can\'t get Threads List...",
+        "pending.reply.approved": "Your group has been approved!\n\n{NAME} connected.\nUse {PREFIX}help to see all commands.",
+        "pending.reply.rejected": "Your group has been rejected!",
+        "pending.reply.error.invalidQuery": "Invalid query, please use approve/reject",
+        "pending.reply.approve.success": "Approved {SUCCESS} group(s):\n{SUCCESS_LIST}",
+        "pending.reply.reject.success": "Rejected {SUCCESS} group(s):\n{SUCCESS_LIST}",
+        "pending.reply.approve.failed": "Failed to approve {FAILED} group(s):\n{FAILED_LIST}",
+        "pending.reply.reject.failed": "Failed to reject {FAILED} group(s):\n{FAILED_LIST}",
         "stats.body": `
             Memory (RAM): {totalMemoryUsed} / {totalMemory} GB ({processMemoryUsed} used)
             Uptime: {uptimePretty}
@@ -61,7 +36,13 @@ export const langData = {
             Served: {served} Group(s)
             TotalMonitors: {totalMonitors} Server(s)
             ModeratorMonitors: {moderatorMonitors} Server(s)
-        `
+        `,
+        "any.error": "Something went wrong, try again later...",
+        "maintenance.description": "Set Bot Maintenance Mode",
+        "monitor.description": "Add/Remove Monitor Server",
+        "restart.description": "Restart Bot",
+        "pending.description": "Approve/Reject Pending Groups",
+        "stats.description": "Get Bot Stats",
     },
     "vi_VN": {
         "maintenance.on": "Đã bật chế độ bảo trì",
@@ -79,6 +60,13 @@ export const langData = {
         "monitor.error.invalidQuery": "Lựa chọn không hợp lệ, hãy sử dụng `add` hoặc `del`",
         "restart": "Đang khởi động lại...",
         "pending.error.emptyList": "Không thể lấy danh sách các nhóm chờ...",
+        "pending.reply.approved": "Nhóm của bạn đã được phê duyệt!\n\n{NAME} đã kết nối.\nSử dụng {PREFIX}help để xem danh sách lệnh.",
+        "pending.reply.rejected": "Nhóm của bạn đã bị từ chối!",
+        "pending.reply.error.invalidQuery": "Lựa chọn không hợp lệ, dùng: approve/reject",
+        "pending.reply.approve.success": "Đã phê duyệt {SUCCESS} nhóm:\n{SUCCESS_LIST}",
+        "pending.reply.reject.success": "Đã từ chối {SUCCESS} nhóm:\n{SUCCESS_LIST}",
+        "pending.reply.approve.failed": "Không thể phê duyệt {FAILED} nhóm:\n{FAILED_LIST}",
+        "pending.reply.reject.failed": "Không thể từ chối {FAILED} nhóm:\n{FAILED_LIST}",
         "stats.body": `
             Bộ nhớ (RAM): {totalMemoryUsed} / {totalMemory} GB ({processMemoryUsed} đã sử dụng)
             Thời gian hoạt động: {uptimePretty}
@@ -86,160 +74,365 @@ export const langData = {
             Đã phục vụ: {served} nhóm
             Tổng số máy chủ quản lý: {totalMonitors} máy chủ
             Máy chủ quản lý của người quản lý: {moderatorMonitors} máy chủ
-        `
+        `,
+        "any.error": "Có lỗi xảy ra, hãy thử lại sau...",
+        "maintenance.description": "Bật, tắt chế độ bảo trì",
+        "monitor.description": "Thêm, xóa máy chủ quản lý",
+        "restart.description": "Khởi động lại bot",
+        "pending.description": "Xem danh sách nhóm chờ phê duyệt",
+        "stats.description": "Xem thống kê bot"
     }
 }
 
-function setMaintenance({ api, event, args, getLang, db }) {
-    const { threadID, messageID } = event;
-    const input = args[0] ? args[0].toLowerCase() : '';
-    const query = input == 'on' ? true : input == 'off' ? false : null;
+async function onReply({ api, message, getLang, controllers, eventData }) {
+    const { args, senderID, reply } = message;
+    const { Threads } = controllers;
 
-    if (query == null) {
-        if (client.maintenance == true) {
-            changeMaintenance(false);
-            api.sendMessage(getLang('maintenance.off'), threadID, messageID);
-        } else {
-            changeMaintenance(true);
-            api.sendMessage(getLang('maintenance.on'), threadID, messageID);
+    if (senderID != eventData.author) return;
+    if (args.length == 0) return;
+    try {
+        const { list } = eventData;
+        const query = args[0]?.toLowerCase();
+        const chosenGroup = args?.slice(1) || [];
+        if (chosenGroup.length == 0) {
+            reply(getLang('pending.reply.error.invalidQuery'));
+            return;
         }
-    } else {
-        if (query == true) {
+
+        let succeed = [],
+            failed = [],
+            msg = null,
+            promiseJobs = [];
+
+        if (query == 'approve') {
+            for (const i of chosenGroup) {
+                if (isNaN(i)) continue;
+                if (i - 1 > list.length) continue;
+                const group = list[i - 1];
+                const getThread = await Threads.checkThread(group.threadID) || {};
+                const Prefix = getThread.data.prefix || client.config.PREFIX;
+                promiseJobs.push(new Promise(async resolve => {
+                    api.sendMessage(
+                        getLang('pending.reply.approved', {
+                            NAME: client.config.NAME,
+                            PREFIX: Prefix
+                        }),
+                        group.threadID,
+                        (err) => {
+                            if (err) {
+                                console.error(err);
+                                failed.push(group.threadID);
+                            } else succeed.push(group.threadID);
+                            resolve();
+                        }
+                    );
+                }));
+            }
+        } else if (query == 'reject') {
+            for (const i of chosenGroup) {
+                if (isNaN(i)) continue;
+                if (i - 1 > list.length) continue;
+                const group = list[i - 1];
+                promiseJobs.push(new Promise(async resolve => {
+                    api.sendMessage(
+                        getLang('pending.reply.rejected'),
+                        group.threadID,
+                        (err) => {
+                            if (err) {
+                                failed.push(group.threadID);
+                            } else api.removeUserFromGroup(
+                                group.threadID,
+                                botID,
+                                (err) => {
+                                    if (err) {
+                                        console.error(err);
+                                        failed.push(group.threadID);
+                                    } else succeed.push(group.threadID);
+                                    resolve();
+                                });
+                        }
+                    );
+                }));
+            }
+        } else {
+            reply(getLang('pending.reply.error.invalidQuery'));
+            return;
+        }
+
+        Promise.all(promiseJobs).then(() => {
+            msg = getLang(`pending.reply.${query}.success`, {
+                SUCCEED: succeed.length,
+                SUCCEED_LIST: succeed.join('\n'),
+            });
+            if (failed.length > 0) msg += `\n${getLang(`pending.reply.${query}.failed`, {
+                FAILED: failed.length,
+                FAILED_LIST: failed.join('\n')
+            })}`;
+
+            api.unsendMessage(eventData.messageID);
+            reply(msg);
+        });
+    } catch (err) {
+        console.error(err);
+        reply(getLang('any.error'));
+    }
+}
+
+
+function setMaintenance() {
+    const config = {
+        name: "maintenance",
+        aliases: ["maint"],
+        description: getLang("maintenance.description", null, info.name),
+        usage: "[on/off]",
+        permissions: [2],
+        cooldown: 5
+    }
+
+    const onCall = ({ message, args, getLang, db }) => {
+        const { reply } = message;
+        const input = args[0]?.toLowerCase();
+        const query = input == 'on' ? true : input == 'off' ? false : null;
+
+        if (query == null) {
             if (client.maintenance == true) {
-                api.sendMessage(getLang('maintenance.alreadyOn'), threadID, messageID);
+                changeMaintenance(false);
             } else {
                 changeMaintenance(true);
-                api.sendMessage(getLang('maintenance.on'), threadID, messageID);
             }
         } else {
-            if (client.maintenance == false) {
-                api.sendMessage(getLang('maintenance.alreadyOff'), threadID, messageID);
-            } else {
-                changeMaintenance(false);
-                api.sendMessage(getLang('maintenance.off'), threadID, messageID);
-            }
-        }
-    }
-
-
-    async function changeMaintenance(query) {
-        let getSettings = await db.get('Moderator');
-        getSettings.maintenance = query;
-        await db.set('Moderator', getSettings);
-        client.maintenance = query;
-        return true;
-    }
-
-    return;
-}
-
-async function monitor({ api, event, args, getLang, db }) {
-    const { threadID, messageID } = event;
-    const query = args[0] ? args[0].toLowerCase() : '';
-    if (query == 'add') {
-        const tid = args[1] || threadID;
-        if (parseInt(tid) == NaN && isNaN(parseInt(tid))) {
-            api.sendMessage(getLang('monitor.add.error.invalidTID'), threadID, messageID);
-        } else {
-            if (client.data.monitorServers.includes(tid)) {
-                api.sendMessage(getLang('monitor.add.error.alreadyMonitor'), threadID, messageID);
-            } else {
-                api.sendMessage(getLang('monitor.add.test'), tid, async (err) => {
-                    if (err) {
-                        api.sendMessage(getLang('monitor.add.error.invalidServer'), threadID, messageID);
-                    } else {
-                        const getSettings = await db.get('Moderator');
-                        let monitorServersSetting = getSettings.monitorServers || [];
-                        if (!monitorServersSetting.includes(tid)) {
-                            monitorServersSetting.push(tid);
-                        }
-                        getSettings.monitorServers = monitorServersSetting;
-                        await db.set('Moderator', getSettings);
-                        client.data.monitorServers.push(tid);
-
-                        api.sendMessage(getLang('monitor.add.success'), tid, messageID);
-                    }
-                });
-            }
-        }
-    } else if (query == 'del') {
-        const tid = args[1] || threadID;
-        if (parseInt(tid) == NaN && isNaN(parseInt(tid))) {
-            api.sendMessage(getLang('monitor.del.error.invalidTID'), threadID, messageID);
-        } else {
-            if (!client.data.monitorServers.includes(tid)) {
-                api.sendMessage(getLang('monitor.del.error.notMonitor'), threadID, messageID);
-            } else {
-                const getSettings = await db.get('Moderator');
-                let monitorServersSetting = await db.get('Moderator')['monitorServers'] || [];
-                if (monitorServersSetting.includes(tid)) {
-                    monitorServersSetting.splice(monitorServersSetting.indexOf(tid), 1);
+            if (query == true) {
+                if (client.maintenance == true) {
+                    reply(getLang('maintenance.alreadyOn'));
+                } else {
+                    changeMaintenance(true);
                 }
-                getSettings['monitorServers'] = monitorServersSetting;
-                await db.set('Moderator', getSettings);
-                client.data.monitorServers.splice(client.data.monitorServers.indexOf(tid), 1);
-                api.sendMessage(getLang('monitor.del.success'), tid, messageID);
+            } else {
+                if (client.maintenance == false) {
+                    reply(getLang('maintenance.alreadyOff'));
+                } else {
+                    changeMaintenance(false);
+                }
             }
         }
-    } else {
-        api.sendMessage(getLang('monitor.error.invalidQuery'), threadID, messageID);
-    }
 
-    return;
-}
 
-function restart({ api, event, getLang }) {
-    api.sendMessage(getLang('restart'), event.threadID, () => process.exit(1));
-}
+        async function changeMaintenance(query) {
+            try {
+                let getSettings = await db.get('Moderator');
+                getSettings.maintenance = query;
+                await db.set('Moderator', getSettings);
+                client.maintenance = query;
 
-async function pending({ api, event, getLang }) {
-    const { threadID, messageID } = event;
-    var msg = "";
-
-    try {
-        var SPAM = await api.getThreadList(100, null, ["OTHER"]) || [];
-        var PENDING = await api.getThreadList(100, null, ["PENDING"]) || [];
-
-        const list = [...SPAM, ...PENDING].filter(group => group.isSubscribed && group.isGroup);
-        msg += list.map((group, index) => `${index + 1}. ${group.name} (${group.threadID}`).join('\n');
-        api.sendMessage(
-            msg,
-            threadID,
-            (err, info) => {
-                client.replies.push({
-                    messageID: info.messageID,
-                    type: 'pending',
-                    list,
-                    author: event.senderID
-                })
+                if (query == true) {
+                    reply(getLang('maintenance.on'));
+                } else {
+                    reply(getLang('maintenance.off'));
+                }
+            } catch (e) {
+                console.error(e);
+                reply(getLang('any.error'));
             }
-        )
-    } catch (e) {
-        api.sendMessage(getLang('pending.error.emptyList'), threadID, messageID);
+
+            return;
+        }
+
+        return;
     }
 
-    return;
+    return { config, onCall };
 }
 
-async function stats({ api, event, getLang, controllers }) {
-    const procStats = libs['process-stats']();
-    const { memTotal, memFree, uptime, memUsed } = procStats();
-    procStats.destroy();
+function monitor() {
+    const config = {
+        name: "monitor",
+        aliases: ["mntr"],
+        description: getLang("monitor.description", null, info.name),
+        usage: "[add/del] [TID]",
+        permissions: [2],
+        cooldown: 10
+    }
 
-    const servedThreads = await controllers.Threads.getAll() || [];
-    const servingThreads = servedThreads.filter(thread => thread.info.isSubscribed == true) || [];
+    const onCall = async ({ api, message, args, getLang, db }) => {
+        const { threadID, messageID, reply } = message;
+        const query = args[0]?.toLowerCase();
+        if (query == 'add') {
+            const tid = args[1] || threadID;
+            if (isNaN(parseInt(tid))) {
+                reply(getLang('monitor.add.error.invalidTID'));
+            } else {
+                if (client.data.monitorServers.includes(tid)) {
+                    reply(getLang('monitor.add.error.alreadyMonitor'));
+                } else {
+                    api.sendMessage(getLang('monitor.add.test'), tid, async (err) => {
+                        if (err) {
+                            reply(getLang('monitor.add.error.invalidServer'));
+                        } else {
+                            try {
+                                const getSettings = await db.get('Moderator');
+                                let monitorServersSetting = getSettings.monitorServers || [];
+                                if (!monitorServersSetting.includes(tid)) {
+                                    monitorServersSetting.push(tid);
+                                }
+                                getSettings.monitorServers = monitorServersSetting;
+                                await db.set('Moderator', getSettings);
+                                client.data.monitorServers.push(tid);
 
-    let msg = getLang('stats.body', {
-        totalMemoryUsed: ((memTotal.value - memFree.value) / 1073741824).toFixed(2),
-        totalMemory: (memTotal.value / 1073741824).toFixed(2),
-        processMemoryUsed: memUsed.pretty,
-        uptimePretty: uptime.pretty,
-        serving: servingThreads.length,
-        served: servedThreads.length,
-        totalMonitors: Object.keys(client.data.monitorServerPerThread).length + client.data.monitorServers.length,
-        moderatorMonitors: client.data.monitorServers.length
-    }).replace(/^ +/gm, '');
+                                api.sendMessage(getLang('monitor.add.success'), tid, messageID);
+                            } catch (e) {
+                                console.error(e);
+                                reply(getLang('any.error'));
+                            }
+                        }
+                    });
+                }
+            }
+        } else if (query == 'del') {
+            const tid = args[1] || threadID;
+            if (isNaN(parseInt(tid))) {
+                reply(getLang('monitor.del.error.invalidTID'));
+            } else {
+                if (!client.data.monitorServers.includes(tid)) {
+                    reply(getLang('monitor.del.error.notMonitor'));
+                } else {
+                    try {
+                        const getSettings = await db.get('Moderator');
+                        let monitorServersSetting = await db.get('Moderator')['monitorServers'] || [];
+                        if (monitorServersSetting.includes(tid)) {
+                            monitorServersSetting.splice(monitorServersSetting.indexOf(tid), 1);
+                        }
+                        getSettings['monitorServers'] = monitorServersSetting;
+                        await db.set('Moderator', getSettings);
+                        client.data.monitorServers.splice(client.data.monitorServers.indexOf(tid), 1);
 
-    api.sendMessage(msg, event.threadID, event.messageID);
-    return;
+                        api.sendMessage(getLang('monitor.del.success'), tid, messageID);
+                    } catch (e) {
+                        console.error(e);
+                        reply(getLang('any.error'));
+                    }
+                }
+            }
+        } else {
+            reply(getLang('monitor.error.invalidQuery'));
+        }
+
+        return;
+    }
+
+    return { config, onCall };
+}
+
+function restart() {
+    const config = {
+        name: "restart",
+        aliases: ["rs", "reboot"],
+        description: getLang("restart.description", null, info.name),
+        usage: "",
+        permissions: [2],
+        cooldown: 5
+    }
+
+    const onCall = ({ message, getLang }) => {
+        message.send(getLang('restart'))
+            .then(() => process.exit(1))
+            .catch(e => {
+                console.error(e);
+                message.send(getLang('any.error'));
+            });
+    }
+
+    return { config, onCall };
+}
+
+function pending() {
+    const config = {
+        name: "pending",
+        aliases: ["pnd"],
+        description: getLang("pending.description", null, info.name),
+        usage: "",
+        permissions: [2],
+        cooldown: 30
+    }
+
+    const onCall = async ({ api, message, getLang }) => {
+        const { reply, send } = message;
+        let msg = "";
+
+        try {
+            const SPAM = await api.getThreadList(100, null, ["OTHER"]) || [];
+            const PENDING = await api.getThreadList(100, null, ["PENDING"]) || [];
+
+            const list = [...SPAM, ...PENDING].filter(group => group.isSubscribed && group.isGroup);
+            msg += list.map((group, index) => `${index + 1}. ${group.name} (${group.threadID}`).join('\n');
+            send(msg)
+                .then(data => {
+                    data.addReplyEvent({ list });
+                })
+                .catch(e => {
+                    console.error(e);
+                    send(getLang('any.error'));
+                })
+
+        } catch (e) {
+            reply(getLang('pending.error.emptyList'));
+        }
+
+        return;
+    }
+
+    return { config, onCall };
+}
+
+function stats() {
+    const config = {
+        name: "stats",
+        aliases: ["st"],
+        description: getLang("stats.description", null, info.name),
+        usage: "",
+        permissions: [2],
+        cooldown: 5
+    }
+
+    const onCall = async ({ message, getLang, controllers }) => {
+        try {
+            const procStats = libs['process-stats']();
+            const { memTotal, memFree, uptime, memUsed } = procStats();
+            procStats.destroy();
+
+            const servedThreads = await controllers.Threads.getAll() || [];
+            const servingThreads = servedThreads.filter(thread => thread.info.isSubscribed == true) || [];
+
+            let msg = getLang('stats.body', {
+                totalMemoryUsed: ((memTotal.value - memFree.value) / 1073741824).toFixed(2),
+                totalMemory: (memTotal.value / 1073741824).toFixed(2),
+                processMemoryUsed: memUsed.pretty,
+                uptimePretty: uptime.pretty,
+                serving: servingThreads.length,
+                served: servedThreads.length,
+                totalMonitors: Object.keys(client.data.monitorServerPerThread).length + client.data.monitorServers.length,
+                moderatorMonitors: client.data.monitorServers.length
+            }).replace(/^ +/gm, '');
+
+            message.reply(msg);
+        } catch (e) {
+            console.error(e);
+            message.reply(getLang('any.error'));
+        }
+
+        return;
+    }
+
+    return { config, onCall };
+}
+
+
+export const scripts = {
+    commands: {
+        setMaintenance,
+        monitor,
+        restart,
+        pending,
+        stats
+    },
+    onReply
 }

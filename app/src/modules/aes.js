@@ -1,13 +1,27 @@
-//use crypto-js to encrypt and decrypt Object
 import AES from 'crypto-js/aes.js';
 import encUtf8 from 'crypto-js/enc-utf8.js';
 
+/**
+ * Returns an encrypted object with the given secret key.
+ * 
+ * 
+ * @example
+ *    const encryptedObj = encrypt({ foo: 'bar' }, 'secretKey');
+ */
 function encrypt(obj, secretKey) {
-    return AES.encrypt(JSON.stringify(obj), secretKey).toString();
+    const encrypted = AES.encrypt(JSON.stringify(obj), secretKey).toString();
+    return encrypted;
 }
 
+/**
+ * Returns a decrypted object with the given secret key.
+ * 
+ * @example
+ *    const decryptedObj = decrypt("eyJmb28iOiJiYXIifQ", 'secretKey');
+ */
 function decrypt(encryptedObj, secretKey) {
-    return JSON.parse(AES.decrypt(encryptedObj, secretKey).toString(encUtf8));
+    const decrypted = AES.decrypt(encryptedObj, secretKey).toString(encUtf8);
+    return JSON.parse(decrypted);
 }
 
 export default {

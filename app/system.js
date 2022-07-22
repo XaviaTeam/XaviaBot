@@ -1,24 +1,25 @@
-'use strict';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { logger, listen } from './utils.js';
 import { } from 'dotenv/config';
-import { join } from 'path';
+import { resolve as resolvePath } from 'path';
 
 import login from '@xaviabot/fca-unofficial';
 import loadClient from './client/index.js';
-import server from './src/server/server.js';
+import server from './src/server/index.js';
 
+import { createInterface, clearLine, cursorTo } from 'readline';
+import CLI from './src/CLI/index.js';
 
 const { APPSTATE_PATH, APPSTATE_SECRET_KEY } = process.env;
 
-//handledPromiseRejectionWarning
+
 process.on('unhandledRejection', (reason, p) => {
     console.error(reason, 'Unhandled Rejection at Promise', p);
 })
 
 async function start() {
     try {
-        client = await loadClient();
+        await loadClient();
         logger.system(getLang('system.start.clientLoaded'));
 
         await server(process.env.PORT, client.db);
@@ -43,6 +44,7 @@ function booting(logger) {
                 delete client.db;
 
                 refreshState(api);
+                startCLI(api);
                 client.config.REFRESH ? autoReloadApplication() : null;
                 resolve(api.listenMqtt(listen(api, db)));
             })
@@ -58,8 +60,48 @@ function refreshState(api) {
         logger.custom('Refreshing Cookies...', 'REFRESH');
         const newAppState = api.getAppState();
         const encryptedAppState = client.modules.aes.encrypt(JSON.stringify(newAppState), APPSTATE_SECRET_KEY);
-        writeFileSync(join(process.cwd(), '../', APPSTATE_PATH), encryptedAppState);
+        writeFileSync(resolvePath(APPSTATE_PATH), JSON.stringify(encryptedAppState), 'utf8');
     }, _2HOUR);
+}
+
+function startCLI(api) {
+    const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    global.console = console;
+    const oldLog = console.log;
+    const oldErrLog = console.error;
+    console.log = input => {
+        cursorTo(process.stdout, 0);
+        clearLine(process.stdout, 0);
+        oldLog(input);
+        rl.prompt();
+    }
+    console.error = input => {
+        cursorTo(process.stdout, 0);
+        clearLine(process.stdout, 0);
+        oldErrLog(input);
+        rl.prompt();
+    }
+
+    rl.on('line', function (line) {
+        const args = line.split(' ');
+        const command = args.shift();
+        const input = args.join(' ');
+
+        const checkCLI = CLI(command);
+        if (checkCLI) {
+            checkCLI.execute({ api, input });
+        } else {
+            logger.error(getLang('system.cli.commandNotFound', { commandName: command }));
+        }
+    }).on('close', function () {
+        process.exit(0);
+    });
+
+    rl.setPrompt(`[${client.config.PREFIX}]${client.config.NAME}@Xaviabot:~$ `);
+    rl.prompt();
 }
 
 function autoReloadApplication() {
@@ -68,7 +110,7 @@ function autoReloadApplication() {
 
 function loginState() {
     return new Promise((resolve, reject) => {
-        client.modules.checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, { readFileSync, writeFileSync, existsSync })
+        client.modules.checkAppstate(APPSTATE_PATH, APPSTATE_SECRET_KEY, { readFileSync, writeFileSync, resolvePath })
             .then(appState => {
                 const options = client.config.FCA_OPTIONS;
 

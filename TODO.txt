@@ -1,4 +1,4 @@
-Commands Aliases
+Commands Aliases ✅
 Optimize Class (50%)
 Better Error Handling (70%)
 Clean Code (50%)
@@ -7,11 +7,12 @@ System Updater (20%)
 Remake Events Handling ✅
 Multi Lang Support ✅
 Support new c3c-fbstate encode/decode
+Better English (20%)
 
 Currencies System
 
 Better Dashboard (50%)
 
-BanG Dream! Module B)))))))
+BanG Dream! Plugin B)))))))
 
-DOCS
+DOCS (50%)

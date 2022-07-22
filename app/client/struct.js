@@ -1,27 +1,33 @@
-import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { join } from 'path';
 
-export default function (client) {
+export default function () {
     return new Promise(async (resolve) => {
         const struct = {
-            commandModules: new Map(),
-            commands: new Map(),
-            commandCooldowns: new Map(),
-            events: new Map(),
-            replies: new Array(),
-            reactions: new Array()
+            plugins: new Map(),
+            registeredMaps: new Object({
+                commandsExecutable: new Map(),
+                commandsAliases: new Map(),
+                commandsInfo: new Map(),
+                events: new Map(),
+                replies: new Map(),
+                reactions: new Map(),
+                messages: new Map()
+            }),
+            handleMaps: new Object({
+                commandsCooldowns: new Map(),
+                replies: new Map(),
+                reactions: new Map()
+            }),
+            configPluginsPath: new String(),
+            configPlugins: new Object()
         };
 
-        client = Object.assign(client, struct);
+        Object.assign(client, struct);
 
-        const commandsPath = client.mainPath + '/plugins/commands/';
-        const eventsPath = client.mainPath + '/plugins/events/';
-        client.modules.loader(commandsPath, eventsPath, client).then(client => {
-            const comamndOptionsPath = client.rootPath + '/config/commandOptions.json';
-            if (!existsSync(comamndOptionsPath)) {
-                writeFileSync(comamndOptionsPath, JSON.stringify({}));
-            }
-            client.comamndOptions = JSON.parse(readFileSync(comamndOptionsPath));
-            resolve(client);
-        })
+        const pluginsPath = join(client.mainPath, '/plugins/commands/');
+        const defaultEventsPath = join(client.mainPath, '/plugins/events/');
+        await client.modules.loader(pluginsPath, defaultEventsPath);
+
+        resolve();
     })
 }

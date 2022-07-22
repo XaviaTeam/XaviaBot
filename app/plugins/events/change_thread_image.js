@@ -1,34 +1,36 @@
 import { } from 'dotenv/config';
 import imgbbUploader from "imgbb-uploader";
-import { writeFileSync, createReadStream, unlinkSync } from 'fs';
 
 const imgbb_key = process.env.IMGBB_KEY;
 
 export default async function ({ api, event, db, controllers }) {
+    const { threadID, author } = event;
+    const { Threads, Users } = controllers;
+    const getThread = await Threads.checkThread(threadID) || {};
+    const getThreadData = getThread.data;
+    const getThreadInfo = getThread.info || {};
+    const getMonitorServerPerThread = client.data.monitorServerPerThread;
+
     if (Object.keys(getThreadInfo).length === 0) return;
     const oldImage = getThreadInfo.imageSrc || null;
-    let atlertMsg = '"_replaceme_" has changed the group image.',
-        smallCheck = false;
+    let smallCheck = false, reversing = false, atlertMsg = null;
     if (getThreadData.noChangeBoxImage == true && oldImage) {
         const isBot = author == botID;
         const isReversing = client.data.temps.some(i => i.type == 'noChangeBoxImage' && i.threadID == threadID);
         if (!(isBot && isReversing)) {
+            reversing = true;
             let thing_to_push = { type: 'noChangeBoxImage', threadID };
             client.data.temps.push(thing_to_push);
-            atlertMsg += '\nBecause noChangeBoxImage is enabled, the group image has been changed back.';
             try {
-                const imgBuffer = (await get(oldImage, {
-                    responseType: 'arraybuffer'
-                })).data;
                 const imagePath = client.mainPath + `/plugins/cache/${threadID}_${Date.now()}_oldImage.jpg`;
-                writeFileSync(imagePath, Buffer.from(imgBuffer, 'utf-8'));
-                api.changeGroupImage(createReadStream(imagePath), threadID, async () => {
-                    unlinkSync(imagePath);
+                await downloadFile(imagePath, oldImage);
+                api.changeGroupImage(reader(imagePath), threadID, async () => {
+                    await deleteFile(imagePath);
                     await new Promise(resolve => setTimeout(resolve, 500));
                     client.data.temps.splice(client.data.temps.indexOf({ type: 'noChangeBoxImage', threadID: threadID }), 1);
                 });
             } catch (err) {
-                console.log(err);
+                console.error(err);
             }
         } else if (isBot) {
             smallCheck = true;
@@ -36,19 +38,15 @@ export default async function ({ api, event, db, controllers }) {
     } else {
         let newImageURL = event.image.url;
         try {
-            const imgBuffer = (await get(newImageURL, {
-                responseType: 'arraybuffer'
-            })).data;
             const imagePath = client.mainPath + `/plugins/cache/${threadID}_${Date.now()}_oldImage.jpg`;
-            writeFileSync(imagePath, Buffer.from(imgBuffer, 'utf-8'));
+            await downloadFile(imagePath, newImageURL)
             const imgbb_res = await imgbbUploader(imgbb_key, imagePath);
             newImageURL = imgbb_res.url;
-            unlinkSync(imagePath);
+            await deleteFile(imagePath);
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
-        if (!oldImage)
-            atlertMsg += '\nBecause noChangeBoxImage is enabled but the group image is not set, so it will be set to the newly added group image.';
+
         getThreadInfo.imageSrc = newImageURL;
         const allThreads = await Threads.getAll();
         const threadIndex = allThreads.findIndex(e => e.id == threadID);
@@ -56,9 +54,17 @@ export default async function ({ api, event, db, controllers }) {
         allThreads[threadIndex] = getThread;
         await db.set('threads', allThreads);
     }
+
     if (!smallCheck && getMonitorServerPerThread[threadID]) {
         const authorName = await Users.getName(author);
-        atlertMsg = atlertMsg.replace('_replaceme_', `${authorName}`);
+        atlertMsg = getLang("plugins.events.change_thread_image.userChangedThreadImage", {
+            author: authorName
+        });
+        if (oldImage && reversing) {
+            atlertMsg += getLang("plugins.events.change_thread_image.reversed");
+        } else if (!oldImage && !reversing) {
+            atlertMsg += getLang("plugins.events.change_thread_image.setNewImage");
+        }
         api.sendMessage(atlertMsg, getMonitorServerPerThread[threadID]);
     }
 

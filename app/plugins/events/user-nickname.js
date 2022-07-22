@@ -10,14 +10,13 @@ export default async function ({ api, event, db, controllers }) {
     if (Object.keys(getThreadInfo).length === 0) return;
     const oldNickname = getThreadInfo.nicknames[logMessageData.participant_id] || null;
     const newNickname = logMessageData.nickname;
-    let atlertMsg = '"_author_" has changed "_target_" nickname to "_new_"',
-        smallCheck = false;
+    let smallCheck = false, atlertMsg, reversing = false;
     if (getThreadData.noChangeNickname == true) {
         const isBot = author == botID;
         const isReversing = client.data.temps.some(i => i.type == 'noChangeNickname' && i.threadID == threadID);
         if (!(isBot && isReversing)) {
             client.data.temps.push({ type: 'noChangeNickname', threadID: threadID });
-            atlertMsg += '\nGroup does not allow nickname change so it has been ignored.';
+            reversing = true;
             api.changeNickname(oldNickname, threadID, logMessageData.participant_id, async () => {
                 await new Promise(resolve => setTimeout(resolve, 300));
                 client.data.temps.splice(client.data.temps.indexOf({ type: 'noChangeNickname', threadID: threadID }), 1);
@@ -36,7 +35,27 @@ export default async function ({ api, event, db, controllers }) {
     if (!smallCheck && getMonitorServerPerThread[threadID]) {
         const authorName = await Users.getName(author);
         const targetName = await Users.getName(logMessageData.participant_id);
-        atlertMsg = atlertMsg.replace('_author_', `${authorName}`).replace('_target_', targetName).replace('_new_', newNickname);
+
+        if (author == logMessageData.participant_id) {
+            atlertMsg = getLang('plugin.events.user-nickname.changedBySelf', {
+                authorName: authorName,
+                authorId: author,
+                newNickname: newNickname
+            })
+        } else {
+            atlertMsg = getLang('plugin.events.user-nickname.changedBy', {
+                authorName: authorName,
+                authorId: author,
+                targetName: targetName,
+                targetId: logMessageData.participant_id,
+                newNickname: newNickname
+            })
+        }
+
+        if (reversing) {
+            atlertMsg += getLang('plugin.events.user-nickname.reversed');
+        }
+
         api.sendMessage(atlertMsg, getMonitorServerPerThread[threadID]);
     }
 

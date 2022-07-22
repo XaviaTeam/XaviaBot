@@ -1,41 +1,17 @@
-'use strict';
 export const config = {
     name: "Example",
-    nsfw: ["exampleName"], //exampleName is the name of the command
-    description: {
-        "about": "About the whole module",
-        "commands": {
-            "exampleName": "About the example command",//exampleName is the name of the command
-            "anotherExampleName": "About the another example command"
-        }
-    },
-    usage: {
-        "exampleName": "Example usage",//exampleName is the name of the command
-        "anotherExampleName": "Another example usage"
-    },//Description of how to use the module
-    credits: "Anonymous",//Credits to the author of the module
-    permissions: [0, 1, 2],
-    //just a regular member, your permissions are 0
-    //a group admin, your permissions are 1
-    //a bot moderator, your permissions are 2
-    //if you are both group moderator and bot moderator, your permission will be [1,2]
-    options: {},
-    map: {
-        "exampleName": exampleFunction, //exampleName is the name of the command, exampleFunction is the name of the function assigned to the command
-        "anotherExampleName": anotherExampleFunction
-    },
-    dependencies: [//dependencies required to run the module
+    about: "This is an example plugin",
+    credits: "Anonymous",//Credits to the author of the plugin
+    dependencies: [//dependencies required to run the plugin
         "dependency",
         "anotherDependency"
     ],
-    cooldown: {
-        "exampleName": 5,//exampleName is the name of the command, 5 is the cooldown in seconds
-        "anotherExampleName": 5
+    extra: { // extra settings for the plugins, will be saved in the ./config/config.plugins.json
+        "extraSetting": "extraValue"
+    },
+    onLoad: function ({ db }) {
+        //code here what you want to do while the plugin is loading
     }
-}
-
-export function onLoad({ db }) {
-    //code here what you want to do when loading the module
 }
 
 export const langData = {
@@ -47,10 +23,103 @@ export const langData = {
     }
 }
 
-async function exampleFunction({ api, event, args, getLang, db, controllers, userPermission }) {
-    //code here
+
+function exampleCommand() {
+    const config = {
+        name: "Example", // default is the function name
+        aliases: ["example", "ex"], // the command will be called when using prefix + example or prefix + ex, default is [name]
+        description: "This is an example command",
+        usage: "[number]", // will be prefix + example + [number], default is prefix + name
+        permissions: [], // 0 = regular member, 1 = group admin, 2 = bot moderator, could be an array of numbers or a number
+                        // if you just leave a number, for ex: permissions: 2, it will be [0, 2]
+                        // [0, 1, 2] = [*] = 2 = regular member, group admin, bot moderator
+                        // default is [*]
+        cooldown: 5, // by seconds, default is 5
+        nsfw: false,
+        visible: true // if the command is visible in the help command, default is true
+    }
+
+    // if no config/property provided, this will be the default value as mentioned above
+    /**
+     * {
+     *    name: "exampleCommand",
+     *    aliases: ["exampleCommand"],
+     *    description: "",
+     *    usage: "",
+     *    permissions: [*],
+     *    cooldown: 5,
+     *    nsfw: false,
+     *    visible: true
+     * }
+     */
+
+    const onCall = async ({ api, message, args, getLang, db, controllers, userPermissions, prefix }) => {
+        const { threadID, messageID, senderID, body, messageReply, send, reply, react } = message;
+        // your script here
+
+        const dependency = libs["dependency"]; // call the installed dependency
+
+
+        send("This is an example command"); //send a message to the chat
+
+        send("This is an example command", true); //send a direct message to the user
+
+        reply("This is an example command"); //reply to the message
+
+        react("🤔"); //react to the message
+
+        // callback, applied to send, reply, react
+        send("This is an example command with callback")
+            .then((err, info) => {
+                // when the message is sent
+            })
+
+        // using getLang
+        send(getLang("Example", { name: "Example" })); //send a message to the chat
+    }
+
+    return { config, onCall };
 }
 
-function anotherExampleFunction({ api, event, args, getLang, db, controllers, userPermission }) {
-    //code here
+function another_exampleCommand() {
+    const config = {
+        name: "Another example command",
+        aliases: ["anotherExample", "anotherEx"],
+        description: "This is an example command",
+        usage: "",
+        permissions: [],
+        cooldown: 5,
+        nsfw: false,
+        visible: true
+    }
+
+    const onCall = async ({ api, message, args, getLang, db, controllers, userPermissions, prefix }) => {
+        const { threadID, messageID, senderID, body, messageReply, send, reply, react } = message;
+        // your script here
+    }
+
+    return { config, onCall };
+}
+
+function onMessage({ api, message, getLang, db, controllers }) {
+    // your script here, this will be called when a message is sent
+}
+
+function onReaction({ api, message, getLang, db, controllers, eventData }) {
+    // your script here, this will be called when a message is sent
+}
+
+function onReply({ api, message, getLang, db, controllers, eventData }) {
+    // your script here, this will be called when a message is sent
+}
+
+
+export const scripts = {
+    commands: {
+        exampleCommand,
+        another_exampleCommand
+    },
+    onMessage,
+    onReaction,
+    onReply
 }

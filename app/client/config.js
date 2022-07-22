@@ -1,7 +1,7 @@
 import config from '../../config/index.js';
 import database from '../src/database/index.js';
 
-export default function (client) {
+export default function () {
     return new Promise(async (resolve) => {
         client.config = config;
 
@@ -21,6 +21,6 @@ export default function (client) {
             });
         client.db = db;
 
-        resolve(client);
+        resolve();
     });
 }

@@ -1,5 +1,4 @@
 import { } from 'dotenv/config';
-import { writeFileSync, unlinkSync } from 'fs';
 import imgbbUploader from 'imgbb-uploader';
 import { logger } from '../../utils.js';
 
@@ -18,16 +17,13 @@ export default function (api, db) {
         let newImageURL = newThreadInfo.imageSrc;
         if (newImageURL) {
             try {
-                const imgBuffer = (await get(newImageURL, {
-                    responseType: 'arraybuffer'
-                })).data;
                 const imagePath = client.mainPath + `/src/controllers/cache/${tid}_${Date.now()}_oldImage.jpg`;
-                writeFileSync(imagePath, Buffer.from(imgBuffer, 'utf-8'));
+                await downloadFile(imagePath, newImageURL);
                 const imgbb_res = await imgbbUploader(imgbb_key, imagePath);
                 newImageURL = imgbb_res.url;
-                unlinkSync(imagePath);
+                await deleteFile(imagePath);
             } catch (err) {
-                console.log(err);
+                console.error(err);
             }
             newThreadInfo.imageSrc = newImageURL;
         }

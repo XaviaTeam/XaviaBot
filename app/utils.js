@@ -1,4 +1,3 @@
-'use strict';
 import moment from 'moment-timezone';
 const logger = {
     info: (args) => {
@@ -25,30 +24,24 @@ const logger = {
 
 
 function printEvent(event) {
-    const { LOG, LOG_LEVEL, timezone } = client.config;
-    if (!LOG || LOG == false) {
-        return;
-    }
-    //get system time in the timezone
-    const time = moment().tz(timezone).format('YYYY-MM-DD_HH:mm:ss');
-    if (LOG_LEVEL == 0) {
-        if (event.type != 'message' && event.type != 'message_reply') {
-            return;
-        }
-        logger.custom(`${event.threadID} • ${event.senderID} • ${event.body ? event.body : 'Photo, video, sticker, etc.'}`, `${time}`);
-    } else {
-        if (event.type != 'message' && event.type != 'message_reply' && event.type != 'event' && event.type != 'change_thread_image') {
-            return;
-        }
-        else if (event.type == 'event' || event.type == 'change_thread_image') {
-            if (LOG_LEVEL == 1) {
-                logger.custom(`${event.threadID} • ${event.author} • ${event.logMessageType || event.type || 'Unknown Event'}`, `${time}`);
-            } else {
-                console.log(event);
+    const { LOG_LEVEL, timezone } = client.config;
+    const { type, threadID, body, senderID, author, logMessageType } = event;
+    if (LOG_LEVEL) {
+        const time = moment().tz(timezone).format('YYYY-MM-DD_HH:mm:ss');
+        if (LOG_LEVEL == 1) {
+            if (type == 'message' || type == 'message_reply') {
+                logger.custom(`${threadID} • ${senderID} • ${body ? body : 'Photo, video, sticker, etc.'}`, `${time}`);
             }
-        }
-        else {
-            logger.custom(`${event.threadID} • ${event.senderID} • ${event.body ? event.body : 'Photo, video, sticker, etc.'}`, `${time}`);
+        } else {
+            if (type == 'event' || type == 'change_thread_image') {
+                if (LOG_LEVEL == 2) {
+                    logger.custom(`${threadID} • ${author} • ${logMessageType || type || 'Unknown Event'}`, `${time}`);
+                } else if (LOG_LEVEL == 3) {
+                    console.log(event);
+                }
+            } else if (type == 'message' || type == 'message_reply') {
+                logger.custom(`${threadID} • ${senderID} • ${body ? body : 'Photo, video, sticker, etc.'}`, `${time}`);
+            }
         }
     }
 }
@@ -77,9 +70,8 @@ function listen(api, db) {
 
     return (err, event) => {
         if (err) {
-            if (err.error && err.error == 'Not logged in.' && client.config.AUTO_LOGIN == true) {
+            if (err.error && err.error.startsWith('Not logged in') && client.config.AUTO_LOGIN == true) {
                 logger.warn(getLang('system.utils.autoLogin'));
-                process.env.APPSTATE_PATH = '../' + process.env.APPSTATE_PATH;
 
                 import('../login.js');
             } else {
