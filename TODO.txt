@@ -9,7 +9,7 @@ Multi Lang Support ✅
 Support new c3c-fbstate encode/decode
 Better English (20%)
 
-Currencies System
+Economy System (70%)
 
 Better Dashboard (50%)
 
