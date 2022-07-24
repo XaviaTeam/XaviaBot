@@ -1,5 +1,5 @@
 import { execSync, spawn } from 'child_process';
-import { writeFileSync, existsSync, statSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, statSync } from 'fs';
 import { logger } from './utils.js';
 import { } from 'dotenv/config';
 import semver from 'semver';
