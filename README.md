@@ -80,7 +80,7 @@ IMGBB_KEY=your_imgbb_key
 npm install && npm start
 ```
 ## Documentations
-- See: [XaviaBot Documentation](https://github.com/XaviaTeam/XaviaBot/blob/main/DOCS.md)
+• See: [XaviaBot Documentation](https://github.com/XaviaTeam/XaviaBot/blob/main/DOCS.md)
 
 ## Contributing
 • Pull requests are welcome.<br/>
