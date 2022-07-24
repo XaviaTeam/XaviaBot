@@ -11,7 +11,7 @@
 
 ## Requirements
 
-• [NodeJS](https://nodejs.org/en/) v16.x
+• [NodeJS](https://nodejs.org/en/) v14.x
 
 ## Installation
 

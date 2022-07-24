@@ -41,7 +41,8 @@ export default function (api, db) {
                     nsfw: false,
                     resend: false,
                     active: true,
-                    monitor: null
+                    monitor: null,
+                    users: []
                 }
             };
 

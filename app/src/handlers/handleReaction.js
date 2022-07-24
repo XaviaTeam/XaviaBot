@@ -1,6 +1,6 @@
 export default function ({ api, db, controllers }) {
     return async function ({ event }) {
-        const { threadID, messageID, senderID } = event;
+        const { threadID, messageID, userID } = event;
         const isValidReaction = client.handleMaps.reactions.has(messageID);
         if (!isValidReaction) return;
 
@@ -12,7 +12,7 @@ export default function ({ api, db, controllers }) {
         const extraEventProperties = {
             send: function (message, DM = false) {
                 return new Promise((resolve, reject) => {
-                    const targetSendID = DM ? senderID : threadID;
+                    const targetSendID = DM ? userID : threadID;
                     api.sendMessage(message, targetSendID, (err, data) => {
                         if (err) {
                             reject(err);
@@ -28,7 +28,7 @@ export default function ({ api, db, controllers }) {
             const baseInput = {
                 threadID: targetSendID,
                 messageID: data.messageID,
-                author: senderID,
+                author: userID,
                 name: pluginName
             };
 
@@ -47,7 +47,7 @@ export default function ({ api, db, controllers }) {
                     }, standbyTime);
                 }
             }
-            data.addReactionEvent = function (data = {}, standbyTime = 60000) {
+            data.addReactEvent = function (data = {}, standbyTime = 60000) {
                 if (typeof data !== 'object' || Array.isArray(data)) {
                     data = {};
                 }
@@ -74,7 +74,7 @@ export default function ({ api, db, controllers }) {
         Object.assign(event, extraEventProperties);
 
         try {
-            const executable = client.registeredMaps.reactions.get(messageID);
+            const executable = client.registeredMaps.reactions.get(pluginName);
             await executable.execute({
                 api,
                 message: event,

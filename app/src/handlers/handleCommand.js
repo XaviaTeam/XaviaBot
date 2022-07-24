@@ -127,7 +127,7 @@ export default function ({ api, db, controllers }) {
                         }, standbyTime);
                     }
                 }
-                data.addReactionEvent = function (data = {}, standbyTime = 60000) {
+                data.addReactEvent = function (data = {}, standbyTime = 60000) {
                     if (typeof data !== 'object' || Array.isArray(data)) {
                         data = {};
                     }

@@ -105,7 +105,7 @@ function onMessage({ api, message, getLang, db, controllers }) {
     // your script here, this will be called when a message is sent
 }
 
-function onReaction({ api, message, getLang, db, controllers, eventData }) {
+function onReact({ api, message, getLang, db, controllers, eventData }) {
     // your script here, this will be called when a message is sent
 }
 
@@ -120,6 +120,6 @@ export const scripts = {
         another_exampleCommand
     },
     onMessage,
-    onReaction,
+    onReact,
     onReply
 }

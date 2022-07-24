@@ -2,7 +2,7 @@ export const info = {
     name: "BotManager",
     about: "Basic bot management commands",
     credits: "Xavia",
-    dependencies: ['process-stats']
+    dependencies: ['process-stats', 'path']
 }
 
 export const langData = {
@@ -43,6 +43,8 @@ export const langData = {
         "restart.description": "Restart Bot",
         "pending.description": "Approve/Reject Pending Groups",
         "stats.description": "Get Bot Stats",
+        "plugins.description": "Manage Plugins",
+        "plugins.reload.success": "Plugins reloaded successfully, see console for details"
     },
     "vi_VN": {
         "maintenance.on": "Đã bật chế độ bảo trì",
@@ -80,7 +82,9 @@ export const langData = {
         "monitor.description": "Thêm, xóa máy chủ quản lý",
         "restart.description": "Khởi động lại bot",
         "pending.description": "Xem danh sách nhóm chờ phê duyệt",
-        "stats.description": "Xem thống kê bot"
+        "stats.description": "Xem thống kê bot",
+        "plugins.description": "Quản lý plugins",
+        "plugins.reload.success": "Plugins đã được tải lại thành công, hãy xem console để biết thêm chi tiết"
     }
 }
 
@@ -425,6 +429,41 @@ function stats() {
     return { config, onCall };
 }
 
+function plugins() {
+    const config = {
+        name: "plugins",
+        aliases: ["plg"],
+        description: getLang("plugins.description", null, info.name),
+        usage: "",
+        permissions: [2],
+        cooldown: 5
+    }
+
+    const onCall = async ({ message, args, getLang }) => {
+        if (args == 'reload') {
+            try {
+                client.plugins = new Map();
+                client.registeredMaps.commandsExecutable = new Map();
+                client.registeredMaps.commandsAliases = new Map();
+                client.registeredMaps.commandsInfo = new Map();
+
+                const pluginsPath = libs['path'].join(client.mainPath, '/plugins/commands/');
+                const defaultEventsPath = libs['path'].join(client.mainPath, '/plugins/events/');
+                await client.modules.loader(pluginsPath, defaultEventsPath);
+                message.reply(getLang('plugins.reload.success'));
+            } catch (e) {
+                console.error(e);
+                message.reply(getLang('any.error'));
+            }
+        } else {
+            message.reply(`Plugins Count: ${client.plugins.size}\nPlugins List:\n${Array.from(client.plugins.keys()).join(', ')}`);
+        }
+
+        return;
+    }
+
+    return { config, onCall };
+}
 
 export const scripts = {
     commands: {
@@ -432,7 +471,8 @@ export const scripts = {
         monitor,
         restart,
         pending,
-        stats
+        stats,
+        plugins
     },
     onReply
 }

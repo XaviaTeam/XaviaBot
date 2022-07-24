@@ -1,5 +1,5 @@
 # XAVIABOT DOCS
-## UPDATED - 2022/07/23
+## UPDATED - 2022/07/24
 
 ### INSTALLATION && REQUIREMENTS: [here](https://github.com/XaviaTeam/XaviaBot/blob/main/README.md)
 <hr />
@@ -12,6 +12,7 @@
 + deleteFIle
 + delay
 + loop
++ addCommas
 
 And more...<br />
 See [common.js](https://github.com/XaviaTeam/XaviaBot/tree/main/app/src/modules/common.js) for more details.
@@ -53,7 +54,7 @@ const userName = await Users.getName(userID);
 // SET USER DATA
 const userData = await Users.getData(userID);
 
-userData.money += 100;
+userData.banned = true;
 
 await Users.setData(userID, userData);
 ```

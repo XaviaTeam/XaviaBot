@@ -1,3 +1,8 @@
+## v1.4.2 - 2022/07/24
+- Various fixes
+- Optimize Database
+- Added Economy System
+
 ## v1.4.0 - 2022/07/22
 - New Plugin Format
 - Removed message.js, reaction.js and reply.js on plugins

@@ -6,6 +6,7 @@ export default function (api, db) {
     async function getInfoApi(uid) {
         uid = uid.toString();
         const newUserInfo = (await api.getUserInfo(uid))[uid] || {};
+        delete newUserInfo.thumbSrc;
 
         const users = await db.get('users');
         const userIndex = users.findIndex(item => item.id === uid);
@@ -15,8 +16,9 @@ export default function (api, db) {
             const newUser = {
                 id: uid,
                 info: newUserInfo,
-                money: 0,
                 data: {
+                    money: 0,
+                    exp: 0,
                     banned: false
                 }
             };

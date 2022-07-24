@@ -199,5 +199,8 @@ function getRandomPassword(length = 8, specialChars = false) {
     return password;
 }
 
+function addCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
-export { request, GET, isJSON, isExists, reader, writer, downloadFile, deleteFile, getStream, isURL, random, circle, delay, loop, getRandomHexColor, getRandomPassword };
+export { request, GET, isJSON, isExists, reader, writer, downloadFile, deleteFile, getStream, isURL, random, circle, delay, loop, getRandomHexColor, getRandomPassword, addCommas };
