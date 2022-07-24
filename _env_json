@@ -1,0 +1,10 @@
+{
+  "APPSTATE_SECRET_KEY": "",
+  "APPSTATE_PATH": "./appstate.json",
+  "EMAIL": "",
+  "PASSWORD": "",
+  "OTPKEY": "",
+  "PORT": "21481",
+  "YOUTUBE_DATA": "",
+  "IMGBB_KEY": ""
+}
