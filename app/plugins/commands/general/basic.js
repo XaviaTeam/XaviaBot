@@ -213,7 +213,7 @@ function uid() {
         description: getLang("uid.description", null, info.name),
         usage: "[@tag]",
         permissions: 2,
-        cooldown: 30
+        cooldown: 5
     }
 
     const onCall = async ({ message }) => {
@@ -233,7 +233,7 @@ function tid() {
         description: getLang("tid.description", null, info.name),
         usage: "",
         permissions: 2,
-        cooldown: 30
+        cooldown: 5
     }
 
     const onCall = async ({ message }) => {
