@@ -5,7 +5,7 @@ import semver from 'semver';
 import axios from 'axios';
 import { createInterface } from 'readline';
 
-const baseURL = "https://raw.githubusercontent.com/RFS-ADRENO/XaviaBot/main";
+const baseURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBot/main";
 
 logger.custom("Checking for updates...", "UPDATE");
 axios.get(`${baseURL}/package.json`)
@@ -17,7 +17,7 @@ axios.get(`${baseURL}/package.json`)
             logger.warn(`New version available: ${version}`);
             logger.warn(`Current version: ${currentVersion}`);
 
-            const updateScripts = `https://raw.githubusercontent.com/RFS-ADRENO/XaviaUpdate/main/${version}.json`;
+            const updateScripts = `https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/${version}.json`;
             axios.get(updateScripts)
                 .then(res => {
                     const { changed, added, removed, preVersion } = res.data;
