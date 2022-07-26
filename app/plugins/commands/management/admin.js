@@ -45,6 +45,7 @@ export const langData = {
             -» Reply with any of the above numbers to change the setting (true/false).
         `,
         "group.reply.success": "» Box settings changed:\n{SETTINGS}",
+        "group.error.notGroup": "This is not a group",
         "group.error.executorNotAdmin": "Only group admins can use this command",
         "refresh.refreshing": "Refreshing group info...",
         "refresh.error.emptyInfo": "Can\'t refresh this group.",
@@ -55,6 +56,8 @@ export const langData = {
         "group.description": "Manage group",
         "refresh.description": "Refresh group info",
         "tagAll.description": "Tag all users in the group",
+        "setPrefix.description": "Set group prefix",
+        "setPrefix.success": "Thread's prefix has been set to {prefix}",
     },
     "vi_VN": {
         "kick.error.missingTarget": "Vui lòng gắn thẻ hoặc trả lời tin nhắn người dùng",
@@ -95,6 +98,7 @@ export const langData = {
             -» Trả lời với một trong các số trên để thay đổi cài đặt (true/false).
         `,
         "group.reply.success": "» Điều chỉnh thành công:\n{SETTINGS}",
+        "group.error.notGroup": "Đây không phải là một nhóm",
         "group.error.executorNotAdmin": "Chỉ có quản trị viên mới có thể thực hiện lệnh này",
         "refresh.refreshing": "Đang cập nhật thông tin nhóm...",
         "refresh.error.emptyInfo": "Không thể cập nhật thông tin nhóm.",
@@ -105,6 +109,8 @@ export const langData = {
         "group.description": "Quản lý, xem, thay đổi thông tin nhóm",
         "refresh.description": "Cập nhật thông tin nhóm",
         "tagAll.description": "Gắn thẻ cho tất cả người dùng trong nhóm",
+        "setPrefix.description": "Thay đổi prefix của nhóm",
+        "setPrefix.success": "Đặt thành công: {prefix}",
     }
 }
 
@@ -333,6 +339,9 @@ function group() {
                     case 'filter':
                         {
                             const boxInfo = await Threads.getInfoApi(threadID) || {};
+                            if (boxInfo.hasOwnProperty("isGroup") && boxInfo.isGroup == false) {
+                                reply(getLang('group.error.notGroup'));
+                            }
                             if (Object.keys(boxInfo).length == 0) {
                                 reply(getLang('group.filter.error.emptyInfo'));
                             } else {
@@ -371,6 +380,10 @@ function group() {
                     case 'settings':
                         {
                             const boxData = await Threads.getData(threadID) || {};
+                            const boxInfo = await Threads.getInfo(threadID) || {};
+                            if (boxInfo.hasOwnProperty("isGroup") && boxInfo.isGroup == false) {
+                                reply(getLang('group.error.notGroup'));
+                            }
                             let msg = getLang('group.settings.body', {
                                 noChangeNickname: boxData.noChangeNickname ? 'On' : 'Off',
                                 noChangeBoxName: boxData.noChangeBoxName ? 'On' : 'Off',
@@ -487,6 +500,36 @@ function tagAll() {
     return { config, onCall };
 }
 
+function setPrefix() {
+    const config = {
+        name: "setPrefix",
+        aliases: ["setPre", "setPf"],
+        description: getLang("setPrefix.description", null, info.name),
+        usage: "[prefix]",
+        permissions: [1],
+        cooldown: 30
+    }
+
+    const onCall = async ({ message, args, controllers }) => {
+        const { reply, threadID } = message;
+        const { Threads } = controllers;
+
+        try {
+            const userData = await Threads.getData(threadID) || {};
+            userData.prefix = args.join(" ");
+
+            await Threads.setData(threadID, userData);
+            reply(getLang('setPrefix.success', { prefix: userData.prefix }));
+        } catch (error) {
+            console.error(error);
+            reply(getLang('any.error'));
+        }
+
+        return;
+    }
+
+    return { config, onCall };
+}
 
 export const scripts = {
     commands: {
@@ -494,7 +537,8 @@ export const scripts = {
         add,
         group,
         refresh,
-        tagAll
+        tagAll,
+        setPrefix
     },
     onReply
 }

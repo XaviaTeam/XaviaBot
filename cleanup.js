@@ -1,4 +1,4 @@
-import { readdirSync, statSync, unlinkSync } from "fs";
+import { readdirSync, statSync, unlinkSync, rmSync } from "fs";
 
 [
     "./app/plugins/cache/",
@@ -13,3 +13,5 @@ import { readdirSync, statSync, unlinkSync } from "fs";
             }
         });
     });
+
+    rmSync("./backup/", { recursive: true, force: true });

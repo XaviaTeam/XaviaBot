@@ -1,12 +1,21 @@
 export default function ({ api, db, controllers }) {
     return async function ({ event }) {
         const { threadID, messageID, body, attachments, senderID } = event;
+        const { Users } = controllers;
         if (senderID == botID) return;
         client.data.messages.push({
             messageID,
             body,
             attachments
         });
+
+        const userData = await Users.getData(senderID);
+        if (!userData.hasOwnProperty('exp')) {
+            userData.exp = 0;
+        }
+
+        userData.exp += 1;
+        await Users.setData(senderID, userData);
 
         for (const [key, value] of client.registeredMaps.messages) {
             const pluginName = key;

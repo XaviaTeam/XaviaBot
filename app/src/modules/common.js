@@ -66,6 +66,9 @@ function writer(path) {
     return fs.createWriteStream(path);
 }
 
+function mkdir(path) {
+    return fs.mkdirSync(path, { recursive: true });
+}
 
 /** 
  * Download a file from an url which could be video, audio, json, etc.
@@ -203,4 +206,4 @@ function addCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export { request, GET, isJSON, isExists, reader, writer, downloadFile, deleteFile, getStream, isURL, random, circle, delay, loop, getRandomHexColor, getRandomPassword, addCommas };
+export { request, GET, isJSON, isExists, reader, writer, mkdir, downloadFile, deleteFile, getStream, isURL, random, circle, delay, loop, getRandomHexColor, getRandomPassword, addCommas };
