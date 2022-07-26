@@ -1,3 +1,7 @@
+## v1.4.3 - 2022/07/26
+- Optimize Code
+- Added update script
+
 ## v1.4.2 - 2022/07/24
 - Various fixes
 - Optimize Database
