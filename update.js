@@ -172,6 +172,7 @@ const __remove = (list = []) => {
         const path = resolve(item);
         if (existsSync(path)) {
             unlinkSync(path);
+            logger.custom(`Removed ${item}`, "UPDATE");
         }
     }
 }
