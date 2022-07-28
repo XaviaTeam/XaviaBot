@@ -1,3 +1,6 @@
+## v1.4.4 - 2022/07/28
+- Better Glitch Support
+
 ## v1.4.3 - 2022/07/26
 - Optimize Code
 - Added update script

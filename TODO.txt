@@ -16,3 +16,4 @@ Better Dashboard (50%)
 BanG Dream! Plugin B)))))))
 
 DOCS (50%)
+Better Updater

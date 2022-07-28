@@ -11,6 +11,7 @@ import { createInterface, clearLine, cursorTo } from 'readline';
 import CLI from './src/CLI/index.js';
 
 const { APPSTATE_PATH, APPSTATE_SECRET_KEY } = process.env;
+import { isGlitch } from './src/modules/environments.get.js';
 
 
 process.on('unhandledRejection', (reason, p) => {
@@ -44,7 +45,7 @@ function booting(logger) {
                 delete client.db;
 
                 refreshState(api);
-                startCLI(api);
+                if (isGlitch !== true) startCLI(api);
                 client.config.REFRESH ? autoReloadApplication() : null;
                 resolve(api.listenMqtt(listen(api, db)));
             })

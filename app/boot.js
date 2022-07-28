@@ -50,6 +50,7 @@ function upNodeReplit() {
 		if (!existsSync(process.cwd() + '/watch.json') || !statSync(process.cwd() + '/watch.json').isFile()) {
 			logger.warn("Glitch environment detected. Creating watch.json...");
 			writeFileSync(process.cwd() + '/watch.json', JSON.stringify(WATCH_FILE, null, 2));
+			execSync('refresh');
 		}
 	}
 
