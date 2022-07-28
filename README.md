@@ -15,6 +15,8 @@
 
 ## Installation
 
+• [Install Xavia on Replit](https://www.youtube.com/watch?v=rxf_uOgEL2I)
+
 • Import to [Replit](https://replit.com/github/XaviaTeam/XaviaBot) / [Glitch](https://glitch.com/edit/#!/import/github/XaviaTeam/XaviaBot)
 
 
