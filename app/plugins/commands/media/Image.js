@@ -10,26 +10,17 @@ export const langData = {
         "anime.error.missingTag": "Please provide a tag",
         "anime.error.tagNotFound": "Tag not found, available tags:\n\n{tags}",
         "anime.description": "Get an anime image from nekos.life",
-        // "hentai.description": "Get a hentai image from nekos.life",
         "any.error.noImage": "An error occured, please try again later"
     },
     "vi_VN": {
         "anime.error.missingTag": "Vui lòng cung cấp một thẻ",
         "anime.error.tagNotFound": "Thẻ không hợp lệ, các thẻ hiện có:\n\n{tags}",
         "anime.description": "Ảnh anime từ nekos.life",
-        // "hentai.description": "ẢNh hentai từ nekos.life",
         "any.error.noImage": "Đã có lỗi xảy ra, vui lòng thử lại"
     }
 }
 
 function onLoad() {
-    // GET('https://raw.githubusercontent.com/RFS-ADRENO/anime-from-neko/main/nsfw.json')
-    //     .then(res => {
-    //         client.data.nsfw = res.data;
-    //     })
-    //     .catch(err => {
-    //         console.error(err);
-    //     })
     GET('https://raw.githubusercontent.com/RFS-ADRENO/anime-from-neko/main/sfw.json')
         .then(res => {
             client.data.sfw = res.data;
@@ -93,25 +84,6 @@ function anime() {
 
     return { config, onCall };
 }
-
-
-// function hentai() {
-//     const config = {
-//         name: "hentai",
-//         aliases: ["hent"],
-//         description: getLang("hentai.description", null, info.name),
-//         usage: '[tag]',
-//         permissions: 2,
-//         cooldown: 5,
-//         nsfw: true
-//     }
-
-//     const onCall = ({ message, args, getLang }) => {
-//         Anime(message, args, getLang, "nsfw");
-//     }
-
-//     return { config, onCall };
-// }
 
 
 export const scripts = {
