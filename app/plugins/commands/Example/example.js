@@ -31,7 +31,7 @@ function exampleCommand() {
         description: "This is an example command",
         usage: "[number]", // will be prefix + example + [number], default is prefix + name
         permissions: [], // 0 = regular member, 1 = group admin, 2 = bot moderator, could be an array of numbers or a number
-                        // if you just leave a number, for ex: permissions: 2, it will be [0, 2]
+                        // if you just leave a number, for ex: permissions: 2, it will be [0, 1, 2]
                         // [0, 1, 2] = [*] = 2 = regular member, group admin, bot moderator
                         // default is [*]
         cooldown: 5, // by seconds, default is 5
