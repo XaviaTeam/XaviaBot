@@ -26,7 +26,7 @@ export const info = {
                         _reader_bk.on("data", data_bk => {
                             if (!isJSON(data_bk.toString())) {
                                 const _writer = writer(`${path}/${allCountData[i]}`);
-                                _writer.write("[]", 'utf8', (e) => {
+                                _writer.write("[]", (e) => {
                                     _writer.destroy();
                                     _reader.destroy();
                                     _reader_bk.destroy();
