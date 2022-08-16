@@ -10,6 +10,7 @@
 - Better Updater
 - Fix case handlers
 - delay (Promise) -> sleep (synchronous)
+- Remove auto create monitor
 - Ready for SQL/mongoDB support
 - Overall improvements
 

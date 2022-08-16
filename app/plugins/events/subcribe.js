@@ -34,21 +34,21 @@ export default async function ({ api, event, db, controllers }) {
         const PREFIX = getThreadData.prefix || client.config.PREFIX;
         api.changeNickname(`[ ${PREFIX} ] ${(!client.config.NAME) ? "Xavia" : client.config.NAME}`, threadID, botID);
         api.sendMessage(getLang("plugins.events.subcribe.connected", { PREFIX }), threadID, () => {
-            if (!getMonitorServerPerThread[threadID]) {
-                const newMonitorName = `${threadID} - Monitor`;
-                api.createNewGroup([botID, author], newMonitorName, async (err, info) => {
-                    if (err) api.sendMessage(getLang("plugins.events.subcribe.error.createMonitor"), threadID, () => console.error(err));
-                    else {
-                        const getModeratorData = await db.get('moderator');
-                        getModeratorData.monitorServerPerThread[threadID] = info;
-                        await db.set('moderator', getModeratorData);
+            // if (!getMonitorServerPerThread[threadID]) {
+            //     const newMonitorName = `${threadID} - Monitor`;
+            //     api.createNewGroup([botID, author], newMonitorName, async (err, info) => {
+            //         if (err) api.sendMessage(getLang("plugins.events.subcribe.error.createMonitor"), threadID, () => console.error(err));
+            //         else {
+            //             const getModeratorData = await db.get('moderator');
+            //             getModeratorData.monitorServerPerThread[threadID] = info;
+            //             await db.set('moderator', getModeratorData);
 
-                        client.data.monitorServerPerThread[threadID] = info;
-                        logger(`${threadID} • Monitor server created: ${info}`, 'EVENT');
-                        api.sendMessage(getLang("plugins.events.subcribe.createdMonitor", { threadId: threadID }), info);
-                    };
-                });
-            }
+            //             client.data.monitorServerPerThread[threadID] = info;
+            //             logger(`${threadID} • Monitor server created: ${info}`, 'EVENT');
+            //             api.sendMessage(getLang("plugins.events.subcribe.createdMonitor", { threadId: threadID }), info);
+            //         };
+            //     });
+            // }
         });
     } else if (getMonitorServerPerThread[threadID]) {
         const joinNameArray = [], mentions = [];
