@@ -67,7 +67,7 @@ npm install && npm start
 [Facebook](https://facebook.com/FuryCSPianist)<br />
 • **TruongMini** (Co-Author):
 [Github](https://github.com/truong9c2208) -
-[Facebook](https://www.facebook.com/shibasama.dev) -
+[Facebook](https://www.facebook.com/shibasama.dev)
 <br /><br />
 • Many thanks to TesterTeam for all the testing, feedbacks and the other Bot Projects ([c3cbot](https://github.com/c3cbot/legacy-c3cbot) - [miraibot](https://github.com/miraiPr0ject/miraiv2) - [kb2abot](https://github.com/kb2ateam/kb2abot-client)) that inspired me to create XaviaBot
 
