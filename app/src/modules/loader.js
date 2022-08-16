@@ -52,37 +52,22 @@ const backupPluginConfig = () => {
 
 const installDependency = (dependency) => {
     return new Promise(async (resolve, reject) => {
+        logger.custom(getLang('modules.loader.installingDependency', { dependency }), 'LOADER');
+
         try {
-            if (!libs.hasOwnProperty(dependency)) {
-                if (dependency == 'eval') {
-                    libs[dependency] = eval;
-                } else {
-                    const dpdcPackage = await import(dependency);
-                    libs[dependency] = dpdcPackage.default || dpdcPackage;
-                }
-            }
-            resolve();
-        } catch (e) {
-            logger.custom(getLang('modules.loader.installingDependency', { dependency }), 'LOADER');
-            try {
-                await new Promise(async (resolve) => {
-                    execSync('npm install --save ' + dependency, {
-                        stdio: 'inherit',
-                        shell: true,
-                        cwd: client.rootPath
-                    });
-                    setTimeout(() => resolve(), 500);
+            await new Promise(async (resolve) => {
+                execSync('npm install --save ' + dependency, {
+                    stdio: 'inherit',
+                    shell: true,
+                    cwd: client.rootPath
                 });
-                if (!libs.hasOwnProperty(dependency)) {
-                    const dpdcPackage = await import(dependency);
-                    libs[dependency] = dpdcPackage.default || dpdcPackage;
-                }
-                logger.info(getLang('modules.loader.dependencyInstalled', { dependency }));
                 resolve();
-            } catch (err) {
-                console.error(err);
-                reject(getLang('modules.loader.error.dependencyInstallFailed', { dependency }));
-            }
+            });
+            logger.info(getLang('modules.loader.dependencyInstalled', { dependency }));
+            resolve();
+        } catch (err) {
+            console.error(err);
+            reject(getLang('modules.loader.error.dependencyInstallFailed', { dependency }));
         }
     })
 }
@@ -90,7 +75,7 @@ const installDependency = (dependency) => {
 const loadPlugins = async (path) => {
     backupPluginConfig();
 
-    class Plugins {
+    class xPlugin {
         constructor(data) {
             const { file, info, category, scripts, langData } = data;
             const _defaultPluginInfo = { ...defaultPluginInfo };
@@ -145,11 +130,32 @@ const loadPlugins = async (path) => {
             return new Promise(async (resolve) => {
                 const { dependencies } = this;
                 if (dependencies.length > 0) {
-                    for (const dependency of dependencies) {
-                        try {
-                            await installDependency(dependency);
-                        } catch (e) {
-                            logger.error(e);
+                    for (let i = 0; i < dependencies.length; i++) {
+                        const dependency = dependencies[i];
+                        if (dependency == 'eval') {
+                            libs[dependency] = eval;
+                        } else {
+                            try {
+                                for (let i = 0; i < 5; i++) {
+                                    const timeNow = Date.now();
+                                    while (Date.now() - timeNow > 500) { };
+                                    try {
+                                        if (!libs.hasOwnProperty(dependency)) {
+                                            const dpdcPackage = await import(dependency);
+                                            libs[dependency] = dpdcPackage.default || dpdcPackage;
+                                            break;
+                                        } else {
+                                            break;
+                                        }
+                                    } catch (e) {
+                                        if (i == 4) {
+                                            throw e;
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                logger.error(e);
+                            }
                         }
                     }
                 }
@@ -333,91 +339,123 @@ const loadPlugins = async (path) => {
         }
     }
 
-    let pluginsCount = 0;
     const allCommandCategory = readdirSync(path);
-    const allCommandCategoryMap = allCommandCategory.map(category => function () {
-        return new Promise(async (resolve) => {
-            const categoryPath = path + category;
-            if (isExists(categoryPath, 'dir') && category != 'cache' && category != 'Example') {
-                const allPlugins = readdirSync(categoryPath).filter(file => file.endsWith('.js') || file.endsWith('.mjs') || file.endsWith('.cjs'));
-                const allPluginsMap = allPlugins.map(file => function () {
-                    return new Promise(async (resolve) => {
-                        const pluginPath = categoryPath + '/' + file;
-                        if (isExists(pluginPath, 'file')) {
-                            try {
-                                const pluginData = await import(pathToFileURL(pluginPath));
-                                const { info, langData, scripts } = pluginData;
-                                const plugin = new Plugins({
-                                    file,
-                                    info,
-                                    category,
-                                    scripts,
-                                    langData
-                                });
-                                await plugin.loadDependencies();
-                                await plugin.loadExtra();
-                                await plugin.loadLangData();
 
-                                const pluginCommandsNames = await plugin.loadSripts();
+    const allPluginsData = [];
+    for (let i = 0; i < allCommandCategory.length; i++) {
+        const category = allCommandCategory[i];
+        const categoryPath = path + category;
 
-                                client.plugins.set(plugin.name, pluginCommandsNames);
-                                pluginsCount++;
-                            } catch (e) {
-                                logger.error(e + ` at ${file}`);
-                            }
-                        }
-                        resolve();
-                    })
-                })
-                await waitAllPromises(allPluginsMap);
+        if (isExists(categoryPath, 'dir') && category != 'cache' && category != 'Example') {
+            const categoryPlugins = readdirSync(categoryPath).filter(file => file.endsWith('.js') || file.endsWith('.mjs') || file.endsWith('.cjs'));
+            for (let j = 0; j < categoryPlugins.length; j++) {
+                const file = categoryPlugins[j];
+                const pluginPath = categoryPath + '/' + file;
+                try {
+                    if (isExists(pluginPath, 'file')) {
+                        const pluginData = await import(pathToFileURL(pluginPath));
+                        const { info, langData, scripts } = pluginData;
+
+                        allPluginsData.push({
+                            file,
+                            category,
+                            info,
+                            langData,
+                            scripts
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    logger.error('Error loading plugin: ' + file);
+                }
             }
-            resolve();
-        })
-    });
-    await waitAllPromises(allCommandCategoryMap);
+
+        }
+    }
+
+    async function installDependencies() {
+        let _new_install = false;
+        for (let i = 0; i < allPluginsData.length; i++) {
+            const { info } = allPluginsData[i];
+            if (info.hasOwnProperty('dependencies') && info.dependencies.length > 0) {
+                for (let j = 0; j < info.dependencies.length; j++) {
+                    try {
+                        await import(info.dependencies[j]);
+                    } catch (err) {
+                        _new_install = true;
+                        await installDependency(info.dependencies[j]);
+                    }
+                }
+            }
+        }
+
+        if (_new_install) {
+            process.exit(1);
+        }
+    }
+
+    async function installPlugins() {
+        for (let i = 0; i < allPluginsData.length; i++) {
+            try {
+                const { file, category, info, langData, scripts } = allPluginsData[i];
+                const plugin = new xPlugin({ file, info, category, scripts, langData });
+
+                await plugin.loadExtra();
+                await plugin.loadLangData();
+                await plugin.loadDependencies();
+
+                const pluginCommandsNames = await plugin.loadSripts();
+
+                client.plugins.set(plugin.name, pluginCommandsNames);
+            } catch (err) {
+                console.error(err);
+                logger.error('Error loading plugin: ' + file);
+            }
+        }
+    }
+
+    await installDependencies();
+    await installPlugins();
 
     client.configPlugins = JSON.parse(readFileSync(client.configPluginsPath, 'utf8'));
-    logger.system(getLang('modules.loader.pluginsLoaded', { pluginsCount }));
+    logger.system(getLang('modules.loader.pluginsLoaded', { pluginsCount: client.plugins.size }));
     logger.system(getLang('modules.loader.commandsLoaded', { commandCount: client.registeredMaps.commandsExecutable.size }));
-    return client;
+    return;
 };
 
 const loadDefaultEvents = async (path) => {
     const allEvents = readdirSync(path);
-    const allEventsMap = allEvents.map(file => function () {
-        return new Promise(async (resolve) => {
-            let eventPath = path + file;
-            if (isExists(eventPath, 'file')) {
-                try {
-                    const defaultEventData = (await import(pathToFileURL(eventPath))).default;
-                    client.registeredMaps.events.set(file.split('.')[0], defaultEventData);
-                } catch (e) {
-                    logger.error(e + ` at ${file}`);
-                }
+    for (let i = 0; i < allEvents.length; i++) {
+        const file = allEvents[i];
+        const eventPath = path + file;
+        if (isExists(eventPath, 'file')) {
+            try {
+                const defaultEventData = (await import(pathToFileURL(eventPath))).default;
+                client.registeredMaps.events.set(file.split('.')[0], defaultEventData);
+            } catch (e) {
+                console.error(e);
+                logger.error('Error loading event: ' + file);
             }
-            resolve();
-        })
-    });
+        }
+    }
 
-    await waitAllPromises(allEventsMap);
-
-    return client;
+    return;
 }
 
 
 export default function loadSripts(pluginPath, defaultEventsPath) {
     return new Promise(async (resolve) => {
-        client = await loadPlugins(pluginPath);
-        client = await loadDefaultEvents(defaultEventsPath);
+        await loadPlugins(pluginPath);
+        await loadDefaultEvents(defaultEventsPath);
         resolve();
     });
 };
 
-function waitAllPromises(promises) {
-    return new Promise(async (resolve) => {
-        for (let i = 0; i < promises.length; i++) {
-            await promises[i]();
-        }
-        resolve();
-    })
-}
+// function waitAllPromises(promises) {
+//     return new Promise(async (resolve) => {
+//         for (let i = 0; i < promises.length; i++) {
+//             await promises[i]();
+//         }
+//         resolve();
+//     })
+// }

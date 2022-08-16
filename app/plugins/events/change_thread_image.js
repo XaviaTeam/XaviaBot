@@ -1,6 +1,8 @@
 import { } from 'dotenv/config';
 import imgbbUploader from "imgbb-uploader";
+import moment from 'moment-timezone';
 
+const logger = text => client.modules.logger.custom(text, moment().tz(timezone).format('YYYY-MM-DD_HH:mm:ss'));
 const imgbb_key = process.env.IMGBB_KEY;
 
 export default async function ({ api, event, db, controllers }) {
@@ -22,12 +24,22 @@ export default async function ({ api, event, db, controllers }) {
             let thing_to_push = { type: 'noChangeBoxImage', threadID };
             client.data.temps.push(thing_to_push);
             try {
+                logger(`${threadID} • Reversing noChangeBoxImage`);
                 const imagePath = client.mainPath + `/plugins/cache/${threadID}_${Date.now()}_oldImage.jpg`;
-                await downloadFile(imagePath, oldImage);
-                api.changeGroupImage(reader(imagePath), threadID, async () => {
-                    await deleteFile(imagePath);
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    client.data.temps.splice(client.data.temps.indexOf({ type: 'noChangeBoxImage', threadID: threadID }), 1);
+                if (isURL(oldImage)) {
+                    await downloadFile(imagePath, oldImage);
+                } else {
+                    await saveFromBase64(imagePath, oldImage);
+                }
+                logger(`${threadID} • Downloaded, setting back to old image`);
+                api.changeGroupImage(reader(imagePath), threadID, async (e) => {
+                    if (e) console.error(e);
+                    else {
+                        logger(`${threadID} • Reversed to old image`);
+                        await deleteFile(imagePath);
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        client.data.temps.splice(client.data.temps.indexOf({ type: 'noChangeBoxImage', threadID: threadID }), 1);
+                    }
                 });
             } catch (err) {
                 console.error(err);
@@ -39,9 +51,17 @@ export default async function ({ api, event, db, controllers }) {
         let newImageURL = event.image.url;
         try {
             const imagePath = client.mainPath + `/plugins/cache/${threadID}_${Date.now()}_oldImage.jpg`;
-            await downloadFile(imagePath, newImageURL)
-            const imgbb_res = await imgbbUploader(imgbb_key, imagePath);
-            newImageURL = imgbb_res.url;
+            await downloadFile(imagePath, newImageURL);
+            let imgbb_res;
+            if (imgbb_key) {
+                try {
+                    imgbb_res = (await imgbbUploader(imgbb_key, imagePath)).url;
+                } catch(e) {
+                    console.error(e);
+                    imgbb_res = saveToBase64(imagePath);
+                }
+            } else imgbb_res = saveToBase64(imagePath);
+            newImageURL = imgbb_res;
             await deleteFile(imagePath);
         } catch (err) {
             console.error(err);

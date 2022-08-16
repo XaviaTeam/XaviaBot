@@ -8,10 +8,10 @@ export default function ({ api, db, controllers }) {
         if (!body.startsWith(PREFIX)) {
             return;
         }
-        
+
         const args_prefix_removed = args.join(" ").slice(PREFIX.length).split(" ");
-        const alias = args_prefix_removed[0]?.toLowerCase(); 
-        const commandArgs = args_prefix_removed?.slice(1); 
+        const alias = args_prefix_removed[0];
+        const commandArgs = args_prefix_removed?.slice(1);
 
         const command = getKeyByValue(alias, client.registeredMaps.commandsAliases);
 
@@ -24,12 +24,12 @@ export default function ({ api, db, controllers }) {
             const botModeratorIDs = client.config.MODERATORS || [];
 
             const commandData = client.registeredMaps.commandsInfo.get(command);
-            if (commandData.nsfw == true && threadData.nsfw == false) { 
+            if (commandData.nsfw == true && threadData.nsfw == false) {
                 api.sendMessage(getLang("handlers.commands.nsfwNotAllowed"), threadID, messageID);
                 return;
             }
 
-            let userPermissions = [0]; 
+            let userPermissions = [0];
             if (threadAdminIDs.some(e => e.id == senderID)) {
                 userPermissions = [0, 1];
             };
@@ -51,7 +51,7 @@ export default function ({ api, db, controllers }) {
                         return api.setMessageReaction(
                             '🕓',
                             messageID,
-                            null, 
+                            null,
                             true
                         )
                     }
@@ -64,10 +64,10 @@ export default function ({ api, db, controllers }) {
 
             client.handleMaps.commandsCooldowns.set(senderID, client.handleMaps.commandsCooldowns.get(senderID).set(command, Date.now()));
 
-            const pluginName = getKeyByValue(command, client.plugins); 
+            const pluginName = getKeyByValue(command, client.plugins);
             const getLangForCommand = (key, objectData) => getLang(key, objectData, pluginName);
 
-            const extraEventProperties = { 
+            const extraEventProperties = {
                 send: function (message, DM = false) {
                     return new Promise((resolve, reject) => {
                         const targetSendID = DM ? senderID : threadID;
@@ -151,8 +151,8 @@ export default function ({ api, db, controllers }) {
                 return data;
             }
 
-            Object.assign(event, extraEventProperties); 
-            
+            Object.assign(event, extraEventProperties);
+
             try {
                 await client.registeredMaps.commandsExecutable.get(command)({
                     api,
@@ -162,7 +162,7 @@ export default function ({ api, db, controllers }) {
                     db,
                     controllers,
                     userPermissions,
-                    prefix: PREFIX 
+                    prefix: PREFIX
                 });
             } catch (err) {
                 console.error(err);

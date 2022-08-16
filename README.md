@@ -11,7 +11,7 @@
 
 ## Requirements
 
-• [NodeJS](https://nodejs.org/en/) v14.x
+• [NodeJS](https://nodejs.org/en/) v16.x
 
 ## Installation
 
@@ -35,52 +35,17 @@ git clone https://github.com/XaviaTeam/XaviaBot.git
 cd xavia
 ```
 
-
 • Setup
-
- Login to browser and get `fbstate.json` by using [c3c-fbstate](https://github.com/c3cbot/c3c-fbstate) <br />
- Rename `fbstate.json` to `appstate.json` and move it to bot directory<br />
- Get your [imgbbAPIKEY](https://api.imgbb.com/)<br />
- 
-
- Rename `.env.example` to `.env`<br />
-
- (Windows CMD)
-```cmd
-rename .env.example .env
-```
-(Linux/macOS Terminal)
 ```bash
-mv -f .env.example .env
+node setup.js
 ```
-
- Open `.env` and add a key to APPSTATE_SECRET_KEY<br /><br />
-
-  .env
-```
-APPSTATE_SECRET_KEY=your_key_here
-APPSTATE_PATH=./appstate.json
-EMAIL=
-PASSWORD=
-OTPKEY=
-PORT=your_port_number
-YOUTUBE_DATA=your_youtube_data_v3_key
-IMGBB_KEY=your_imgbb_key
-```
-
- The key will be used to **encrypt** your `appstate.json` for better security when running on [replit](https://replit.com), [glitch](https://glitch.com), etc.<br />
- The port will be used to open a web server for 24/7 trick
-<br /><br />
-
- Open `./config/config.main.json` and config your bot<br />
- Such as `MODERATORS` `PREFIX` `NAME`
-
 
 • Install dependencies & Run
 
 ```bash
 npm install && npm start
 ```
+
 ## Documentations
 • See: [XaviaBot Documentation](https://github.com/XaviaTeam/XaviaBot/blob/main/DOCS.md)
 
@@ -93,12 +58,16 @@ npm install && npm start
 • **DimensityDU** (Lead Author):
 [Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
+[Discord](https://discord.gg/Y5q8eb64) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
 [Mail](mailto:xaviateam@protonmail.com)<br />
 • **FuryCS** (Co-Author):
 [Github](https://github.com/FuryCSProducer) -
 [Discord](https://discord.gg/TrueSpades) -
-[Facebook](https://facebook.com/FuryCSPianist)
+[Facebook](https://facebook.com/FuryCSPianist)<br />
+• **TruongMini** (Co-Author):
+[Github](https://github.com/truong9c2208) -
+[Facebook](https://www.facebook.com/shibasama.dev) -
 <br /><br />
 • Many thanks to TesterTeam for all the testing, feedbacks and the other Bot Projects ([c3cbot](https://github.com/c3cbot/legacy-c3cbot) - [miraibot](https://github.com/miraiPr0ject/miraiv2) - [kb2abot](https://github.com/kb2ateam/kb2abot-client)) that inspired me to create XaviaBot
 

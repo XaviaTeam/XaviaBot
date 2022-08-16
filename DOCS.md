@@ -1,5 +1,5 @@
 # XAVIABOT DOCS
-## UPDATED - 2022/07/24
+## UPDATED - 2022/08/16
 
 ### INSTALLATION && REQUIREMENTS: [here](https://github.com/XaviaTeam/XaviaBot/blob/main/README.md)
 <hr />
@@ -8,9 +8,13 @@
 + request
 + GET
 + isExists
++ fileStats
++ mkdir
 + downloadFile
 + deleteFIle
-+ delay
++ reader
++ writer
++ sleep
 + loop
 + addCommas
 

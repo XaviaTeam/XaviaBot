@@ -58,6 +58,7 @@ export const langData = {
         "tagAll.description": "Tag all users in the group",
         "setPrefix.description": "Set group prefix",
         "setPrefix.success": "Thread's prefix has been set to {prefix}",
+        "setPrefix.noPrefix": "Missing prefix..."
     },
     "vi_VN": {
         "kick.error.missingTarget": "Vui lòng gắn thẻ hoặc trả lời tin nhắn người dùng",
@@ -111,6 +112,7 @@ export const langData = {
         "tagAll.description": "Gắn thẻ cho tất cả người dùng trong nhóm",
         "setPrefix.description": "Thay đổi prefix của nhóm",
         "setPrefix.success": "Đặt thành công: {prefix}",
+        "setPrefix.noPrefix": "Thiếu prefix cần đặt.."
     }
 }
 
@@ -169,6 +171,7 @@ function kick() {
     const config = {
         name: "kick",
         aliases: [],
+        version: "1.0.0",
         description: getLang("kick.description", null, info.name),
         usage: "[@tag/reply]",
         permissions: [1],
@@ -226,6 +229,7 @@ function add() {
     const config = {
         name: "add",
         aliases: [],
+        version: "1.0.0",
         description: getLang("add.description", null, info.name),
         usage: "[profileURL/UID]",
         permissions: [1],
@@ -240,7 +244,7 @@ function add() {
             reply(getLang('add.error.missingTarget'));
         } else {
             try {
-                let uid = input.match(/(?:(?:http|https):\/\/)?(?:www.|m.)?facebook.com\/(?!home.php)(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\.-]+)/)[1];
+                let uid = !isNaN(input) ? input : input.match(/(?:(?:http|https):\/\/)?(?:www.|m.)?facebook.com\/(?!home.php)(?:(?:\w)*#!\/)?(?:pages\/)?(?:[?\w\-]*\/)?(?:profile.php\?id=(?=\d.*))?([\w\.-]+)/)[1];
                 if (isNaN(uid)) {
                     uid = (await api.getUserID(uid))[0].userID;
                 }
@@ -278,6 +282,7 @@ function group() {
     const config = {
         name: "group",
         aliases: [],
+        version: "1.0.0",
         description: getLang("group.description", null, info.name),
         usage: "[info/filter/settings]",
         permissions: [1],
@@ -420,6 +425,7 @@ function refresh() {
     const config = {
         name: "refresh",
         aliases: [],
+        version: "1.0.0",
         description: getLang("refresh.description", null, info.name),
         usage: "",
         permissions: [1, 2],
@@ -458,6 +464,7 @@ function tagAll() {
     const config = {
         name: "tagAll",
         aliases: ["all", "tagall", "everyone"],
+        version: "1.0.0",
         description: getLang("tagAll.description", null, info.name),
         usage: "[text]",
         permissions: [1],
@@ -504,22 +511,28 @@ function setPrefix() {
     const config = {
         name: "setPrefix",
         aliases: ["setPre", "setPf"],
+        version: "1.0.1",
         description: getLang("setPrefix.description", null, info.name),
         usage: "[prefix]",
         permissions: [1],
         cooldown: 30
     }
 
-    const onCall = async ({ message, args, controllers }) => {
+    const onCall = async ({ message, args, controllers, getLang }) => {
         const { reply, threadID } = message;
         const { Threads } = controllers;
 
         try {
             const userData = await Threads.getData(threadID) || {};
-            userData.prefix = args.join(" ");
 
-            await Threads.setData(threadID, userData);
-            reply(getLang('setPrefix.success', { prefix: userData.prefix }));
+            const prefix = args.join(" ") || null;
+            if (prefix == null) reply(getLang('setPrefix.noPrefix'));
+            else {
+                userData.prefix = prefix;
+
+                await Threads.setData(threadID, userData);
+                reply(getLang('setPrefix.success', { prefix }));
+            }
         } catch (error) {
             console.error(error);
             reply(getLang('any.error'));

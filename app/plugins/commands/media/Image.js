@@ -1,93 +1,77 @@
 export const info = {
     name: "Image",
     about: "Image Provider",
-    credits: "Xavia",
-    onLoad
+    credits: "Xavia"
 }
 
-export const langData = {
-    "en_US": {
-        "anime.error.missingTag": "Please provide a tag",
-        "anime.error.tagNotFound": "Tag not found, available tags:\n\n{tags}",
-        "anime.description": "Get an anime image from nekos.life",
-        "any.error.noImage": "An error occured, please try again later"
-    },
-    "vi_VN": {
-        "anime.error.missingTag": "Vui lòng cung cấp một thẻ",
-        "anime.error.tagNotFound": "Thẻ không hợp lệ, các thẻ hiện có:\n\n{tags}",
-        "anime.description": "Ảnh anime từ nekos.life",
-        "any.error.noImage": "Đã có lỗi xảy ra, vui lòng thử lại"
-    }
-}
+const xDomain = "https://xaviateam.herokuapp.com";
 
-function onLoad() {
-    GET('https://raw.githubusercontent.com/RFS-ADRENO/anime-from-neko/main/sfw.json')
-        .then(res => {
-            client.data.sfw = res.data;
-        })
-        .catch(err => {
-            console.error(err);
-        })
-}
+function getImage(reply, endp) {
+    GET(`${xDomain}/${endp}`)
+        .then(async res => {
+            const { url } = res.data;
 
-
-function Anime(message, args, getLang, type) {
-    const nekoDomain = 'https://nekos.life/api/v2';
-    const { reply } = message;
-    const { sfw, nsfw } = client.data;
-    const key = args[0];
-    if (!key) {
-        reply(getLang('anime.error.missingTag'));
-    } else {
-        const data = type == "sfw" ? sfw : nsfw;
-        if (!data.hasOwnProperty(key)) {
-            reply(getLang('anime.error.tagNotFound', { tags: Object.keys(data).join(', ') }));
-        } else {
-            const requestURL = nekoDomain + data[key];
-            GET(requestURL)
-                .then(async (res) => {
-                    const { url } = res.data;
-                    if (!url) reply(getLang('any.error.noImage'));
-                    try {
-                        const imageStream = await getStream(url);
-                        const msg = {
-                            body: `Link: ${url}`,
-                            attachment: imageStream,
-                        }
-                        reply(msg);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
+            try {
+                const imageStream = await getStream(url);
+                reply({
+                    body: url,
+                    attachment: imageStream
                 });
-        }
-    }
+            } catch (e) {
+                console.error(e);
+                reply("Error");
+            }
 
-    return;
+        })
+        .catch(e => {
+            console.error(e);
+            reply("Error")
+        });
 }
 
-function anime() {
+function loli() {
     const config = {
-        name: "anime",
+        name: "loli",
         aliases: [],
-        description: getLang("anime.description", null, info.name),
-        usage: '[tag]',
+        version: "1.0.0",
+        description: "Get loli image",
+        usage: "",
         permissions: 2,
         cooldown: 5
     }
 
-    const onCall = ({ message, args, getLang }) => {
-        Anime(message, args, getLang, "sfw");
+    const onCall = ({ message }) => {
+        getImage(message.reply, "loli");
+
+        return;
     }
 
     return { config, onCall };
 }
 
+function wallpaper() {
+    const config = {
+        name: "wallpaper",
+        aliases: ["wallpp", "wpp"],
+        version: "1.0.0",
+        description: "Get anime wallpaper image",
+        usage: "",
+        permissions: 2,
+        cooldown: 5
+    }
+
+    const onCall = ({ message }) => {
+        getImage(message.reply, "wallpaper");
+
+        return;
+    }
+
+    return { config, onCall };
+}
 
 export const scripts = {
     commands: {
-        anime
+        loli,
+        wallpaper
     }
 }

@@ -16,9 +16,9 @@ const logger = {
         //Blue for the tag, reset for the message
         console.log(`\x1b[34m[SYSTEM]\x1b[0m ${args}`);
     },
-    custom: (args, type) => {
-        //Cyan color for the tag, reset for the message
-        console.log(`\x1b[36m[${type}]\x1b[0m ${args}`);
+    custom: (args, type, color = '\x1b[36m') => {
+        //Cyan color by default for the tag, reset for the message
+        console.log(`${color}[${type}]\x1b[0m ${args}`);
     }
 };
 

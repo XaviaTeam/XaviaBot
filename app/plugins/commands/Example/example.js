@@ -26,14 +26,15 @@ export const langData = {
 
 function exampleCommand() {
     const config = {
-        name: "Example", // default is the function name
-        aliases: ["example", "ex"], // the command will be called when using prefix + example or prefix + ex, default is [name]
+        name: "example", // default is the function name
+        aliases: ["ex"], // the command will be called when using prefix + example or prefix + ex, default is [name]
+        version: "1.0.0", // the version of the command
         description: "This is an example command",
         usage: "[number]", // will be prefix + example + [number], default is prefix + name
         permissions: [], // 0 = regular member, 1 = group admin, 2 = bot moderator, could be an array of numbers or a number
-                        // if you just leave a number, for ex: permissions: 2, it will be [0, 1, 2]
-                        // [0, 1, 2] = [*] = 2 = regular member, group admin, bot moderator
-                        // default is [*]
+                         // if you just leave a number, for ex: permissions: 2, it will be [0, 1, 2]
+                         // [0, 1, 2] = [*] = 2 = regular member, group admin, bot moderator
+                         // default is [*]
         cooldown: 5, // by seconds, default is 5
         nsfw: false,
         visible: true // if the command is visible in the help command, default is true
@@ -44,6 +45,7 @@ function exampleCommand() {
      * {
      *    name: "exampleCommand",
      *    aliases: ["exampleCommand"],
+     *    version: "1.0.0",
      *    description: "",
      *    usage: "",
      *    permissions: [*],
@@ -85,6 +87,7 @@ function another_exampleCommand() {
     const config = {
         name: "Another example command",
         aliases: ["anotherExample", "anotherEx"],
+        version: "1.0.0",
         description: "This is an example command",
         usage: "",
         permissions: [],

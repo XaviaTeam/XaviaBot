@@ -43,6 +43,14 @@ function isJSON(input) {
 }
 
 
+function fileStats(path) {
+    try {
+        return fs.statSync(path);
+    } catch (e) {
+        throw e;
+    }
+}
+
 /**
  * Checks if a file/directory exists
  * @param {string} path - a path to a file/directory
@@ -112,6 +120,11 @@ function deleteFile(path) {
 }
 
 
+function scanDir(path) {
+    return fs.readdirSync(path);
+}
+
+
 function getStream(input) {
     return new Promise((resolve, reject) => {
         if (isExists(input)) {
@@ -134,7 +147,7 @@ function getStream(input) {
 
 
 function isURL(url) {
-    return /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/.test(url);
+    return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(url);
 }
 
 
@@ -160,13 +173,14 @@ function circle(image, x, y, radius) {
 }
 
 
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(ms) {
+    const date = Date.now();
+    while (Date.now() - date < ms) { };
 }
 
 
 /**
- * simple for loop minified
+ * for loop minified
  * @param {number} times 
  * @param {function} callback 
  * 
@@ -202,8 +216,42 @@ function getRandomPassword(length = 8, specialChars = false) {
     return password;
 }
 
+
 function addCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export { request, GET, isJSON, isExists, reader, writer, mkdir, downloadFile, deleteFile, getStream, isURL, random, circle, delay, loop, getRandomHexColor, getRandomPassword, addCommas };
+
+/**
+ * convert a base64
+ * @param {String} file - Path to a file 
+ */
+function saveToBase64(file) {
+    let bitmap = fs.readFileSync(file);
+    return Buffer.from(bitmap).toString('base64');
+}
+
+
+/**
+ * reverse from Base64
+ * @param {String} base64 - Base64 string
+ */
+function saveFromBase64(path, base64) {
+    return new Promise((resolve, reject) => {
+        const bitmap = Buffer.from(base64, 'base64');
+        const _writer = writer(path);
+
+        _writer.write(bitmap, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(path);
+            }
+
+            _writer.destroy();
+        });
+    })
+}
+
+
+export { request, GET, isJSON, fileStats, isExists, reader, writer, mkdir, downloadFile, deleteFile, scanDir, getStream, isURL, random, circle, sleep, loop, getRandomHexColor, getRandomPassword, addCommas, saveToBase64, saveFromBase64 };

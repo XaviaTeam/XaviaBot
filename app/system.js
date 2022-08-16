@@ -8,7 +8,7 @@ import loadClient from './client/index.js';
 import server from './src/server/index.js';
 
 import { createInterface, clearLine, cursorTo } from 'readline';
-import CLI from './src/CLI/index.js';
+import xConsole from './src/xConsole/index.js';
 
 const { APPSTATE_PATH, APPSTATE_SECRET_KEY } = process.env;
 import { isGlitch } from './src/modules/environments.get.js';
@@ -91,7 +91,7 @@ function startCLI(api) {
         const command = args.shift();
         const input = args.join(' ');
 
-        const checkCLI = CLI(command);
+        const checkCLI = xConsole(command);
         if (checkCLI) {
             checkCLI.execute({ api, input });
         } else {

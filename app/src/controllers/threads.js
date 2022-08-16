@@ -16,16 +16,24 @@ export default function (api, db) {
 
         let newImageURL = newThreadInfo.imageSrc;
         if (newImageURL) {
+            let newImage;
             try {
                 const imagePath = client.mainPath + `/src/controllers/cache/${tid}_${Date.now()}_oldImage.jpg`;
                 await downloadFile(imagePath, newImageURL);
-                const imgbb_res = await imgbbUploader(imgbb_key, imagePath);
-                newImageURL = imgbb_res.url;
+                if (imgbb_key) {
+                    try {
+                        const imgbb_res = await imgbbUploader(imgbb_key, imagePath);
+                        newImage = imgbb_res.url;
+                    } catch (err) {
+                        logger.error(err);
+                        newImage = saveToBase64(imagePath);
+                    }
+                } else newImage = saveToBase64(imagePath);
                 await deleteFile(imagePath);
             } catch (err) {
                 console.error(err);
             }
-            newThreadInfo.imageSrc = newImageURL;
+            newThreadInfo.imageSrc = newImage;
         }
 
         delete newThreadInfo.userInfo;

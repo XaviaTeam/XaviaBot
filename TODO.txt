@@ -3,7 +3,7 @@ Optimize Class (50%)
 Better Error Handling (70%)
 Clean Code (50%)
 Better Database (30%)
-System Updater (20%)
+System Updater ✅
 Remake Events Handling ✅
 Multi Lang Support ✅
 Support new c3c-fbstate encode/decode
@@ -16,4 +16,4 @@ Better Dashboard (50%)
 BanG Dream! Plugin B)))))))
 
 DOCS (50%)
-Better Updater
+Better Updater ✅

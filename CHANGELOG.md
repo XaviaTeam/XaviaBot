@@ -1,3 +1,19 @@
+## v1.4.5 - 2022/08/16
+- Node >= 16 is required
+- ImgBB key is now optional + using Base64 to store image by default.
+- CLI -> xConsole
+- Added setup.js
+- More Commands!
+- More logging!
+- Removed process-stats, using os/process instead.
+- Improve dashboard
+- Better Updater
+- Fix case handlers
+- delay (Promise) -> sleep (synchronous)
+- Ready for SQL/mongoDB support
+- Overall improvements
+
+
 ## v1.4.4 - 2022/07/28
 - Better Glitch Support
 

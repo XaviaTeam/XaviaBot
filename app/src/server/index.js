@@ -1,17 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import proc from 'process-stats';
 
+
+const _5MINUTES = 1000 * 60 * 5;
 
 export default function (port = 3000, db) {
-    const _2HOUR = 1000 * 60 * 60 * 2;
     return new Promise((resolve) => {
-        //reload data every 2 hours
         setInterval(async () => {
             client.modules.logger.custom(getLang('server.refreshingStats'), 'REFRESH');
             await updateStats();
-        }, _2HOUR);
+        }, _5MINUTES);
 
 
         const app = express();
@@ -27,11 +26,12 @@ export default function (port = 3000, db) {
         app.use('/static', express.static('./app/src/server/public'));
 
         app.get('/', checkData, (req, res) => {
+            const { uptime } = client.modules.getStats(); 
             res.render('index', {
                 PREFIX: client.config.PREFIX,
                 NAME: client.config.NAME,
                 LASTUPDATE: statsData.lastUpdate,
-                UPTIME: msToHHMMSS(process.uptime() * 1000),
+                UPTIME: uptime,
                 MEMORY: statsData.memory,
                 CPU: statsData.cpu,
                 SERVED: statsData.servedThreads,
@@ -40,7 +40,8 @@ export default function (port = 3000, db) {
         });
 
         app.get('/api/uptime', (req, res) => {
-            res.json({ uptime: msToHHMMSS(process.uptime() * 1000) });
+            const { uptime } = client.modules.getStats(); 
+            res.json({ uptime: uptime });
         })
 
         app.listen(port, () => {
@@ -49,34 +50,6 @@ export default function (port = 3000, db) {
         });
     });
 
-
-
-    function getStats() {
-        const procStats = proc();
-        const { memTotal, memFree, cpu } = procStats();
-        procStats.destroy();
-        return {
-            memTotal,
-            memFree,
-            cpu
-        };
-    }
-
-    function msToHHMMSS(ms) {
-        let seconds = Math.floor((ms / 1000) % 60);
-        let minutes = Math.floor((ms / (1000 * 60)) % 60);
-        let hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
-        if (seconds < 10) {
-            seconds = '0' + seconds;
-        }
-        if (minutes < 10) {
-            minutes = '0' + minutes;
-        }
-        if (hours < 10) {
-            hours = '0' + hours;
-        }
-        return `${hours}:${minutes}:${seconds}`;
-    }
 
     async function getThreadAndUserCount() {
         const servedThreads = await db.get('threads') || [];
@@ -91,10 +64,10 @@ export default function (port = 3000, db) {
         return new Promise(async (resolve, reject) => {
             try {
                 const { servedThreads, servingThreads } = await getThreadAndUserCount();
-                const { memTotal, memFree, cpu } = getStats();
+                const { cpu, processMemUsed } = client.modules.getStats();
                 statsData = {
-                    memory: `${((memTotal.value - memFree.value) / 1073741824).toFixed(2)} / ${(memTotal.value / 1073741824).toFixed(2)} GB`,
-                    cpu: cpu.pretty,
+                    memory: processMemUsed,
+                    cpu: cpu,
                     servedThreads,
                     servingThreads,
                     lastUpdate: Date.now()
@@ -107,7 +80,7 @@ export default function (port = 3000, db) {
     }
 
     async function checkData(req, res, next) {
-        if (Object.keys(statsData).length === 0 || statsData.lastUpdate < Date.now() - _2HOUR) {
+        if (Object.keys(statsData).length === 0 || statsData.lastUpdate < Date.now() - _5MINUTES) {
             await updateStats();
         }
         next();

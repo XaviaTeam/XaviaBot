@@ -1,3 +1,8 @@
+
+import moment from 'moment-timezone';
+
+const logger = text => client.modules.logger.custom(text, moment().tz(timezone).format('YYYY-MM-DD_HH:mm:ss'));
+
 export default async function ({ api, event, db, controllers }) {
     const { threadID, author, logMessageData } = event;
     const { Threads, Users } = controllers;
@@ -16,6 +21,7 @@ export default async function ({ api, event, db, controllers }) {
     }
     const authorName = await Users.getName(author);
     if (logMessageData.addedParticipants.some(i => i.userFbId == botID)) {
+        logger(`${threadID} • ${author} added bot to thread`, 'EVENT');
         if (getThreadInfo.isSubscribed == false) getThreadInfo.isSubscribed = true;
         for (const server of client.data.monitorServers) {
             api.sendMessage(getLang("plugins.events.subcribe.addSelf"), {
@@ -26,7 +32,7 @@ export default async function ({ api, event, db, controllers }) {
             }, server);
         }
         const PREFIX = getThreadData.prefix || client.config.PREFIX;
-        api.changeNickname(`[ ${PREFIX} ] ${(!client.config.BOTNAME) ? "Xavia" : client.config.BOTNAME}`, threadID, botID);
+        api.changeNickname(`[ ${PREFIX} ] ${(!client.config.NAME) ? "Xavia" : client.config.NAME}`, threadID, botID);
         api.sendMessage(getLang("plugins.events.subcribe.connected", { PREFIX }), threadID, () => {
             if (!getMonitorServerPerThread[threadID]) {
                 const newMonitorName = `${threadID} - Monitor`;
@@ -38,6 +44,7 @@ export default async function ({ api, event, db, controllers }) {
                         await db.set('moderator', getModeratorData);
 
                         client.data.monitorServerPerThread[threadID] = info;
+                        logger(`${threadID} • Monitor server created: ${info}`, 'EVENT');
                         api.sendMessage(getLang("plugins.events.subcribe.createdMonitor", { threadId: threadID }), info);
                     };
                 });

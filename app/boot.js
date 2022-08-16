@@ -15,24 +15,24 @@ import { isGlitch, isReplit, isGitHub } from './src/modules/environments.get.js'
 // i know replit has replit.nix, but on some old repl, that thing doesn't work..
 function upNodeReplit() {
 	return new Promise(resolve => {
-		execSync('npm i --save-dev node@14 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH');
+		execSync('npm i --save-dev node@16 && npm config set prefix=$(pwd)/node_modules/node && export PATH=$(pwd)/node_modules/node/bin:$PATH');
 		resolve();
 	})
 }
 
 (async () => {
-	if (process.version.slice(1).split('.')[0] < 14) {
+	if (process.version.slice(1).split('.')[0] < 16) {
 		if (isReplit) {
 			try {
-				logger.warn("Installing Node.js v14 for Repl.it...");
+				logger.warn("Installing Node.js v16 for Repl.it...");
 				await upNodeReplit();
-				if (process.version.slice(1).split('.')[0] < 14) throw new Error("Failed to install Node.js v14.");
+				if (process.version.slice(1).split('.')[0] < 16) throw new Error("Failed to install Node.js v16.");
 			} catch (err) {
 				logger.error(err);
 				process.exit(0);
 			}
 		}
-		logger.error("Xavia requires Node 14 or higher. Please update your version of Node.");
+		logger.error("Xavia requires Node 16 or higher. Please update your version of Node.");
 		process.exit(0);
 	}
 
@@ -93,6 +93,7 @@ function main() {
 	child.on("close", async (code) => {
 		handleRestartCount();
 		if (code !== 0 && restartCount < 5) {
+			console.log();
 			logger.error(`An error occurred with exit code ${code}`);
 			logger.warn("Restarting Xavia...");
 			await new Promise(resolve => setTimeout(resolve, 2000));

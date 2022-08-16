@@ -33,16 +33,27 @@ body {
     left: 50%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    width: 70%;
+    width: 85%;
     display: grid;
     grid-template-columns: auto auto;
-    grid-gap: 10vh;
+    grid-gap: 2vh;
+    row-gap: 3vh;
     padding: 20px;
     background-color: rgb(73, 74, 75);
     border-radius: 25px;
     font-size: 3vw;
     font-family: "Lucida Console", "Courier New", monospace;
     color: rgb(193, 179, 197);
+}
+
+.cpu {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+}
+
+.memory {
+    grid-column: 1 / span 2;
+    grid-row: 3;
 }
 
 @media only screen and (max-width: 1280px) {
@@ -58,6 +69,7 @@ body {
         top: 15%;
         font-size: 10vw;
     }
+
     .info-container {
         font-size: 5vw;
         top: 55%;
@@ -67,7 +79,7 @@ body {
 }
 
 @media only screen and (max-width: 350px) {
-    
+
     .info-container {
         top: 55%;
         grid-template-columns: auto;

@@ -1,3 +1,7 @@
+import moment from 'moment-timezone';
+
+const logger = text => client.modules.logger.custom(text, moment().tz(timezone).format('YYYY-MM-DD_HH:mm:ss'));
+
 export default async function ({ api, event, db, controllers }) {
     const { threadID, author, logMessageData } = event;
     const { Threads, Users } = controllers;
@@ -13,6 +17,7 @@ export default async function ({ api, event, db, controllers }) {
     const authorName = await Users.getName(author);
 
     if (logMessageData.leftParticipantFbId == botID) {
+        logger(`${threadID} • ${author} removed bot from thread`);
         getThreadInfo.isSubscribed = false;
 
         for (const server of client.data.monitorServers) {

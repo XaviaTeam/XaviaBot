@@ -14,4 +14,4 @@ import { readdirSync, statSync, unlinkSync, rmSync } from "fs";
         });
     });
 
-    rmSync("./backup/", { recursive: true, force: true });
+rmSync("./backup/", { recursive: true, force: true });

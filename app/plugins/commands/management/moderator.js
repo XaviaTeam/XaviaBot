@@ -2,7 +2,7 @@ export const info = {
     name: "BotManager",
     about: "Basic bot management commands",
     credits: "Xavia",
-    dependencies: ['process-stats', 'path']
+    dependencies: ['path']
 }
 
 export const langData = {
@@ -30,7 +30,8 @@ export const langData = {
         "pending.reply.approve.failed": "Failed to approve {FAILED} group(s):\n{FAILED_LIST}",
         "pending.reply.reject.failed": "Failed to reject {FAILED} group(s):\n{FAILED_LIST}",
         "stats.body": `
-            Memory (RAM): {totalMemoryUsed} / {totalMemory} GB ({processMemoryUsed} used)
+            CPU: {cpuModel}
+            Memory (RAM): {totalMemoryUsed} / {totalMemory} ({processMemoryUsed} used)
             Uptime: {uptimePretty}
             Serving: {serving} Group(s)
             Served: {served} Group(s)
@@ -44,7 +45,8 @@ export const langData = {
         "pending.description": "Approve/Reject Pending Groups",
         "stats.description": "Get Bot Stats",
         "plugins.description": "Manage Plugins",
-        "plugins.reload.success": "Plugins reloaded successfully, see console for details"
+        "plugins.reload.success": "Plugins reloaded successfully, see console for details",
+        "exec.description": "Execute a command"
     },
     "vi_VN": {
         "maintenance.on": "Đã bật chế độ bảo trì",
@@ -70,7 +72,8 @@ export const langData = {
         "pending.reply.approve.failed": "Không thể phê duyệt {FAILED} nhóm:\n{FAILED_LIST}",
         "pending.reply.reject.failed": "Không thể từ chối {FAILED} nhóm:\n{FAILED_LIST}",
         "stats.body": `
-            Bộ nhớ (RAM): {totalMemoryUsed} / {totalMemory} GB ({processMemoryUsed} đã sử dụng)
+            CPU: {cpuModel}
+            Bộ nhớ (RAM): {totalMemoryUsed} / {totalMemory} ({processMemoryUsed} đã sử dụng)
             Thời gian hoạt động: {uptimePretty}
             Đang phục vụ: {serving} nhóm
             Đã phục vụ: {served} nhóm
@@ -84,7 +87,8 @@ export const langData = {
         "pending.description": "Xem danh sách nhóm chờ phê duyệt",
         "stats.description": "Xem thống kê bot",
         "plugins.description": "Quản lý plugins",
-        "plugins.reload.success": "Plugins đã được tải lại thành công, hãy xem console để biết thêm chi tiết"
+        "plugins.reload.success": "Plugins đã được tải lại thành công, hãy xem console để biết thêm chi tiết",
+        "exec.description": "Thực thi lệnh"
     }
 }
 
@@ -187,6 +191,7 @@ function setMaintenance() {
     const config = {
         name: "maintenance",
         aliases: ["maint"],
+        version: "1.0.0",
         description: getLang("maintenance.description", null, info.name),
         usage: "[on/off]",
         permissions: [2],
@@ -251,6 +256,7 @@ function monitor() {
     const config = {
         name: "monitor",
         aliases: ["mntr"],
+        version: "1.0.0",
         description: getLang("monitor.description", null, info.name),
         usage: "[add/del] [TID]",
         permissions: [2],
@@ -330,6 +336,7 @@ function restart() {
     const config = {
         name: "restart",
         aliases: ["rs", "reboot"],
+        version: "1.0.0",
         description: getLang("restart.description", null, info.name),
         usage: "",
         permissions: [2],
@@ -352,6 +359,7 @@ function pending() {
     const config = {
         name: "pending",
         aliases: ["pnd"],
+        version: "1.0.0",
         description: getLang("pending.description", null, info.name),
         usage: "",
         permissions: [2],
@@ -391,6 +399,7 @@ function stats() {
     const config = {
         name: "stats",
         aliases: ["st"],
+        version: "1.0.0",
         description: getLang("stats.description", null, info.name),
         usage: "",
         permissions: [2],
@@ -399,18 +408,17 @@ function stats() {
 
     const onCall = async ({ message, getLang, controllers }) => {
         try {
-            const procStats = libs['process-stats']();
-            const { memTotal, memFree, uptime, memUsed } = procStats();
-            procStats.destroy();
+            const { cpu, memTotal, totalMemUsed, processMemUsed, uptime } = client.modules.getStats();
 
             const servedThreads = await controllers.Threads.getAll() || [];
             const servingThreads = servedThreads.filter(thread => thread.info.isSubscribed == true) || [];
 
             let msg = getLang('stats.body', {
-                totalMemoryUsed: ((memTotal.value - memFree.value) / 1073741824).toFixed(2),
-                totalMemory: (memTotal.value / 1073741824).toFixed(2),
-                processMemoryUsed: memUsed.pretty,
-                uptimePretty: uptime.pretty,
+                cpuModel: cpu,
+                totalMemoryUsed: totalMemUsed,
+                totalMemory: memTotal,
+                processMemoryUsed: processMemUsed,
+                uptimePretty: uptime,
                 serving: servingThreads.length,
                 served: servedThreads.length,
                 totalMonitors: Object.keys(client.data.monitorServerPerThread).length + client.data.monitorServers.length,
@@ -433,6 +441,7 @@ function plugins() {
     const config = {
         name: "plugins",
         aliases: ["plg"],
+        version: "1.0.0",
         description: getLang("plugins.description", null, info.name),
         usage: "",
         permissions: [2],
@@ -442,6 +451,7 @@ function plugins() {
     const onCall = async ({ message, args, getLang }) => {
         if (args == 'reload') {
             try {
+                pluginLangData = new Object();
                 client.plugins = new Map();
                 client.registeredMaps.commandsExecutable = new Map();
                 client.registeredMaps.commandsAliases = new Map();
@@ -465,6 +475,31 @@ function plugins() {
     return { config, onCall };
 }
 
+function exec() {
+    const config = {
+        name: "exec",
+        aliases: ["run", "execute", "exc"],
+        version: "1.0.0",
+        description: getLang("exec.description", null, info.name),
+        usage: "[scripts]",
+        permissions: [2],
+        cooldown: 5
+    }
+
+    const onCall = async ({ api, message, args, getLang, db, controllers, userPermissions, prefix }) => {
+        try {
+            await eval(args.join(" ") || '');
+            message.reply("OK!");
+        } catch (e) {
+            console.error(e);
+            message.reply("Error!");
+        }
+        return;
+    }
+
+    return { config, onCall };
+}
+
 export const scripts = {
     commands: {
         setMaintenance,
@@ -472,7 +507,8 @@ export const scripts = {
         restart,
         pending,
         stats,
-        plugins
+        plugins,
+        exec
     },
     onReply
 }
