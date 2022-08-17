@@ -1,5 +1,8 @@
 import { createInterface } from 'readline';
 import { readFileSync, writeFileSync, renameSync, existsSync } from 'fs';
+import { execSync } from 'child_process';
+
+import { isGlitch } from './src/modules/environments.get.js';
 
 const langData = {
     "vi_VN": {
@@ -132,6 +135,9 @@ rl.on('close', () => {
     try {
         writeFileSync("./.env.example", envFile.join("\r\n"), { encoding: "utf8" });
         renameSync("./.env.example", "./.env");
+        if (isGlitch) {
+            execSync('refresh');
+        }
     } catch (error) {
         console.error(error);
     }
