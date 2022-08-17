@@ -1,3 +1,7 @@
+## v1.4.6 - 2022/08/17
+- Remove auto create monitor
+- Improve setup
+
 ## v1.4.5 - 2022/08/16
 - Node >= 16 is required
 - ImgBB key is now optional + using Base64 to store image by default.
@@ -10,7 +14,6 @@
 - Better Updater
 - Fix case handlers
 - delay (Promise) -> sleep (synchronous)
-- Remove auto create monitor
 - Ready for SQL/mongoDB support
 - Overall improvements
 

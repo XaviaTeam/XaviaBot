@@ -15,7 +15,7 @@ export default function loadClient() {
         rootPath: resolvePath('.'),
         mainPath: resolvePath('./app'),
         maintenance: new Boolean(),
-        version: '1.4.5'
+        version: '1.4.6'
     };
     Object.assign(client, defaultClient);
     return new Promise(async (resolve, reject) => {
