@@ -86,6 +86,9 @@ rl.question("1. Tiếng Việt\n2. English\n» Your choice: ", input => {
                 } else if (count == 3) {
                     config.MODERATORS = answer.length == 0 ? [] : answer.split(" ");
                     setupConfig(++count);
+                } else if (count == 4) {
+                    config.REFRESH = answer.length == 0 || isNaN(answer) ? 7200000 : parseInt(answer);
+                    setupConfig(++count);
                 } else {
                     config[Object.keys(config)[count]] = answer || Object.values(config)[count];
                     setupConfig(++count);
