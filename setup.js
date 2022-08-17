@@ -6,7 +6,7 @@ const langData = {
         "-1": "Không tìm thấy .env.example",
         "1": "Tên Bot (xavia): ",
         "2": "Prefix (x):",
-        "3": "ID của Admin Bot (id1 id2 id3): ",
+        "3": "ID của các quản trị Bot (id1 id2 id3): ",
         "4": "Tự khởi động Bot sau (7200000): ",
 
         "5": "Bạn có muốn setup file .env không? (y/n): ",
@@ -20,7 +20,7 @@ const langData = {
         "-1": "Can't find .env.example",
         "1": "Bot Name (Xavia): ",
         "2": "Prefix (x): ",
-        "3": "Bot Admin IDs (id1 id2 id3): ",
+        "3": "Bot Moderators'IDs (id1 id2 id3): ",
         "4": "Restart Interval (7200000): ",
 
         "5": "Do you want to setup .env file? (y/n): ",
