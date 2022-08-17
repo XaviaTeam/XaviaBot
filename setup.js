@@ -1,5 +1,5 @@
 import { createInterface } from 'readline';
-import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, renameSync, existsSync } from 'fs';
 
 const langData = {
     "vi_VN": {
@@ -45,7 +45,7 @@ let config = {
 };
 
 
-let checkEnv, envFile;
+let envFile;
 rl.question("1. Tiếng Việt\n2. English\n» Your choice: ", input => {
     const lang = input == 1 ? "vi_VN" : input == 2 ? "en_US" : null;
     if (!lang) {
@@ -75,9 +75,12 @@ rl.question("1. Tiếng Việt\n2. English\n» Your choice: ", input => {
                     if (answer !== "y" && answer !== "n") {
                         setupConfig(count);
                     } else {
-                        checkEnv = answer == "y" ? true : false;
-                        if (checkEnv) {
+                        if (answer == "y") {
                             setupEnv(++count);
+                        } else {
+                            envFile[0] += getRandomPassword(16);
+                            console.log("\nDone!");
+                            rl.close();
                         }
                     }
                 } else if (count == 3) {
@@ -123,15 +126,12 @@ function replaceConfig() {
 
 rl.on('close', () => {
     replaceConfig();
-    if (checkEnv) {
-        try {
-            writeFileSync("./.env", envFile.join("\r\n"), { encoding: "utf8" });
-            if (existsSync("./.env.example")) {
-                unlinkSync("./.env.example");
-            }
-        } catch (error) {
-            console.error(error);
-        }
+    try {
+        console.log(envFile);
+        writeFileSync("./.env.example", envFile.join("\r\n"), { encoding: "utf8" });
+        renameSync("./.env.example", "./.env");
+    } catch (error) {
+        console.error(error);
     }
 
     process.exit(0);
