@@ -93,28 +93,33 @@ function onMessage({ message }) {
 
             _writer.write('[]', 'utf8', () => {
                 _writer.destroy();
+                callback();
             });
+        } else {
+            callback();
         }
 
-        const _reader = reader(threadDataPath);
+        function callback() {
+            const _reader = reader(threadDataPath);
 
-        _reader.on("data", data => {
-            const _data = JSON.parse(data.toString());
-            const userIndex = _data.findIndex(user => user.id === senderID);
-            if (userIndex === -1) {
-                _data.push({
-                    id: senderID,
-                    count: 1
+            _reader.on("data", data => {
+                const _data = JSON.parse(data.toString());
+                const userIndex = _data.findIndex(user => user.id === senderID);
+                if (userIndex === -1) {
+                    _data.push({
+                        id: senderID,
+                        count: 1
+                    });
+                } else _data[userIndex].count++;
+
+                const _writer = writer(threadDataPath);
+                _writer.write(JSON.stringify(_data, null, 2), 'utf8', (err) => {
+                    _writer.destroy();
+                    _reader.destroy();
+                    if (err) throw err;
                 });
-            } else _data[userIndex].count++;
-
-            const _writer = writer(threadDataPath);
-            _writer.write(JSON.stringify(_data, null, 2), 'utf8', (err) => {
-                _writer.destroy();
-                _reader.destroy();
-                if (err) throw err;
             });
-        });
+        }
     } catch (e) {
         console.error(e);
     }
