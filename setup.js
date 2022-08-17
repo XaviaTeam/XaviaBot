@@ -130,7 +130,6 @@ function replaceConfig() {
 rl.on('close', () => {
     replaceConfig();
     try {
-        console.log(envFile);
         writeFileSync("./.env.example", envFile.join("\r\n"), { encoding: "utf8" });
         renameSync("./.env.example", "./.env");
     } catch (error) {
