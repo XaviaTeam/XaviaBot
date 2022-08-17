@@ -2,7 +2,7 @@ import { createInterface } from 'readline';
 import { readFileSync, writeFileSync, renameSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
 
-import { isGlitch } from './src/modules/environments.get.js';
+import { isGlitch } from './app/src/modules/environments.get.js';
 
 const langData = {
     "vi_VN": {
