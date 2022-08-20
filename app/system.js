@@ -45,7 +45,7 @@ function booting(logger) {
                 delete client.db;
 
                 refreshState(api);
-                if (isGlitch !== true) startCLI(api);
+                if (isGlitch !== true) startxConsole(api);
                 client.config.REFRESH ? autoReloadApplication() : null;
                 resolve(api.listenMqtt(listen(api, db)));
             })
@@ -65,7 +65,7 @@ function refreshState(api) {
     }, _2HOUR);
 }
 
-function startCLI(api) {
+function startxConsole(api) {
     const rl = createInterface({
         input: process.stdin,
         output: process.stdout
