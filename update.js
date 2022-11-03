@@ -1,5 +1,5 @@
 import { readFileSync, copyFileSync, existsSync, unlinkSync, mkdirSync, createWriteStream } from 'fs';
-import { logger } from './app/utils.js';
+import logger from './core/var/modules/logger.js';
 import { resolve, dirname } from 'path';
 import axios from 'axios';
 import { createInterface } from 'readline';

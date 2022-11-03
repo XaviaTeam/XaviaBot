@@ -1,3 +1,10 @@
+## v2.0.4 - 2022/11/03
+- Restructured code
+- New plugins format
+- Support mongodb
+- Remove support for multiple commands in one file
+- Better support for replit/glitch
+
 ## v1.4.6 - 2022/08/17
 - Remove auto create monitor
 - Improve setup

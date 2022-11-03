@@ -1,8 +1,8 @@
 import { readdirSync, statSync, unlinkSync, rmSync } from "fs";
 
 [
-    "./app/plugins/cache/",
-    "./app/src/controllers/cache/",
+    "./plugins/cache/",
+    "./core/var/data/cache/",
 ]
     .forEach(path => {
         const files = readdirSync(path);

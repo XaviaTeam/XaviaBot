@@ -1,0 +1,96 @@
+# _build.js
+build.start.varLoaded: "Environment variables loaded"
+build.start.exit: "Cleaning up and exiting"
+build.start.serverStarted: "Server started on port {port} with password: {serverAdminPassword}"
+
+build.booting.logging: "Logging in..."
+build.booting.logged: "Logged in as {botID}"
+
+build.startxConsole.terminalNotSupported: "Terminal {term} is not supported"
+build.startxConsole.platformNotSupported: "Automatic xConsole is not supported on {platform}"
+
+build.refreshState: "Refreshing Cookies..."
+build.refreshMqtt: "Refreshing MQTT..."
+
+# checkAppstate.js
+modules.checkAppstate.parsingError: "appstate file is not a valid JSON / could not be decrypted"
+modules.checkAppstate.noProtection: "appstate protection is disabled"
+modules.checkAppstate.error.notSupported: "Encryption is not supported on this environment"
+modules.checkAppstate.error.noAppstate: "appstate file not found!"
+modules.checkAppstate.foundAppstate: "appstate file found!"
+modules.checkAppstate.error.noKey: "Could not find secret key for appstate encryption"
+modules.checkAppstate.decrypting: "Decrypting appstate file..."
+modules.checkAppstate.encrypting: "Encrypting appstate file..."
+modules.checkAppstate.error.invalid: "appstate file is not valid, please recheck it!"
+
+# loader.js
+modules.loader.plugins.commands.error.nameExists: "The name {name} already exists!"
+modules.loader.plugins.commands.error.noAliases: "No aliases available!"
+
+modules.loader.plugins.default.error.onCallNotExists: "Missing onCall function!"
+modules.loader.plugins.default.error.onCallNotFunction: "onCall is not a function!"
+modules.loader.plugins.default.error.noExport: "No valid export found!"
+modules.loader.plugins.default.error.onLoadFailed: "onLoad failed, error: {error}"
+
+modules.loader.plugins.commands.error.failed: "Can't load command {fileName}, error: {error}"
+modules.loader.plugins.onMessage.error.failed: "Can't load message processor {fileName}, error: {error}"
+modules.loader.plugins.events.error.failed: "Can't load event {fileName}, error: {error}"
+modules.loader.plugins.customs.error.failed: "Can't load custom {fileName}, error: {error}"
+
+modules.loader.plugins.commands.loaded: "Loaded {commands}/{total} commands"
+modules.loader.plugins.onMessage.loaded: "Loaded {onMessage}/{total} message processors"
+modules.loader.plugins.events.loaded: "Loaded {events}/{total} events"
+modules.loader.plugins.customs.loaded: "Executed {customs}/{total} customs scripts"
+
+# handlers
+handlers.commands.nsfwNotAllowed: "This thread doesn't allow nsfw commands."
+handlers.commands.noPermission: "You do not have permission to use this command."
+handlers.commands.error: "An error occurred while executing this command."
+
+# resend
+plugins.resend.noMessage: "• {author} has unsent a message."
+plugins.resend.unsendNoMessageButAttach: "• {author} has unsent {attachmentsCount} attachment(s):"
+plugins.resend.unsendMessageAndAttach: "• {author} has unsent a message with {attachmentsCount} attachment(s):\n\n{message}"
+plugins.resend.unsendMessage: "• {author} has unsent a message:\n\n{message}"
+
+# Database
+database.mongo_url_not_found: "MongoDB URL not found, please check your env!"
+database.init: "Connecting to {database} database..."
+database.thread.get.success: "{threadID} - New Thread"
+database.user.get.success: "{userID} - New User"
+database.error: "An error occurred while working with the database: {error}"
+
+# events
+plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" has changed the thread image."
+plugins.events.change_thread_image.reversed: "\nChanging thread image is not allowed so it was reversed."
+plugins.events.change_thread_image.setNewImage: "\nChanging thread image is not allowed but the thread image is not set, so it will be set to the newly added one."
+
+plugins.events.subcribe.addSelf: "Bot has been added to \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
+plugins.events.subcribe.connected: "Connected successfully!\nUse {PREFIX}help to see all commands."
+plugins.events.subcribe.error.createMonitor: "Couldn't create new monitor for this thread."
+plugins.events.subcribe.createdMonitor: "Thread {threadId} will be monitored here."
+plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) has added {membersLength} member(s):\n{members}"
+
+plugins.events.unsubcribe.bot.left: "Bot has left \"{threadName}\" ({threadId})."
+plugins.events.unsubcribe.bot.kicked: "Bot has been kicked out from \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) has left."
+plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) has been kicked out by \"{authorName}\" ({authorId})."
+
+plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) has started a call."
+plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) has started a video call."
+plugins.events.thread-call.endedCall: "Call ended, duration: {callDuration}."
+plugins.events.thread-call.endedVideoCall: "Video call ended, duration: {callDuration}."
+plugins.events.thread-call.joinedCall: "\"{authorName}\" ({authorId}) has joined the call."
+plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) has joined the video call."
+
+plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) has changed the thread name to \"{newName}\"."
+plugins.events.thread-update.name.reversed: "\nChanging thread name is not allowed so it was reversed."
+plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) has changed the thread color from {oldColor} to {newColor}."
+plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) has changed the thread emoji from {oldEmoji} to {newEmoji}."
+plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) has changed the thread approval mode to {newApprovalMode}."
+plugins.events.thread-update.admins.added: "\"{authorName}\" ({authorId}) has added \"{targetName}\" ({targetId}) to the thread admins."
+plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) has removed \"{targetName}\" ({targetId}) from the thread admins."
+
+plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) has changed \"{targetName}\" ({targetId}) nickname to \"{newNickname}\"."
+plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) has changed his/her nickname to \"{newNickname}\"."
+plugin.events.user-nickname.reversed: "\nChanging nickname is not allowed so it was reversed."

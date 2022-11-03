@@ -1,7 +1,26 @@
-# XAVIABOT DOCS
-## UPDATED - 2022/08/16
+# XAVIABOT DOCS (v2)
+## UPDATED - 2022/11/03
 
 ### INSTALLATION && REQUIREMENTS: [here](https://github.com/XaviaTeam/XaviaBot/blob/main/README.md)
+<hr />
+
+### CONTENTS:
+- [TODO](#todo)
+- [Built-in Functions](#built-in-functions)
+- [Database](#database)
+- [Commands](#command-plugin)
+
+<hr />
+
+### TODO
+- [ ] Better documentations
+- [ ] Better examples
+- [ ] Dashboard
+- [ ] SQL Support
+- [ ] More economy features/command
+- [ ] Code optimization
+- [ ] More languages support
+
 <hr />
 
 ### Built-in Functions:
@@ -19,18 +38,18 @@
 + addCommas
 
 And more...<br />
-See [common.js](https://github.com/XaviaTeam/XaviaBot/tree/main/app/src/modules/common.js) for more details.
+See [common.js](https://github.com/XaviaTeam/XaviaBot/tree/main/core/var/common.js) for more details.
 
 <hr />
 
 ### Database
 
-- Type: [JSON](https://www.json.org/json-en.html)
+- Type: [JSON](https://www.json.org/json-en.html) - [MongoDB](https://www.mongodb.com/)
 - Basic usages:<br />
 ```javascript
 // plugin command example
-async function onCall({ api, message, controllers }) {
-    const { Users, Threads } = controllers;
+async function onCall({ message }) {
+    const { Users, Threads } = global.controllers;
     const userID = '100008907121641';
     const threadID = '2670470633061919';
     // code here
@@ -44,23 +63,24 @@ const userInfo = await Users.getInfo(userID);
 // GET USER DATA
 const userData = await Users.getData(userID);
 
-// GET EVERY USER DATA
-const allUsers = await Users.getAll();
+// GET ARRAY OF USER DATA
+const allUsers = await Users.getAll(); // get all
+const allUsersWithIDs = await Users.getAll(["id1","id2","id3"]);
+
+// All get methods return null or array of null if not found / unable to get data
 ```
 ```javascript
 // GET USER NAME
 const userInfo = await Users.getInfo(userID);
-const userName = userInfo.name;
-// or
-const userName = await Users.getName(userID);
+const userName = userInfo?.name; // name or undefined
 ```
 ```javascript
-// SET USER DATA
+// UPDATE USER DATA
 const userData = await Users.getData(userID);
 
-userData.banned = true;
+userData.banned = !Boolean(userData.banned);
 
-await Users.setData(userID, userData);
+await Users.updateData(userID, { banned: userData.banned });
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;\+ **Threads**
 ```javascript
@@ -70,47 +90,50 @@ const threadInfo = await Threads.getInfo(threadID);
 // GET THREAD DATA
 const threadData = await Threads.getData(threadID);
 
-// GET EVERY THREAD DATA
-const allThreads = await Threads.getAll();
+// GET MULTIPLE THREAD DATA
+const allThreads = await Threads.getAll(); // get all
+const allThreadsWithIDs = await Threads.getAll(["id1","id2","id3"]);
+
+// All get methods return null or array of null if not found / unable to get data
 ```
 ```javascript
 // GET THREAD NAME
 const threadInfo = await Threads.getInfo(threadID);
-const threadName = threadInfo.name;
-// or
-const threadName = await Threads.getName(threadID);
+const threadName = threadInfo?.name; // name or undefined
 ```
 ```javascript
-// SET THREAD DATA
+// UPDATE THREAD DATA
 const threadData = await Threads.getData(threadID);
 
-threadData.banned = true;
+threadData.banned = !Boolean(threadData.banned);
 
-await Threads.setData(threadID, threadData);
+await Threads.updateData(threadID, { banned: threadData.banned });
 ```
 <hr />
 
 ### Command Plugin
 
-- Check example plugin: [example.js](https://github.com/XaviaTeam/XaviaBot/blob/main/app/plugins/commands/Example/example.js)
+- Check example plugin: [example](https://github.com/XaviaTeam/XaviaBot/blob/main/plugins/commands/example)
 
 ```javascript
 // plugin command example
-const onCall = async ({ api, message, args, getLang, db, controllers, userPermissions, prefix }) => {
-    // api, read more bellow
-    // message, contains all the info about the message with some extra functions
-    // args, command arguments
-    // getLang, get language function
-    // db, don't touch it if you don't know what it is
-    // controllers, as said above
-    // userPermissions, an array of permisstion that executor has
-    // prefix, bot or thread prefix
+async function onCall({ message, args, getLang, extra, data, userPermissions, prefix }) {
+    // Do something
+    message.send(getLang("message"));
+
+    // args: Arguments, if /example 1 2 3, args = ["1", "2", "3"]
+    // getLang: Get language from langData
+    // extra: Extra property from config.plugins.json
+    // data { user, thread }
+    // userPermissions: User permissions (0: Member, 1: Admin, 2: Bot Admin)
+    // prefix: Prefix used
 }
 ```
 - API docs: [here](https://github.com/XaviaTeam/fbchat-js#documentation)
 
 ```javascript
 // send message example
+const { api } = global;
 const { threadID, messageID, send, reply, react } = message;
 const msg = 'Hello world!';
 
@@ -138,33 +161,28 @@ const { send } = message;
 // add reply event
 const msg = 'Reply me!';
 
+function cb({ message, getLang, data, eventData }) {
+    // Do something
+    message.send(getLang("message.replied"));
+    eventData.myData // myData from addReplyEvent
+}
+
 send(msg)
-    .then(data => data.addReplyEvent({ myData: 'myData' }))
+    .then(data => data.addReplyEvent({ callback: cb, myData: 'myData' }))
     .catch(err => console.error(err));
 
 // add react event
 const msg = 'React me!';
 
-send(msg)
-    .then(data => data.addReactEvent())
-    .catch(err => console.error(err));
-```
-```javascript
-function onReply({ message, eventData }) {
-    const { send, senderID, body } = message;
-    const { author, messageID, threadID, name, myData } = eventData;
-    // eventData contains:
-    // myData: 'myData' as passed in addReplyEvent
-    // author, the ID of the one who executed the command
-    // messageID, the ID of the message added reply event to
-    // threadID, the ID of the thread that added reply event to
-    // name, the name of the plugin of the command that was executed
-
-    if (author === senderID) {
-        send(`You replied: ${body}\nYour Data: ${myData}`);
-    }
+function cb({ message, getLang, data, eventData }) {
+    // Do something
+    message.send(getLang("message.reacted"));
+    eventData.myData // myData from addReactEvent
 }
-// same goes for react event
+
+send(msg)
+    .then(data => data.addReactEvent({ callback: cb, myData: 'myData' }))
+    .catch(err => console.error(err));
 ```
 <hr />
 Still Updating...

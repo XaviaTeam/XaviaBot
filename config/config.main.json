@@ -1,22 +1,24 @@
 {
-    "NAME": "Xavia",
-    "PREFIX": "x",
-    "MODERATORS": [],
-    "LANGUAGE": "en_US",
-    "timezone": "Asia/Ho_Chi_Minh",
-    "LOG_LEVEL": 1,
+    "APPSTATE_PATH": "./appstate.json",
+    "APPSTATE_PROTECTION": true,
+    "AUTO_PING_SERVER": true,
+    "ALLOW_INBOX": false,
+    "DATABASE": "JSON",
+    "DATABASE_JSON_BEAUTIFY": true,
     "FCA_OPTIONS": {
         "pauseLog": true,
         "logLevel": "silent",
-        "selfListen": true,
+        "selfListen": false,
         "listenEvents": true,
         "forceLogin": true,
         "userAgent": "Mozilla/5.0 (Linux; Android 9; SM-G973U Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36"
     },
-    "AUTO_LOGIN": false,
-    "REFRESH": 7200000,
-    "DATABASE_SETTINGS": {
-        "storage": "./app/src/database/JSON/",
-        "backupStorage": "./app/src/database/JSON/backup/"
-    }
+    "LANGUAGE": "en_US",
+    "LOG_LEVEL": 1,
+    "MODERATORS": [
+        "100008907121641"
+    ],
+    "NAME": "Xavia",
+    "PREFIX": "x",
+    "timezone": "Asia/Ho_Chi_Minh"
 }

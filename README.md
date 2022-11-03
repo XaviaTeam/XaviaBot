@@ -5,7 +5,7 @@
 • A Facebook Chat Bot made by XaviaTeam<br />
 • This Project will turn your Facebook account into a ***Facebook Chat Bot*** with a lot of Features
 
-![illustration](https://i.ibb.co/Qfnpq0g/image-2022-07-23-011502426.png)
+![illustration](https://i.ibb.co/F3FSQrS/image-2022-11-03-213502522.png)
 
 <hr />
 
@@ -15,7 +15,7 @@
 
 ## Installation
 
-• [Install Xavia on Replit](https://www.youtube.com/watch?v=rxf_uOgEL2I)
+<!-- • [Install Xavia on Replit](https://www.youtube.com/watch?v=rxf_uOgEL2I) -->
 
 • Import to [Replit](https://replit.com/github/XaviaTeam/XaviaBot) / [Glitch](https://glitch.com/edit/#!/import/github/XaviaTeam/XaviaBot)
 
@@ -33,11 +33,6 @@ git clone https://github.com/XaviaTeam/XaviaBot.git
 
 ```bash
 cd xavia
-```
-
-• Setup
-```bash
-node setup.js
 ```
 
 • Install dependencies & Run
@@ -71,10 +66,10 @@ npm install && npm start
 <br /><br />
 • Many thanks to TesterTeam for all the testing, feedbacks and the other Bot Projects ([c3cbot](https://github.com/c3cbot/legacy-c3cbot) - [miraibot](https://github.com/miraiPr0ject/miraiv2) - [kb2abot](https://github.com/kb2ateam/kb2abot-client)) that inspired me to create XaviaBot
 
-## Donation
+## Like our work?
 
-• Enjoy our Project? Give us a star or a donation!<br />
-• Donate us via:<br />
+• Give us a star!<br />
+• Support us via:<br />
 &nbsp;&nbsp;&nbsp;» [Paypal](https://www.paypal.com/paypalme/dungto213)<br />
 &nbsp;&nbsp;&nbsp;» [Momo](https://me.momo.vn/gMIMulsaUqsbf6iAiXt3)<br />
 &nbsp;&nbsp;&nbsp;» [Buy me a Coffee!](https://www.buymeacoffee.com/dimensityDU)
