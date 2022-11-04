@@ -35,6 +35,8 @@ git clone https://github.com/XaviaTeam/XaviaBot.git
 cd xavia
 ```
 
+• Use [c3c-fbstate](https://github.com/c3cbot/c3c-fbstate) to get the appstate from your Facebook account then paste it on appstate.json
+
 • Install dependencies & Run
 
 ```bash
