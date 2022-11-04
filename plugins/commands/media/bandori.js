@@ -371,7 +371,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
         const card = storage[Math.floor(Math.random() * storage.length)];
         const { name, skill_name, art, rarity, attribute, id } = card;
 
-        const stream = await global.getStream(art);
+        const stream = await global.getStream(encodeURI(art));
         const msg = {
             body: getLang('pull.result', { name, skill_name, rarity, attribute, id }),
             attachment: stream
