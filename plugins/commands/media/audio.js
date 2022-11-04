@@ -39,7 +39,7 @@ function onLoad() {
 
 async function playMusic(message, song, getLang) {
     const { title, url } = song;
-    message.react("✅");
+    message.react("⏳");
     const cachePath = join(global.cachePath, `${title}${Date.now()}.mp3`);
     try {
         let stream = ytdl(url, { quality: 'lowestaudio' });
@@ -58,6 +58,7 @@ async function playMusic(message, song, getLang) {
             body: `[ ${title} ]`,
             attachment: global.reader(cachePath)
         });
+        message.react("✅");
     } catch (err) {
         message.react("❌");
         console.error(err);

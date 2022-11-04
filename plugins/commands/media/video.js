@@ -44,7 +44,7 @@ function onLoad() {
 
 async function playVideo(message, video, getLang) {
     const { title, url } = video;
-    message.react("✅");
+    message.react("⏳");
     const cachePath = join(global.cachePath, `${title}${Date.now()}.mp4`);
     try {
         let stream = ytdl(url, { quality: 18 });
@@ -66,6 +66,7 @@ async function playVideo(message, video, getLang) {
             body: `[ ${title} ]`,
             attachment: global.reader(cachePath)
         });
+        message.react("✅");
     } catch (err) {
         message.react("❌");
         console.error(err);
