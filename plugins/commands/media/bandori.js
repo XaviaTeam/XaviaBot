@@ -8,7 +8,7 @@ const _12HOURS = 12 * 60 * 60 * 1000;
 const config = {
     name: 'bandori',
     aliases: ['bangdream', 'band'],
-    description: 'Play Bang Dream! songs, garupa PICO videos, and more!',
+    description: 'Play BanG Dream! songs, garupa PICO videos, and more!',
     usage: '<song> | <pico> | <pull>',
     cooldown: 5,
     credits: "XaviaTeam",
