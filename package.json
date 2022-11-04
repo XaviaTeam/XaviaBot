@@ -1,6 +1,6 @@
 {
   "name": "xaviabot",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A Facebook Messenger Bot",
   "main": "index.js",
   "type": "module",
