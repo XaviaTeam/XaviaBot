@@ -1,3 +1,7 @@
+## v2.0.5 - 2022/11/04
+- Small fixes
+- Folder removal support for update.js
+
 ## v2.0.4 - 2022/11/03
 - Restructured code
 - New plugins format
