@@ -5,7 +5,7 @@ import axios from 'axios';
 import { createInterface } from 'readline';
 
 const baseURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBot/main";
-const allVersionsURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/versions.json";
+const allVersionsURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/_versions.json";
 
 
 const checkUpdate = async () => {
