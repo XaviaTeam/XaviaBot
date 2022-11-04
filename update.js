@@ -1,4 +1,4 @@
-import { readFileSync, copyFileSync, existsSync, unlinkSync, mkdirSync, createWriteStream } from 'fs';
+import { readFileSync, copyFileSync, existsSync, unlinkSync, mkdirSync, createWriteStream, statSync, rmSync } from 'fs';
 import logger from './core/var/modules/logger.js';
 import { resolve, dirname } from 'path';
 import axios from 'axios';
@@ -173,7 +173,10 @@ const __remove = (list = []) => {
     for (const item of list) {
         const path = resolve(item);
         if (existsSync(path)) {
-            unlinkSync(path);
+            let stat = statSync(path);
+            if (stat.isDirectory()) {
+                rmSync(path, { recursive: true, force: true });
+            } else unlinkSync(path);
             logger.custom(`Removed ${item}`, "UPDATE");
         }
     }
