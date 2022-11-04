@@ -18,7 +18,7 @@ const checkUpdate = async () => {
         const newVersionIndex = Object.entries(data).findIndex(([versionFrom,]) => versionFrom == currentVersion);
         if (newVersionIndex != -1) {
             for (const [, versionAfter] of Object.entries(data).slice(newVersionIndex)) {
-                const scriptsURL = `https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/${versionAfter}.json`;
+                const scriptsURL = `https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/_${versionAfter}.json`;
                 const scripts = (await axios.get(scriptsURL)).data;
 
                 updateScriptsArr.push(scripts);
