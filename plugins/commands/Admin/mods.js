@@ -44,7 +44,7 @@ async function onCall({ message, args, extra, getLang }) {
         switch (query) {
             case "add":
                 {
-                    if (!isAbsolute) return messageReply(getLang("notAbsolute"));
+                    if (!isAbsolute) return reply(getLang("notAbsolute"));
 
                     let success = [];
                     if (type == "message_reply") {
@@ -79,7 +79,7 @@ async function onCall({ message, args, extra, getLang }) {
             case "delete":
             case "del":
                 {
-                    if (!isAbsolute) return messageReply(getLang("notAbsolute"));
+                    if (!isAbsolute) return reply(getLang("notAbsolute"));
 
                     let success = [];
                     if (type == "message_reply") {
