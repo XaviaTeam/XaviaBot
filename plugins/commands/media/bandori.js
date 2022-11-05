@@ -4,21 +4,21 @@ import ffmpeg from 'ffmpeg-static';
 import stringSimilarity from 'string-similarity'
 import ytdl from 'ytdl-core';
 
-const _12HOURS = 12 * 60 * 60 * 1000;
 const config = {
     name: 'bandori',
     aliases: ['bangdream', 'band'],
+    version: '1.0.2',
     description: 'Play BanG Dream! songs, garupa PICO videos, and more!',
     usage: '<song> | <pico> | <pull>',
     cooldown: 5,
     credits: "XaviaTeam",
     extra: {
-        pullDelay: _12HOURS,
         pullRate: {
             _4STARS: 20,
             _3STARS: 100,
             _2STARS: 300,
-        }
+        },
+        pullCost: 500
     }
 }
 
@@ -76,7 +76,7 @@ const langData = {
         "pico.chooseEpisode": "[ {part} ]\nTotal: {total} eps\n⇒ Reply the episode you want to watch.",
         "pico.chooseEpisode.invalid": "Invalid choice.",
         "pull.noData": "Your data is not ready...",
-        "pull.tooFast": "Can't pull yet. Try again in {timeLeft}.",
+        "pull.notEnoughMoney": "You need {pullCost} XC to pull.",
         "pull.result": "You got a {rarity} star card! (id: {id})\nName: {name} ({attribute})\nSkill: {skill_name}",
         "any.error": "An error occurred.",
         "downloading": "Downloading...",
@@ -96,7 +96,7 @@ const langData = {
         "pico.chooseEpisode": "[ {part} ]\nTổng cộng: {total} eps\n⇒ Reply số tập bạn muốn xem.",
         "pico.chooseEpisode.invalid": "Lựa chọn không hợp lệ.",
         "pull.noData": "Dữ liệu của bạn chưa sẵn sàng...",
-        "pull.tooFast": "Không thể pull được. Thử lại sau {timeLeft}.",
+        "pull.notEnoughMoney": "Bạn cần {pullCost} XC để pull.",
         "pull.result": "Bạn nhận được một thẻ {rarity} sao! (id: {id})\nTên: {name} ({attribute})\nKỹ năng: {skill_name}",
         "any.error": "Đã xảy ra lỗi.",
         "downloading": "Đang tải xuống...",
@@ -342,13 +342,10 @@ const onCall = async ({ message, args, getLang, extra }) => {
         if (userData === null) return message.reply(getLang('pull.noData'));
 
         const bandori = userData.bandori || {};
-        const lastPull = bandori.lastPull || 0;
-        const { pullDelay, pullRate } = extra;
+        const money = userData.money || 0;
+        const { pullRate, pullCost } = extra;
 
-        if (Date.now() - lastPull < pullDelay) {
-            const timeLeft = pullDelay - (Date.now() - lastPull);
-            return message.reply(getLang('pull.tooFast', { timeLeft: global.msToHMS(timeLeft) }));
-        }
+        if (BigInt(money) < BigInt(pullCost)) return message.reply(getLang('pull.notEnoughMoney', { pullCost }));
 
         const { _4STARS: _4, _3STARS: _3, _2STARS: _2 } = pullRate;
 
@@ -383,9 +380,8 @@ const onCall = async ({ message, args, getLang, extra }) => {
             isAwakened: false
         });
 
-        bandori.lastPull = Date.now();
         bandori.inventory = inventory;
-        await Users.updateData(message.senderID, { bandori });
+        await Users.updateData(message.senderID, { bandori, money: String(BigInt(userData.money) - BigInt(pullCost)) });
 
         return message.reply(msg);
     } else if (query == 'inventory') {

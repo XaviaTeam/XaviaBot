@@ -1,6 +1,7 @@
 const config = {
     name: "help",
     aliases: ["cmds", "commands"],
+    version: "1.0.1",
     description: "Show all commands or command details",
     usage: "[command] (optional)",
     credits: "XaviaTeam"
@@ -14,6 +15,7 @@ const langData = {
         "help.commandDetails": `
             ⇒ Name: {name}
             ⇒ Aliases: {aliases}
+            ⇒ Version: {version}
             ⇒ Description: {description}
             ⇒ Usage: {usage}
             ⇒ Permissions: {permissions}
@@ -31,6 +33,7 @@ const langData = {
         "help.commandDetails": `
             ⇒ Tên: {name}
             ⇒ Tên khác: {aliases}
+            ⇒ Phiên bản: {version}
             ⇒ Mô tả: {description}
             ⇒ Cách sử dụng: {usage}
             ⇒ Quyền hạn: {permissions}
@@ -73,6 +76,7 @@ async function onCall({ message, args, getLang, userPermissions, prefix }) {
         message.reply(getLang("help.commandDetails", {
             name: command.name,
             aliases: command.aliases.join(", "),
+            version: command.version || "1.0.0",
             description: command.description || '',
             usage: `${prefix}${command.name} ${command.usage || ''}`,
             permissions: command.permissions.map(p => getLang(p)).join(", "),
