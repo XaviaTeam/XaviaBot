@@ -6,7 +6,8 @@
       "_3STARS": 100,
       "_2STARS": 300
     },
-    "pullCost": 500
+    "pullCost": 500,
+    "refund": 150
   },
   "audio": {
     "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",

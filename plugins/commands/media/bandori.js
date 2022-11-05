@@ -19,7 +19,8 @@ const config = {
             _3STARS: 100,
             _2STARS: 300,
         },
-        pullCost: 500
+        pullCost: 500,
+        refund: 150
     }
 }
 
@@ -80,6 +81,7 @@ const langData = {
         "pico.chooseEpisode.invalid": "Invalid choice.",
         "pull.noData": "Your data is not ready...",
         "pull.notEnoughMoney": "You need {pullCost} XC to pull.",
+        "pull.alreadyHave": "Pulled the card you already have, got {refund} XC back.",
         "pull.cardType._0": "You got a {rarity} stars card! (id: {id})",
         "pull.cardType._1": "You got a Special cards! (id: {id})",
         "pull.result": "\nName: {name} ({attribute})\nSkill: {skill_name}",
@@ -104,6 +106,7 @@ const langData = {
         "pico.chooseEpisode.invalid": "Lựa chọn không hợp lệ.",
         "pull.noData": "Dữ liệu của bạn chưa sẵn sàng...",
         "pull.notEnoughMoney": "Bạn cần {pullCost} XC để pull.",
+        "pull.alreadyHave": "Bạn pull được thẻ bạn đã có, nhận lại {refund} XC.",
         "pull.cardType._0": "Bạn nhận được một thẻ {rarity} sao! (id: {id})",
         "pull.cardType._1": "Bạn nhận được một thẻ đặc biệt! (id: {id})",
         "pull.result": "\nTên: {name} ({attribute})\nKỹ năng: {skill_name}",
@@ -354,7 +357,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
 
         const bandori = userData.bandori || {};
         const money = userData.money || 0;
-        const { pullRate, pullCost } = extra;
+        const { pullRate, pullCost, refund } = extra;
 
         if (BigInt(money) < BigInt(pullCost)) return message.reply(getLang('pull.notEnoughMoney', { pullCost }));
 
@@ -382,17 +385,22 @@ const onCall = async ({ message, args, getLang, extra }) => {
         const card = storage[Math.floor(Math.random() * storage.length)];
         const { name, skill_name, art, rarity, attribute, id } = card;
 
+        const inventory = bandori.inventory || [];
+        if (inventory.some(card => card.id == id)) {
+            await Users.updateData(message.senderID, { money: String(BigInt(money) - BigInt(pullCost) + BigInt(refund)) });
+            return message.reply(getLang('pull.alreadyHave', { refund }));
+        }
+
+        inventory.push({
+            id,
+            isAwakened: false
+        });
+
         const stream = await global.getStream(encodeURI(art));
         const msg = {
             body: getLang(`${_SPECIAL.findIndex(c => c.id == id) !== -1 ? 'pull.cardType._1' : 'pull.cardType._0'}`, { id }) + getLang('pull.result', { name, skill_name, rarity, attribute }),
             attachment: stream
         }
-
-        const inventory = bandori.inventory || [];
-        inventory.push({
-            id,
-            isAwakened: false
-        });
 
         bandori.inventory = inventory;
         await Users.updateData(message.senderID, { bandori, money: String(BigInt(userData.money) - BigInt(pullCost)) });
