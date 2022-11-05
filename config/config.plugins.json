@@ -1,11 +1,12 @@
 {
   "bandori": {
-    "pullDelay": 43200000,
     "pullRate": {
+      "_SPECIAL": 2,
       "_4STARS": 20,
       "_3STARS": 100,
       "_2STARS": 300
-    }
+    },
+    "pullCost": 500
   },
   "audio": {
     "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",

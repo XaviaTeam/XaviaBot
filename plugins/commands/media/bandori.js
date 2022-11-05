@@ -14,6 +14,7 @@ const config = {
     credits: "XaviaTeam",
     extra: {
         pullRate: {
+            _SPECIAL: 2,
             _4STARS: 20,
             _3STARS: 100,
             _2STARS: 300,
@@ -48,12 +49,14 @@ const onLoad = async () => {
         const cards = await GET(cardsRAW);
 
         global.bandori.cards = cards.data
-            .filter(card => card.rarity !== '1')
-            .filter(card => card.rarity === '2' || card.skill_name !== null)
-            .filter(card => card.name !== null)
-            .filter(card => !card.name.includes('Birthday special!'))
-            .filter(card => !card.name.includes('Special birthday!'))
-            .filter(card => !card.name.includes('Precious Birthday!'));
+            .filter(card => card.rarity != 1)
+            .filter(card => card.rarity == 2 || card.skill_name !== null)
+            .filter(card => card.name !== null);
+
+        const special_cardsRAW = baseRAW + 'special_cards.json';
+        const special_cards = await GET(special_cardsRAW);
+
+        global.bandori.special_cards = special_cards.data;
 
         global.bandori.isReady = true;
     } catch (error) {
@@ -77,10 +80,14 @@ const langData = {
         "pico.chooseEpisode.invalid": "Invalid choice.",
         "pull.noData": "Your data is not ready...",
         "pull.notEnoughMoney": "You need {pullCost} XC to pull.",
-        "pull.result": "You got a {rarity} star card! (id: {id})\nName: {name} ({attribute})\nSkill: {skill_name}",
+        "pull.cardType._0": "You got a {rarity} stars card! (id: {id})",
+        "pull.cardType._1": "You got a Special cards! (id: {id})",
+        "pull.result": "\nName: {name} ({attribute})\nSkill: {skill_name}",
+        "inventory.noData": "Your data is not ready...",
+        "inventory.data": "=== ⌈ Bandori ⌋ ===\n • Total: {_total}\n • Special: {_SPECIAL}\n • 4 stars: {_4STARS} ({_4STARS_AWAKENED} awakened)\n • 3 stars: {_3STARS} ({_3STARS_AWAKENED} awakened)\n • 2 stars: {_2STARS}",
         "any.error": "An error occurred.",
         "downloading": "Downloading...",
-        "help": `=== BANDORI HELP ===\n${config.name} song <song name> - Play a song.\n${config.name} song - Choose a song.\n${config.name} pico <part> <ep> - Watch a garupa PICO episode.\n${config.name} pico - Choose a part.\n${config.name} pull - Pull a card.\n${config.name} help - Show this help.`
+        "help": `=== BANDORI HELP ===\n${config.name} song <song name> - Play a song.\n${config.name} song - Choose a song.\n${config.name} pico <part> <ep> - Watch a garupa PICO episode.\n${config.name} pico - Choose a part.\n${config.name} pull - Pull a card.\n${config.name} inventory - Show your inventory.\n${config.name} help - Show this help.`
     },
     'vi_VN': {
         "song.chooseBand": "Chọn một ban nhạc:\n{bands}",
@@ -97,10 +104,14 @@ const langData = {
         "pico.chooseEpisode.invalid": "Lựa chọn không hợp lệ.",
         "pull.noData": "Dữ liệu của bạn chưa sẵn sàng...",
         "pull.notEnoughMoney": "Bạn cần {pullCost} XC để pull.",
-        "pull.result": "Bạn nhận được một thẻ {rarity} sao! (id: {id})\nTên: {name} ({attribute})\nKỹ năng: {skill_name}",
+        "pull.cardType._0": "Bạn nhận được một thẻ {rarity} sao! (id: {id})",
+        "pull.cardType._1": "Bạn nhận được một thẻ đặc biệt! (id: {id})",
+        "pull.result": "\nTên: {name} ({attribute})\nKỹ năng: {skill_name}",
+        "inventory.noData": "Dữ liệu của bạn chưa sẵn sàng...",
+        "inventory.data": "=== ⌈ Bandori ⌋ ===\n • Tổng cộng: {_total}\n • Special: {_SPECIAL}\n • 4 sao: {_4STARS} ({_4STARS_AWAKENED} đã thức tỉnh)\n • 3 sao: {_3STARS} ({_3STARS_AWAKENED} đã thức tỉnh)\n • 2 sao: {_2STARS}",
         "any.error": "Đã xảy ra lỗi.",
         "downloading": "Đang tải xuống...",
-        "help": `=== BANDORI HELP ===\n${config.name} song <tên bài hát> - Chơi một bài hát.\n${config.name} song - Chọn một bài hát.\n${config.name} pico <phần> <tập> - Xem một tập garupa PICO.\n${config.name} pico - Chọn một phần.\n${config.name} pull - Pull một thẻ.\n${config.name} help - Hiển thị bảng trợ giúp này.`
+        "help": `=== BANDORI HELP ===\n${config.name} song <tên bài hát> - Chơi một bài hát.\n${config.name} song - Chọn một bài hát.\n${config.name} pico <phần> <tập> - Xem một tập garupa PICO.\n${config.name} pico - Chọn một phần.\n${config.name} pull - Pull một thẻ.\n${config.name} inventory - Hiển thị kho của bạn.\n${config.name} help - Hiển thị trợ giúp này.`
     }
 }
 
@@ -261,7 +272,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
     const query = args[0];
     const keyword = args.slice(1).join(' ');
 
-    if (query == 'song') {
+    if (query == 'song' || query == 'songs') {
         if (!keyword) {
             const bands = Bands.map((band, i) => `${i + 1}. ${band}`).join('\n');
             return message.reply(getLang('song.chooseBand', { bands }))
@@ -297,7 +308,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
                     const rating = results.ratings[i];
                     if (rating.rating == 0) break;
 
-                    const index = storage.findIndex(song => song.name == rating.target);
+                    const index = storage.findIndex(song => song.name == rating.target && !chosenData.some(song => song.name == rating.target));
                     if (index !== -1) chosenData.push(storage[index]);
                     if (chosenData.length >= 5) break;
                 }
@@ -347,30 +358,33 @@ const onCall = async ({ message, args, getLang, extra }) => {
 
         if (BigInt(money) < BigInt(pullCost)) return message.reply(getLang('pull.notEnoughMoney', { pullCost }));
 
-        const { _4STARS: _4, _3STARS: _3, _2STARS: _2 } = pullRate;
+        const { _SPECIAL: _SP, _4STARS: _4, _3STARS: _3, _2STARS: _2 } = pullRate;
 
-        const storage = [];
-        let _4STARS = global.bandori.cards.filter(card => card.rarity == 4),
+        let storage = [];
+        let _SPECIAL = global.bandori.cards.filter(card => global.bandori.special_cards.includes(card.id)),
+            _4STARS = global.bandori.cards.filter(card => card.rarity == 4 && _SPECIAL.findIndex(c => c.id == card.id) == -1),
             _3STARS = global.bandori.cards.filter(card => card.rarity == 3),
             _2STARS = global.bandori.cards.filter(card => card.rarity == 2);
 
-        let _4SliceTo = _4STARS.length > _4 ? _4 : _4STARS.length,
+        let _SPSliceTo = _SPECIAL.length > _SP ? _SP : _SPECIAL.length,
+            _4SliceTo = _4STARS.length > _4 ? _4 : _4STARS.length,
             _3SliceTo = _3STARS.length > _3 ? _3 : _3STARS.length,
             _2SliceTo = _2STARS.length > _2 ? _2 : _2STARS.length;
 
+        _SPECIAL = global.shuffleArray(_SPECIAL).slice(0, _SPSliceTo);
         _4STARS = global.shuffleArray(_4STARS).slice(0, _4SliceTo);
         _3STARS = global.shuffleArray(_3STARS).slice(0, _3SliceTo);
         _2STARS = global.shuffleArray(_2STARS).slice(0, _2SliceTo);
 
-        storage.push(..._4STARS, ..._3STARS, ..._2STARS);
-        storage.sort((a, b) => b.rarity - a.rarity);
+        storage.push(..._SPECIAL, ..._4STARS, ..._3STARS, ..._2STARS);
+        storage = global.shuffleArray(storage);
 
         const card = storage[Math.floor(Math.random() * storage.length)];
         const { name, skill_name, art, rarity, attribute, id } = card;
 
         const stream = await global.getStream(encodeURI(art));
         const msg = {
-            body: getLang('pull.result', { name, skill_name, rarity, attribute, id }),
+            body: getLang(`${_SPECIAL.findIndex(c => c.id == id) !== -1 ? 'pull.cardType._1' : 'pull.cardType._0'}`, { id }) + getLang('pull.result', { name, skill_name, rarity, attribute }),
             attachment: stream
         }
 
@@ -384,8 +398,31 @@ const onCall = async ({ message, args, getLang, extra }) => {
         await Users.updateData(message.senderID, { bandori, money: String(BigInt(userData.money) - BigInt(pullCost)) });
 
         return message.reply(msg);
-    } else if (query == 'inventory') {
-        message.reply("Coming soon!");
+    } else if (query == 'inventory' || query == 'inv') {
+        const userData = await Users.getData(message.senderID);
+        if (userData === null) return message.reply(getLang('inventory.noData'));
+
+        if (!userData.bandori) userData.bandori = { inventory: [] };
+        if (!userData.bandori.inventory) userData.bandori.inventory = [];
+
+        let storage = userData.bandori.inventory.map(e => {
+            return {
+                id: e.id,
+                rarity: global.bandori.cards.find(card => card.id == e.id).rarity,
+                isSpecial: global.bandori.special_cards.includes(e.id),
+                isAwakened: e.isAwakened
+            }
+        });
+
+        message.reply(getLang("inventory.data", {
+            _total: storage.length,
+            _SPECIAL: storage.filter(e => e.isSpecial).length,
+            _4STARS: storage.filter(e => e.rarity == 4 && !e.isSpecial).length,
+            _4STARS_AWAKENED: storage.filter(e => e.rarity == 4 && e.isAwakened).length,
+            _3STARS: storage.filter(e => e.rarity == 3).length,
+            _3STARS_AWAKENED: storage.filter(e => e.rarity == 3 && e.isAwakened).length,
+            _2STARS: storage.filter(e => e.rarity == 2).length
+        }));
     } else {
         return message.reply(getLang('help'));
     }
