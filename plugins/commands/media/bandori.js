@@ -348,7 +348,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
             return playVideo(message, data[chosenEp - 1], chosenPart);
         } else {
             return message.reply(getLang('pico.chooseEpisode', { total: numberOfEps, part: chosenPart }))
-                .then(_ => _.addReplyEvent({ callback: replyForEps, data, part: chosenPart }))
+                .then(_ => _.addReplyEvent({ callback: replyForEps, data, chosenPart }))
                 .catch(err => console.error(err));
         }
     } else if (query == 'pull') {
