@@ -398,7 +398,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
 
         const stream = await global.getStream(encodeURI(art));
         const msg = {
-            body: getLang(`${_SPECIAL.findIndex(c => c.id == id) !== -1 ? 'pull.cardType._1' : 'pull.cardType._0'}`, { id }) + getLang('pull.result', { name, skill_name, rarity, attribute }),
+            body: getLang(`${_SPECIAL.findIndex(c => c.id == id) !== -1 ? 'pull.cardType._1' : 'pull.cardType._0'}`, { rarity, id }) + getLang('pull.result', { name, skill_name, rarity, attribute }),
             attachment: stream
         }
 
