@@ -39,7 +39,7 @@ const _global = {
     updateJSON: null,
     updateMONGO: null,
     controllers: null,
-    xva_api: "https://xva-api-prod-xavia-vivz06.mo5.mogenius.io",
+    xva_api: "https://XaviaAPI.rfsadreno.repl.co",
     server: null,
     refreshState: null,
     refreshMqtt: null,
