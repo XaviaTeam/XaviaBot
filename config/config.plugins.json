@@ -10,11 +10,11 @@
     "refund": 150
   },
   "audio": {
-    "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",
+    "API_KEY": "AIzaSyCXD9VHuJv3kqeeB4XQ1W-n4fcvk0uXCgI",
     "MAX_SONGS": 6
   },
   "video": {
-    "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",
+    "API_KEY": "AIzaSyCXD9VHuJv3kqeeB4XQ1W-n4fcvk0uXCgI",
     "MAX_VIDEOS": 6
   },
   "daily": {
