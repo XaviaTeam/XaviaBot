@@ -79,7 +79,7 @@ async function onCall({ message, args, getLang, userPermissions, prefix }) {
             version: command.version || "1.0.0",
             description: command.description || '',
             usage: `${prefix}${command.name} ${command.usage || ''}`,
-            permissions: command.permissions.map(p => getLang(p)).join(", "),
+            permissions: command.permissions.map(p => getLang(String(p))).join(", "),
             category: command.category,
             cooldown: command.cooldown || 3,
             credits: command.credits || ""
