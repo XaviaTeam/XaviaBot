@@ -45,7 +45,7 @@ function onLoad() {
 async function playVideo(message, video, getLang) {
     const { title, url } = video;
     message.react("⏳");
-    const cachePath = join(global.cachePath, `${title}${Date.now()}.mp4`);
+    const cachePath = join(global.cachePath, `_ytvideo${Date.now()}.mp4`);
     try {
         let stream = ytdl(url, { quality: 18 });
         await new Promise((resolve, reject) => {

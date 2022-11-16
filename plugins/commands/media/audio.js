@@ -40,7 +40,7 @@ function onLoad() {
 async function playMusic(message, song, getLang) {
     const { title, url } = song;
     message.react("⏳");
-    const cachePath = join(global.cachePath, `${title}${Date.now()}.mp3`);
+    const cachePath = join(global.cachePath, `_ytaudio${Date.now()}.mp3`);
     try {
         let stream = ytdl(url, { quality: 'lowestaudio' });
         await new Promise((resolve, reject) => {
