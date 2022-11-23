@@ -1,0 +1,92 @@
+# checkAppstate.js
+modules.checkAppstate.parsingError: "file appstate không hợp lệ / không thể giải mã được"
+modules.checkAppstate.error.noSecretKey: "APPSTATE_SECRET_KEY chưa được xác định!"
+modules.checkAppstate.error.noAppstate: "Không tìm thấy file appstate"
+modules.checkAppstate.foundAppstate: "Đã tìm thấy file appstate"
+modules.checkAppstate.decrypting: "Đang giải mã file appstate..."
+modules.checkAppstate.encrypting: "Đang mã hóa file appstate..."
+
+# loader.js
+modules.loader.installingDependency: "Đang cài đặt {dependency}."
+modules.loader.dependencyInstalled: "Đã cài thành công {dependency}."
+modules.loader.error.dependencyInstallFailed: "{dependency} cài đặt thất bại."
+modules.loader.error.pluginExists: "Plugin {pluginName} đã tồn tại."
+modules.loader.error.scriptsEmpty: "Plugin {pluginName} không có tập lệnh (script) nào cả."
+modules.loader.warn.configPluginsCorrupted: "File cấu hình cho các plugin không phải là một file JSON, đang tạo mới."
+modules.loader.configPluginsBackedUp: "File cấu hình cho các plugin đã được sao lưu."
+modules.loader.error.commandAlreadyExists: "Lệnh {commandName} đã tồn tại."
+modules.loader.error.commandNoAcceptableAliases: "Lệnh {commandName} không có tên hiệu nào hợp lệ."
+modules.loader.warn.commandNoValidPermissions: "Lệnh {commandName} không có quyền hạn nào hợp lệ, mặc định về [*]."
+modules.loader.error.commandNotFunction: "Không thể tải lệnh {commandName}, onCall không phải là một function."
+modules.loader.error.onLoad: "Đã có lỗi xảy ra khi thực thi onLoad function của plugin {pluginName}:"
+modules.loader.pluginsLoaded: "Đã tải thành công {pluginsCount} plugin(s)."
+modules.loader.commandsLoaded: "----> {commandCount} lệnh(s)."
+
+# database/index.js
+database.error.structureNotDefined: "Structure chưa được xác định."
+database.error.structureNotValid: "Structure không phải là một function/class."
+database.error.JSONNotValid: "{structure}.json không phải là một file JSON hợp lệ."
+database.error.moderatorDataNotValid: "Data cho Moderator phải là một object."
+database.error.dataNotValid: "Data không xác định / không phải là một array."
+database.error.backupNotFound: "Không tìm thấy file sao lưu."
+database.error.backupFailed: "Sao lưu thất bại, tiến hành khôi phục bản sao lưu trước đó."
+database.error.restoreFailed: "Khôi phục thất bại, vui lòng kiểm tra lại file sao lưu của bạn."
+
+# client
+client.config.loaded: "Cấu hình thành công, đang kết nối đến CSDL."
+client.data.connected: "Kết nối thành công CSDL."
+
+# system.js
+system.start.clientLoaded: "Tải thành công client, đang khởi động..."
+system.utils.autoLogin: "Có vẻ cookies đã hỏng, đang thử đăng nhập lại bằng tài khoản và mật khẩu."
+system.cli.commandNotFound: "Không tìm thấy lệnh {commandName}."
+
+# server.js
+server.started: "Xavia đang chạy tại cổng {port}."
+server.refreshingStats: "Đang làm mới số liệu thống kê..."
+
+# handlers
+handlers.commands.nsfwNotAllowed: "Nhóm này không cho phép các lệnh nsfw."
+handlers.commands.noPermission: "Bạn không đủ quyền hạn để sử dụng."
+handlers.commands.error: "Đã có lỗi xảy ra."
+
+# resend
+plugins.resend.noMessage: "• {author} vừa gỡ một tin nhắn nào đó."
+plugins.resend.unsendNoMessageButAttach: "• {author} vừa gỡ {attachmentsCount} tệp đính kèm:"
+plugins.resend.unsendMessageAndAttach: "• {author} vừa gỡ một tin nhắn với {attachmentsCount} tệp đính kèm:\n\n{message}"
+plugins.resend.unsendMessage: "• {author} vừa gỡ một tin nhắn:\n\n{message}"
+
+# events
+plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" đã thay đổi ảnh nhóm."
+plugins.events.change_thread_image.reversed: "\nThay đổi ảnh nhóm không được cho phép nên đã đổi lại ảnh cũ."
+plugins.events.change_thread_image.setNewImage: "\nThay đỏi ảnh nhóm không được cho phép nhưng vì không có ảnh cũ nên ảnh mới sẽ được dùng."
+
+plugins.events.subcribe.addSelf: "Bot đã được thêm vào nhóm \"{threadName}\" ({threadId}) bởi người dùng \"{authorName}\" ({authorId})."
+plugins.events.subcribe.connected: "Kết nối thành công!\nSử dụng {PREFIX}help để xem danh sách lệnh."
+plugins.events.subcribe.error.createMonitor: "Không thể tạo nhóm giám sát cho nhóm này."
+plugins.events.subcribe.createdMonitor: "Nhóm {threadId} sẽ được giám sát hành động ở nhóm này"
+plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) đã thêm {membersLength} thành viên:\n{members}"
+
+plugins.events.unsubcribe.bot.left: "Bot đã rời \"{threadName}\" ({threadId})."
+plugins.events.unsubcribe.bot.kicked: "Bot đã bị đá khỏi \"{threadName}\" ({threadId}) bởi \"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) đã rời khỏi nhóm."
+plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) đã bị đá khỏi nhóm bởi \"{authorName}\" ({authorId})."
+
+plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi nhóm."
+plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi video nhóm."
+plugins.events.thread-call.endedCall: "Cuộc gọi đã kết thúc, thời gian gọi: {callDuration}."
+plugins.events.thread-call.endedVideoCall: "Cuộc gọi video đã kết thúc, thời gian gọi: {callDuration}."
+plugins.events.thread-call.joinedCall: "\"{authorName}\" ({authorId}) đã tham gia cuộc gọi."
+plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) đã tham gia cuộc gọi video."
+
+plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) đã đổi tên nhóm thành \"{newName}\"."
+plugins.events.thread-update.name.reversed: "\nThay đổi tên nhóm không được cho phép nên đã đổi lại tên cũ."
+plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) đã đổi màu sắc chủ đề nhóm từ {oldColor} sang {newColor}."
+plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) đã đổi emoji nhóm từ {oldEmoji} sang {newEmoji}."
+plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) đã thay đổi chế độ kiểm duyệt thành viên thành {newApprovalMode}."
+plugins.events.thread-update.admins.added: "\"{authorName}\" ({authorId}) đã thêm \"{targetName}\" ({targetId}) vào quản trị viên nhóm."
+plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) đã xóa \"{targetName}\" ({targetId}) khỏi quản trị viên nhóm."
+
+plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) đã thay đổi biệt danh của \"{targetName}\" ({targetId}) thành \"{newNickname}\"."
+plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) đã tự đổi biệt danh thành \"{newNickname}\"."
+plugin.events.user-nickname.reversed: "\nThay đổi biệt danh không được cho phép nên đã đổi lại biệt danh cũ."

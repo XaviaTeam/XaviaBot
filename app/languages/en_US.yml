@@ -1,0 +1,92 @@
+# checkAppstate.js
+modules.checkAppstate.parsingError: "appstate file is not valid JSON / could not be decrypted"
+modules.checkAppstate.error.noSecretKey: "APPSTATE_SECRET_KEY is not defined!"
+modules.checkAppstate.error.noAppstate: "appstate file not found!"
+modules.checkAppstate.foundAppstate: "appstate file found!"
+modules.checkAppstate.decrypting: "Decrypting appstate file..."
+modules.checkAppstate.encrypting: "Encrypting appstate file..."
+
+# loader.js
+modules.loader.installingDependency: "Installing {dependency}."
+modules.loader.dependencyInstalled: "Installed {dependency}."
+modules.loader.error.dependencyInstallFailed: "{dependency} could not be installed."
+modules.loader.error.pluginExists: "Plugin {pluginName} already exists."
+modules.loader.error.scriptsEmpty: "Plugin {pluginName} has no script."
+modules.loader.warn.configPluginsCorrupted: "Plugins config file is not valid JSON, creating new one."
+modules.loader.configPluginsBackedUp: "Plugins config file backed up successfully."
+modules.loader.error.commandAlreadyExists: "Command {commandName} already exists."
+modules.loader.error.commandNoAcceptableAliases: "Command {commandName} has no acceptable aliases."
+modules.loader.warn.commandNoValidPermissions: "Command {commandName}'s permissions are not valid, defaulting to [*]."
+modules.loader.error.commandNotFunction: "Can't load command {commandName}, onCall is not a function."
+modules.loader.error.onLoad: "Error while executing onLoad function for plugin {pluginName}:"
+modules.loader.pluginsLoaded: "Loaded {pluginsCount} plugin(s)."
+modules.loader.commandsLoaded: "----> {commandCount} command(s)."
+
+# database/index.js
+database.error.structureNotDefined: "Structure is not defined."
+database.error.structureNotValid: "Structure is not a function/class."
+database.error.JSONNotValid: "{structure}.json is not a valid JSON file."
+database.error.moderatorDataNotValid: "Data for Moderator should be an object."
+database.error.dataNotValid: "Data is not defined or is not an array."
+database.error.backupNotFound: "Backup file not found."
+database.error.backupFailed: "Backup failed, trying to restore previous backup."
+database.error.restoreFailed: "Restore failed, please check your backup file manually."
+
+# client
+client.config.loaded: "Config loaded, trying to connect to database..."
+client.data.connected: "Connected to database."
+
+# system.js
+system.start.clientLoaded: "Client loaded, booting..."
+system.utils.autoLogin: "Not logged in, trying to login with email and password..."
+system.cli.commandNotFound: "{commandName} is not a valid command."
+
+# server.js
+server.started: "Xavia is running on port {port}."
+server.refreshingStats: "Refreshing Stats Data..."
+
+# handlers
+handlers.commands.nsfwNotAllowed: "This thread doesn't allow nsfw commands."
+handlers.commands.noPermission: "You do not have permission to use this command."
+handlers.commands.error: "An error occurred while executing this command."
+
+# resend
+plugins.resend.noMessage: "• {author} has unsend a message."
+plugins.resend.unsendNoMessageButAttach: "• {author} has unsend {attachmentsCount} attachment(s):"
+plugins.resend.unsendMessageAndAttach: "• {author} has unsend a message with {attachmentsCount} attachment(s):\n\n{message}"
+plugins.resend.unsendMessage: "• {author} has unsend a message:\n\n{message}"
+
+# events
+plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" has changed the thread image."
+plugins.events.change_thread_image.reversed: "\nChanging thread image is not allowed so it was reversed."
+plugins.events.change_thread_image.setNewImage: "\nChanging thread image is not allowed but the thread image is not set, so it will be set to the newly added one."
+
+plugins.events.subcribe.addSelf: "Bot has been added to \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
+plugins.events.subcribe.connected: "Connected successfully!\nUse {PREFIX}help to see all commands."
+plugins.events.subcribe.error.createMonitor: "Couldn't create new monitor for this thread."
+plugins.events.subcribe.createdMonitor: "Thread {threadId} will be monitored here."
+plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) has added {membersLength} member(s):\n{members}"
+
+plugins.events.unsubcribe.bot.left: "Bot has left \"{threadName}\" ({threadId})."
+plugins.events.unsubcribe.bot.kicked: "Bot has been kicked out from \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) has left."
+plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) has been kicked out by \"{authorName}\" ({authorId})."
+
+plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) has started a call."
+plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) has started a video call."
+plugins.events.thread-call.endedCall: "Call ended, duration: {callDuration}."
+plugins.events.thread-call.endedVideoCall: "Video call ended, duration: {callDuration}."
+plugins.events.thread-call.joinedCall: "\"{authorName}\" ({authorId}) has joined the call."
+plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) has joined the video call."
+
+plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) has changed the thread name to \"{newName}\"."
+plugins.events.thread-update.name.reversed: "\nChanging thread name is not allowed so it was reversed."
+plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) has changed the thread color from {oldColor} to {newColor}."
+plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) has changed the thread emoji from {oldEmoji} to {newEmoji}."
+plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) has changed the thread approval mode to {newApprovalMode}."
+plugins.events.thread-update.admins.added: "\"{authorName}\" ({authorId}) has added \"{targetName}\" ({targetId}) to the thread admins."
+plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) has removed \"{targetName}\" ({targetId}) from the thread admins."
+
+plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) has changed \"{targetName}\" ({targetId}) nickname to \"{newNickname}\"."
+plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) has changed his/her nickname to \"{newNickname}\"."
+plugin.events.user-nickname.reversed: "\nChanging nickname is not allowed so it was reversed."

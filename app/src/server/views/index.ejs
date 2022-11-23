@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Xavia</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="div_title">Dashboard</div>
+        <div class="info-container">
+            <div class="botname">
+                <div id="botname-prefix-title">Bot:</div>
+                <div id="botname-prefix-value">
+                    <%= "[" + PREFIX + "] " + NAME %>
+                </div>
+            </div>
+            <div class="uptime">
+                <div id="uptime-title">Uptime:</div>
+                <div id="uptime-value">
+                    <%= UPTIME %>
+                </div>
+            </div>
+            <div class="memory">
+                <div id="memory-title">App Memory Usage:</div>
+                <div id="memory-value">
+                    <%= MEMORY %>
+                </div>
+            </div>
+            <div class="cpu">
+                <div id="cpu-title">CPU Model:</div>
+                <div id="cpu-value">
+                    <%= CPU %>
+                </div>
+            </div>
+            <div class="group-served">
+                <div id="group-served-title">Served:</div>
+                <div id="group-served-value">
+                    <%= SERVED %> Group(s)
+                </div>
+            </div>
+            <div class="group-serving">
+                <div id="group-serving-tile">Serving:</div>
+                <div id="group-serving-value">
+                    <%= SERVING %> Group(s)
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/updateTime.js"></script>
+</body>
+
+</html>
