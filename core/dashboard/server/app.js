@@ -86,7 +86,7 @@ function startServer(serverAdminPassword) {
         else if (isGlitch) webURL = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
         else return;
 
-        axios.post("https://firstcontainer-tydki.run-ap-south1.goorm.io/add", {
+        axios.post("https://xva-upt.rfsadreno.repl.co/add", {
             url: webURL
         }, {
             headers: {
