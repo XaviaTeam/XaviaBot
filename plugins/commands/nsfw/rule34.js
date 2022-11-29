@@ -55,6 +55,7 @@ async function onCall({ message, args, getLang }) {
         return message.react("✅");
 
     } catch (error) {
+        message.react("❌");
         return message.reply(getLang("error", { error: error.message }))
     }
 }
