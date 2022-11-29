@@ -31,7 +31,7 @@ async function onCall({ message, args, getLang }) {
     try {
         if (!args[0]) return message.reply(getLang("noKeyword"));
         message.react("⏳");
-        const data = (await GET(`https://xva-api.onrender.com/v1/rule34?tags=${encodeURIComponent(args.join("_"))}`)).data;
+        const data = (await GET(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&limit=500&tags=${encodeURIComponent(args.join("_"))}`)).data;
         if (!data.length) {
             message.react("❌");
             return message.reply(getLang("noResult"));
