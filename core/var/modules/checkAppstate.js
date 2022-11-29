@@ -1,11 +1,13 @@
 import replitDB from "@replit/database";
+import { resolve as resolvePath } from 'path';
+import { readFileSync, writeFileSync } from "fs";
+import { execSync } from "child_process";
 
 /**
  * Check the encrypt state of the appstate then return the decrypted one.
  */
-async function checkAppstate(APPSTATE_PATH, APPSTATE_PROTECTION, dependencies) {
+async function checkAppstate(APPSTATE_PATH, APPSTATE_PROTECTION) {
     const logger = global.modules.get('logger');
-    const { readFileSync, resolvePath } = dependencies;
     const { isReplit, isGlitch } = global.modules.get('environments.get');
 
     let objAppState;
@@ -22,19 +24,18 @@ async function checkAppstate(APPSTATE_PATH, APPSTATE_PROTECTION, dependencies) {
 
     if (APPSTATE_PROTECTION !== true) {
         logger.custom(getLang('modules.checkAppstate.noProtection'), 'LOGIN');
-        objAppState = await getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch, dependencies);
+        objAppState = await getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch);
     } else if (isReplit || isGlitch) {
-        objAppState = await getAppStateWithProtection(APPSTATE_PATH, appState, isReplit, dependencies);
+        objAppState = await getAppStateWithProtection(APPSTATE_PATH, appState, isReplit);
     } else {
         logger.custom(getLang('modules.checkAppstate.error.notSupported'), 'LOGIN', "\x1b[33m");
-        objAppState = await getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch, dependencies);
+        objAppState = await getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch);
     }
 
     return objAppState;
 }
 
-async function getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch, dependencies) {
-    const { writeFileSync, resolvePath } = dependencies;
+async function getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlitch) {
     const logger = global.modules.get('logger');
     const aes = global.modules.get('aes');
 
@@ -72,9 +73,8 @@ async function getAppStateNoProtection(APPSTATE_PATH, appState, isReplit, isGlit
     return objAppState;
 }
 
-async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit, dependencies) {
+async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit) {
     try {
-        const { writeFileSync, resolvePath } = dependencies;
         let objAppState, APPSTATE_SECRET_KEY;
         const logger = global.modules.get('logger');
         const aes = global.modules.get('aes');
@@ -121,6 +121,9 @@ async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit, depe
                 }
 
                 writeFileSync(resolvePath('.data', 'appstate.json'), JSON.stringify(appState, null, 2), 'utf8');
+                writeFileSync(APPSTATE_PATH, JSON.stringify([], null, 2), 'utf8');
+
+                execSync('refresh');
             }
 
             if (!isJSON(appState)) throw getLang('modules.checkAppstate.error.invalid');

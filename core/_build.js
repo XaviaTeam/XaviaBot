@@ -11,6 +11,7 @@ import environments from './var/modules/environments.get.js';
 
 import { initDatabase, updateJSON, updateMONGO, _Threads, _Users } from './handlers/database.js';
 import replitDB from "@replit/database";
+import { execSync } from 'child_process';
 
 const { isGlitch, isReplit } = environments;
 
@@ -85,6 +86,10 @@ function booting(logger) {
                 resolve();
             })
             .catch(err => {
+                if (isGlitch) {
+                    global.deleteFile(resolvePath(process.cwd(), '.data', 'appstate.json'));
+                    execSync('refresh');
+                }
                 reject(err);
             })
     });
@@ -135,7 +140,7 @@ function loginState() {
     const { APPSTATE_PATH, APPSTATE_PROTECTION } = global.config;
 
     return new Promise((resolve, reject) => {
-        global.modules.get('checkAppstate')(APPSTATE_PATH, APPSTATE_PROTECTION, { readFileSync, writeFileSync, resolvePath })
+        global.modules.get('checkAppstate')(APPSTATE_PATH, APPSTATE_PROTECTION)
             .then(appState => {
                 const options = global.config.FCA_OPTIONS;
 
