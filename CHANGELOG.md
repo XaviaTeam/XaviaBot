@@ -1,3 +1,8 @@
+## v2.0.6 - 2022/11/29
+- Fixed NSFW system
+- Added NSFW commands
+- Added support for Arabic (ar_SY) language
+
 ## v2.0.5 - 2022/11/04
 - Small fixes
 - Folder removal support for update.js

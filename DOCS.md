@@ -1,5 +1,7 @@
 # XAVIABOT DOCS (v2)
-## UPDATED - 2022/11/03
+## UPDATED - 2022/11/28
+
+### NEW XAVIABOT COMMANDS SNIPPET: [here](https://marketplace.visualstudio.com/items?itemName=XaviaTeam.xaviabot-snippets)
 
 ### INSTALLATION && REQUIREMENTS: [here](https://github.com/XaviaTeam/XaviaBot/blob/main/README.md)
 <hr />

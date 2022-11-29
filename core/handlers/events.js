@@ -169,7 +169,9 @@ async function handleCommand(event) {
                     const isNSFWEnabled = _thread?.data?.nsfw === true;
                     const isCommandNSFW = commandInfo.nsfw === true;
 
-                    if ((isNSFWEnabled && isCommandNSFW) || (!isNSFWEnabled && !isCommandNSFW)) {
+                    if (
+                        (isNSFWEnabled && isCommandNSFW) || !isCommandNSFW || event.isGroup === false
+                    ) {
                         userCooldown[commandName] = Date.now();
                         cooldowns.set(senderID, userCooldown);
 
