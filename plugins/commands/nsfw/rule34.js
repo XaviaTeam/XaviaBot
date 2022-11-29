@@ -39,7 +39,10 @@ async function onCall({ message, args, getLang }) {
 
         const imgStreams = [];
 
-        for (const img of global.shuffleArray(data).slice(0, 9)) {
+        for (const img of global.shuffleArray(
+            data.
+                filter((img) => img.file_url.endsWith(".jpg") || img.file_url.endsWith(".png")) || img.file_url.endsWith(".jpeg")
+        ).slice(0, 9)) {
             imgStreams.push(await getStream(img.file_url));
         }
 
