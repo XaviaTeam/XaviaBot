@@ -12,6 +12,9 @@ const langData = {
     },
     "vi_VN": {
         "choose.atLeast2Options": "Ít nhất 2 tùy chọn là cần thiết"
+    },
+    "ar_SY": {
+        "choose.atLeast2Options": "هناك حاجة إلى خيارين على الأقل"
     }
 }
 

@@ -14,6 +14,12 @@ const langData = {
         "afkOff": "Bạn đã tắt chế độ AFK.",
         "userNoData": "Dữ liệu của bạn không khả dụng.",
         "error": "Đã xảy ra lỗi."
+    },
+    "ar_SY": {
+        "afkOn": "لقد قمت بتشغيل وضع AFK.",
+        "afkOff": "لقد قمت بإيقاف تشغيل وضع AFK.",
+        "userNoData": "البيانات الخاصة بك غير متوفرة.",
+        "error": "حدث خطأ. اذا سمحت حاول مرة أخرى لاحقا."
     }
 }
 

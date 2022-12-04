@@ -126,7 +126,7 @@ function getUserPermissions(userID, _thread) {
 
     let permissions = [0];
 
-    if (adminIDs.includes(userID)) permissions.push(1);
+    if (adminIDs.some(e => e.id == userID)) permissions.push(1);
     if (MODERATORS.includes(userID)) permissions.push(2);
 
     return permissions;

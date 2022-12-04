@@ -69,12 +69,15 @@ plugins.events.subcribe.addSelf: "Bot đã được thêm vào nhóm \"{threadNa
 plugins.events.subcribe.connected: "Kết nối thành công!\nSử dụng {PREFIX}help để xem danh sách lệnh."
 plugins.events.subcribe.error.createMonitor: "Không thể tạo nhóm giám sát cho nhóm này."
 plugins.events.subcribe.createdMonitor: "Nhóm {threadId} sẽ được giám sát hành động ở nhóm này"
-plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) đã thêm {membersLength} thành viên:\n{members}"
+# plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) đã thêm {membersLength} thành viên:\n{members}"
+plugins.events.subcribe.welcome: "Chào mừng {members} đến với nhóm {threadName}!\n(Các) bạn là thành viên thứ {newCount} của nhóm."
 
 plugins.events.unsubcribe.bot.left: "Bot đã rời \"{threadName}\" ({threadId})."
 plugins.events.unsubcribe.bot.kicked: "Bot đã bị đá khỏi \"{threadName}\" ({threadId}) bởi \"{authorName}\" ({authorId})."
-plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) đã rời khỏi nhóm."
-plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) đã bị đá khỏi nhóm bởi \"{authorName}\" ({authorId})."
+# plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) đã rời khỏi nhóm."
+# plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) đã bị đá khỏi nhóm bởi \"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "{leftName} đã rời khỏi nhóm."
+plugins.events.unsubcribe.kicked: "{leftName} đã bị đá khỏi nhóm."
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi nhóm."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi video nhóm."

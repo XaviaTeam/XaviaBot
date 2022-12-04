@@ -69,12 +69,15 @@ plugins.events.subcribe.addSelf: "Bot has been added to \"{threadName}\" ({threa
 plugins.events.subcribe.connected: "Connected successfully!\nUse {PREFIX}help to see all commands."
 plugins.events.subcribe.error.createMonitor: "Couldn't create new monitor for this thread."
 plugins.events.subcribe.createdMonitor: "Thread {threadId} will be monitored here."
-plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) has added {membersLength} member(s):\n{members}"
+# plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) has added {membersLength} member(s):\n{members}"
+plugins.events.subcribe.welcome: "Welcome {members} to {threadName}!\nYou are the {newCount} member of this group."
 
 plugins.events.unsubcribe.bot.left: "Bot has left \"{threadName}\" ({threadId})."
 plugins.events.unsubcribe.bot.kicked: "Bot has been kicked out from \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
-plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) has left."
-plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) has been kicked out by \"{authorName}\" ({authorId})."
+# plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) has left."
+# plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) has been kicked out by \"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "{leftName} has left."
+plugins.events.unsubcribe.kicked: "{leftName} has been kicked out."
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) has started a call."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) has started a video call."

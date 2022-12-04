@@ -18,7 +18,7 @@ export default async function ({ event }) {
         };
     }
     const authorName = (await Users.getInfo(author))?.name || author;
-    console.log(botID);
+
     if (logMessageData.addedParticipants.some(i => i.userFbId == botID)) {
         // logger(`${threadID} • ${author} added bot to thread`, 'EVENT');
         if (getThreadInfo.isSubscribed == false) getThreadInfo.isSubscribed = true;
@@ -35,30 +35,54 @@ export default async function ({ event }) {
         api.changeNickname(`[ ${PREFIX} ] ${global.config.NAME || "Xavia"}`, threadID, botID);
         api.sendMessage(getLang("plugins.events.subcribe.connected", { PREFIX }), threadID);
     } else if (getThreadData?.notifyChange?.status === true) {
-        const joinNameArray = [], mentions = [];
-        for (const id in logMessageData.addedParticipants) {
-            const joinName = logMessageData.addedParticipants[id].fullName;
-            joinNameArray.push(joinName);
-            mentions.push({
-                id: logMessageData.addedParticipants[id].userFbId,
-                tag: joinName
-            })
-        }
+        // const joinNameArray = [], mentions = [];
+        // for (const id in logMessageData.addedParticipants) {
+        //     const joinName = logMessageData.addedParticipants[id].fullName;
+        //     joinNameArray.push(joinName);
+        //     mentions.push({
+        //         id: logMessageData.addedParticipants[id].userFbId,
+        //         tag: joinName
+        //     })
+        // }
 
-        let atlertMsg = {
-            body: getLang("plugins.events.subcribe.addMembers", {
-                authorName: authorName,
-                authorId: author,
-                membersLength: joinNameArray.length,
-                members: joinNameArray.join(', ')
-            }),
-            mentions
-        }
-        for (const rUID of getThreadData.notifyChange.registered) {
-            global.sleep(300);
-            api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
-        }
+        // let atlertMsg = {
+        //     body: getLang("plugins.events.subcribe.addMembers", {
+        //         authorName: authorName,
+        //         authorId: author,
+        //         membersLength: joinNameArray.length,
+        //         members: joinNameArray.join(', ')
+        //     }),
+        //     mentions
+        // }
+        // for (const rUID of getThreadData.notifyChange.registered) {
+        //     global.sleep(300);
+        //     api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
+        // }
     }
+
+    const joinNameArray = [], mentions = [];
+    for (const id in logMessageData.addedParticipants) {
+        const joinName = logMessageData.addedParticipants[id].fullName;
+        joinNameArray.push(joinName);
+        mentions.push({
+            id: logMessageData.addedParticipants[id].userFbId,
+            tag: joinName
+        })
+    }
+
+    let oldMembersLength = getThreadInfo.members.length - joinNameArray.length;
+    let newCount = joinNameArray.map((_, i) => i + oldMembersLength + 1);
+
+    let atlertMsg = {
+        body: getLang("plugins.events.subcribe.welcome", {
+            members: joinNameArray.join(', '),
+            newCount: newCount.join(', '),
+            threadName: getThreadInfo.name || threadID
+        }),
+        mentions
+    }
+
+    api.sendMessage(atlertMsg, threadID, (err) => console.error(err));
 
     await Threads.updateInfo(threadID, {
         members: getThreadInfo.members,

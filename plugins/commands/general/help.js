@@ -44,6 +44,23 @@ const langData = {
         "0": "Thành viên",
         "1": "Quản trị nhóm",
         "2": "Quản trị bot"
+    },
+    "ar_SY": {
+        "help.list": "{list}\n\n⇒ المجموع: {total} الاوامر\n⇒ يستخدم {syntax} [امر] لمزيد من المعلومات حول الأمر.",
+        "help.commandNotExists": "امر {command} غير موجود.",
+        "help.commandDetails": `
+            ⇒ اسم: {name}
+            ⇒ اسم مستعار: {aliases}
+            ⇒ وصف: {description}
+            ⇒ استعمال: {usage}
+            ⇒ الصلاحيات: {permissions}
+            ⇒ فئة: {category}
+            ⇒ وقت الانتظار: {cooldown}
+            ⇒ الاعتمادات: {credits}
+        `,
+        "0": "عضو",
+        "1": "إدارة المجموعة",
+        "2": "ادارة البوت"
     }
 }
 

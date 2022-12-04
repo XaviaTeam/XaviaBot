@@ -33,20 +33,34 @@ export default async function ({ event }) {
             }
         }
     } else if (getThread.data?.notifyChange?.status === true) {
-        const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
+        // const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 
-        let atlertMsg = getLang(`plugins.events.unsubcribe.${type}`, {
-            authorName: authorName,
-            authorId: author,
-            leftName: leftName,
-            leftId: logMessageData.leftParticipantFbId
-        });
+        // let atlertMsg = getLang(`plugins.events.unsubcribe.${type}`, {
+        //     authorName: authorName,
+        //     authorId: author,
+        //     leftName: leftName,
+        //     leftId: logMessageData.leftParticipantFbId
+        // });
 
-        for (const rUID of getThread.data.notifyChange.registered) {
-            global.sleep(300);
-            api.sendMessage(atlertMsg, rUID);
-        }
+        // for (const rUID of getThread.data.notifyChange.registered) {
+        //     global.sleep(300);
+        //     api.sendMessage(atlertMsg, rUID);
+        // }
     };
+
+    const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
+
+    let atlertMsg = {
+        body: getLang(`plugins.events.unsubcribe.${type}`, {
+            leftName: leftName
+        }),
+        mentions: [{
+            tag: leftName,
+            id: logMessageData.leftParticipantFbId
+        }]
+    }
+
+    api.sendMessage(atlertMsg, threadID);
 
     await Threads.updateInfo(threadID, { members: getThreadInfo.members, isSubscribed: getThreadInfo.isSubscribed });
 

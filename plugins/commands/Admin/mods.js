@@ -7,6 +7,7 @@ const config = {
     extra: {
         "absolute": ["100008907121641"]  // List of moderators that can add/remove moderators
         // Danh sách các quản trị viên có thể thêm/xóa quản trị viên
+        // قائمة المشرفين الذين يمكنهم إضافة / إزالة المشرفين
     }
 }
 
@@ -30,6 +31,16 @@ const langData = {
         "remove.success": "Đã xóa khỏi danh sách quản trị viên:\n{removed}",
         "list": "Quản trị viên:\n{moderators}",
         "error": "Lỗi: {error}"
+    },
+    "ar_SY": {
+        "notAbsolute": "أنت لست المشرف المطلق.",
+        "alreadyModerator": "هذا المستخدم هو بالفعل مسؤول.",
+        "notModerator": "هذا المستخدم ليس مسؤولاً.",
+        "missingTarget": "يرجى ذكر أو الرد على شخص.",
+        "add.success": "تمت الإضافة إلى قائمة المشرفين:\n{added}",
+        "remove.success": "تمت إزالته من قائمة الإدارة:\n{removed}",
+        "list": "المسؤولين:\n{moderators}",
+        "error": "خطأ: {error}"
     }
 }
 
