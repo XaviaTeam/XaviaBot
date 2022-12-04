@@ -6,18 +6,22 @@ import _init_global from './_global_info.js';
 import common from './common.js';
 
 function _load_global() {
-    _init_global();
+    return _init_global();
 }
 
 async function _get_modules() {
-    const dirModules = readdirSync(resolvePath(global.corePath, 'var', 'modules')).filter(file => file.endsWith('.js'));
+    try {
+        const dirModules = readdirSync(resolvePath(global.corePath, 'var', 'modules')).filter(file => file.endsWith('.js'));
 
-    for (const module of dirModules) {
-        const modulePath = resolvePath(global.corePath, 'var', 'modules', module);
-        const moduleURL = pathToFileURL(modulePath);
-        const moduleExport = await import(moduleURL);
+        for (const module of dirModules) {
+            const modulePath = resolvePath(global.corePath, 'var', 'modules', module);
+            const moduleURL = pathToFileURL(modulePath);
+            const moduleExport = await import(moduleURL);
 
-        global.modules.set(module.slice(0, -3), moduleExport.default);
+            global.modules.set(module.slice(0, -3), moduleExport.default);
+        }
+    } catch (error) {
+        throw error;
     }
 }
 
@@ -36,20 +40,24 @@ function _load_lang() {
     global.getLang = global.modules.get('loader').getLang;
 }
 
-async function _load_plugins() {
-    await global.modules.get('loader').loadPlugins();
+function _load_plugins() {
+    return global.modules.get('loader').loadPlugins();
 }
 
 async function _init_var() {
-    _load_global();
+    try {
+        await _load_global();
 
-    await _get_modules();
+        await _get_modules();
 
-    _load_common();
-    _load_config();
-    _load_lang();
+        _load_common();
+        _load_config();
+        _load_lang();
 
-    await _load_plugins();
+        await _load_plugins();
+    } catch (error) {
+        throw error;
+    }
 }
 
 

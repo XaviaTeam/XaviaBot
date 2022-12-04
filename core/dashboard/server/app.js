@@ -86,7 +86,7 @@ function startServer(serverAdminPassword) {
         else if (isGlitch) webURL = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
         else return;
 
-        axios.post("https://xva-upt.rfsadreno.repl.co/add", {
+        axios.post(`${global.xva_ppi}/add`, {
             url: webURL
         }, {
             headers: {

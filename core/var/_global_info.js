@@ -1,4 +1,5 @@
 import { resolve as resolvePath } from 'path';
+import axios from 'axios';
 
 const _global = {
     mainPath: resolvePath(process.cwd()),
@@ -39,7 +40,8 @@ const _global = {
     updateJSON: null,
     updateMONGO: null,
     controllers: null,
-    xva_api: "https://XaviaAPI.rfsadreno.repl.co",
+    xva_api: null,
+    xva_ppi: null,
     server: null,
     refreshState: null,
     refreshMqtt: null,
@@ -61,8 +63,18 @@ function _change_prototype_DATA(data) {
 
     return data;
 }
+async function getDomains() {
+    try {
+        const response = await axios.get('https://raw.githubusercontent.com/XaviaTeam/XaviaAPIs/main/domains.json');
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
 
-function _init_global() {
+async function _init_global() {
+    const domains = await getDomains();
+
     global.mainPath = _global.mainPath;
     global.corePath = _global.corePath;
     global.cachePath = _global.cachePath;
@@ -84,7 +96,8 @@ function _init_global() {
     global.updateJSON = _global.updateJSON;
     global.updateMONGO = _global.updateMONGO;
     global.controllers = _global.controllers;
-    global.xva_api = _global.xva_api;
+    global.xva_api = domains.xP22;
+    global.xva_ppi = domains.xP21;
     global.server = _global.server;
     global.refreshState = _global.refreshState;
     global.refreshMqtt = _global.refreshMqtt;
