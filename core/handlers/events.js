@@ -147,7 +147,7 @@ async function handleCommand(event) {
     const data = { thread: _thread, user: _user };
     if (checkBanStatus(data, senderID)) return;
 
-    const prefix = (_thread?.data?.prefix || global.config.PREFIX || '.').trim().toLowerCase();
+    const prefix = (_thread?.data?.prefix || global.config.PREFIX || 'x').trim().toLowerCase();
 
     if (args.length > 0 && args[0].startsWith(prefix)) {
         const { api, getLang } = global;

@@ -9,15 +9,15 @@ const config = {
 }
 
 const langData = {
-    "vi_VN": {
-        "missingInput": "Vui lòng nhập nội dung cần trò chuyện với Nino",
-        "noResult": "Nino không hiểu bạn đang nói gì :(",
-        "error": "Có lỗi xảy ra, vui lòng thử lại sau"
-    },
     "en_US": {
         "missingInput": "Please enter the content you want to chat with Nino",
         "noResult": "Nino doesn't understand what you're saying :(",
         "error": "An error occurred, please try again later"
+    },
+    "vi_VN": {
+        "missingInput": "Vui lòng nhập nội dung cần trò chuyện với Nino",
+        "noResult": "Nino không hiểu bạn đang nói gì :(",
+        "error": "Có lỗi xảy ra, vui lòng thử lại sau"
     }
 }
 

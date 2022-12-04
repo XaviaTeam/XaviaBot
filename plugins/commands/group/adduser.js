@@ -9,15 +9,6 @@ const config = {
 }
 
 const langData = {
-    "vi_VN": {
-        "missingInput": "Bạn chưa nhập ID hoặc link profile của người cần thêm vào nhóm.",
-        "botNotAdmin": "Bot cần được cấp quyền quản trị nhóm để thực hiện lệnh này.",
-        "invalidInput": "ID hoặc link profile không hợp lệ.",
-        "botAdd": "Bot không thể tự thêm chính nó vào nhóm.",
-        "selfAdd": "Bạn không thể dùng lệnh này để tự thêm chính mình vào nhóm.",
-        "success": "Đã thêm thành công.",
-        "error": "Đã có lỗi xảy ra, vui lòng thử lại sau."
-    },
     "en_US": {
         "missingInput": "You have not entered the ID or link profile of the person to add to the group.",
         "botNotAdmin": "The bot needs to be granted group administration rights to perform this command.",
@@ -26,6 +17,15 @@ const langData = {
         "selfAdd": "You cannot use this command to add yourself to the group.",
         "success": "Added successfully.",
         "error": "An error has occurred, please try again later."
+    },
+    "vi_VN": {
+        "missingInput": "Bạn chưa nhập ID hoặc link profile của người cần thêm vào nhóm.",
+        "botNotAdmin": "Bot cần được cấp quyền quản trị nhóm để thực hiện lệnh này.",
+        "invalidInput": "ID hoặc link profile không hợp lệ.",
+        "botAdd": "Bot không thể tự thêm chính nó vào nhóm.",
+        "selfAdd": "Bạn không thể dùng lệnh này để tự thêm chính mình vào nhóm.",
+        "success": "Đã thêm thành công.",
+        "error": "Đã có lỗi xảy ra, vui lòng thử lại sau."
     }
 }
 
