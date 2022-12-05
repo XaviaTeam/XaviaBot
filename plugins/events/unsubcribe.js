@@ -51,13 +51,18 @@ export default async function ({ event }) {
     const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 
     let atlertMsg = {
-        body: getLang(`plugins.events.unsubcribe.${type}`, {
-            leftName: leftName
-        }),
+        body: (getThread?.data?.leaveMessage ?
+            getThread.data.leaveMessage : getLang(`plugins.events.unsubcribe.${type}`))
+            .replace(/\{leftName}/g, leftName),
         mentions: [{
             tag: leftName,
             id: logMessageData.leftParticipantFbId
         }]
+    }
+
+    const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
+    if (global.isExists(gifPath)) {
+        atlertMsg.attachment = [await global.getStream(gifPath)];
     }
 
     api.sendMessage(atlertMsg, threadID);

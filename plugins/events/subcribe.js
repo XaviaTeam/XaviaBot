@@ -74,15 +74,20 @@ export default async function ({ event }) {
     let newCount = joinNameArray.map((_, i) => i + oldMembersLength + 1);
 
     let atlertMsg = {
-        body: getLang("plugins.events.subcribe.welcome", {
-            members: joinNameArray.join(', '),
-            newCount: newCount.join(', '),
-            threadName: getThreadInfo.name || threadID
-        }),
+        body: (getThreadData?.joinMessage ?
+            getThreadData.joinMessage : getLang("plugins.events.subcribe.welcome"))
+            .replace(/\{members}/g, joinNameArray.join(', '))
+            .replace(/\{newCount}/g, newCount.join(', '))
+            .replace(/\{threadName}/g, getThreadInfo.name || threadID),
         mentions
     }
 
-    api.sendMessage(atlertMsg, threadID, (err) => console.error(err));
+    const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
+    if (global.isExists(gifPath)) {
+        atlertMsg.attachment = [await global.getStream(gifPath)];
+    }
+
+    api.sendMessage(atlertMsg, threadID, (err) => err ? console.error(err) : null);
 
     await Threads.updateInfo(threadID, {
         members: getThreadInfo.members,

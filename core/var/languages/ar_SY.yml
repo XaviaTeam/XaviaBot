@@ -69,12 +69,15 @@ plugins.events.subcribe.addSelf: "Bot تمت إضافته إلى المجموع�
 plugins.events.subcribe.connected: "الاتصال ناجح!\nغير مستخدم {PREFIX}تساعد في رؤية قائمة الاوامر."
 plugins.events.subcribe.error.createMonitor: "تعذر إنشاء مجموعة مشرفين لهذه المجموعة."
 plugins.events.subcribe.createdMonitor: "المجموعة {threadId} سيتم رصد العمل في هذه المجموعة"
-plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) اضاف {membersLength} عضو:\n{members}"
+# plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) اضاف {membersLength} عضو:\n{members}"
+plugins.events.subcribe.welcome: "اهلا {members} الى {threadName}!\nانت {newCount} عضو في هذه المجموعة."
 
 plugins.events.unsubcribe.bot.left: "Bot غادر \"{threadName}\" ({threadId})."
 plugins.events.unsubcribe.bot.kicked: "Bot تم طرده من \"{threadName}\" ({threadId}) بواسطة \"{authorName}\" ({authorId})."
-plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) غادر المجموعة."
-plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) تم طرده من قبل\"{authorName}\" ({authorId})."
+# plugins.events.unsubcribe.left: "\"{leftName}\" ({leftId}) غادر المجموعة."
+# plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) تم طرده من قبل\"{authorName}\" ({authorId})."
+plugins.events.unsubcribe.left: "{leftName} غادر."
+plugins.events.unsubcribe.kicked: "{leftName} تم طرده."
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) بدأ مكالمة."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) فتح مكالمة فيديو جماعية."
