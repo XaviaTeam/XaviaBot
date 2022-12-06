@@ -1,3 +1,12 @@
+## v2.0.7 - 2022/12/06
+- Minor bug fixes (_nsfw-mode_, _permissions_, _glitch_)
+- Added a lot of Commands
+- More support for Arabic Language, big thanks to Malk
+- New features:
+    - __join/leave messages/gif__
+    - set __join/leave message/gif__ for _each group_
+    - set __bot language__ for _each group_
+
 ## v2.0.6 - 2022/11/29
 - Fixed NSFW system
 - Added NSFW commands

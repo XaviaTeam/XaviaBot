@@ -21,6 +21,13 @@ const langData = {
         "resend.alreadyOn": "Resend đã được bật trước đó.",
         "resend.alreadyOff": "Resend đã được tắt trước đó.",
         "error": "Đã xảy ra lỗi, vui lòng thử lại sau."
+    },
+    "ar_SY": {
+        "resend.on": "تم تشغيل إعادة الإرسال.",
+        "resend.off": "تم إيقاف إعادة الإرسال.",
+        "resend.alreadyOn": "إعادة الإرسال قيد التشغيل بالفعل.",
+        "resend.alreadyOff": "تم إيقاف إعادة الإرسال بالفعل.",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا."
     }
 }
 

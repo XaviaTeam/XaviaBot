@@ -29,6 +29,17 @@ const langData = {
         "noTodo": "Bạn chưa có todos!",
         "listTodo": "Danh sách todos:\n{list}",
         "error": "Đã xảy ra lỗi, vui lòng thử lại sau!"
+    },
+    "ar_SY": {
+        "dataNotReady": "البيانات ليست جاهزة ، يرجى المحاولة مرة أخرى في وقت لاحق!",
+        "missingTodo": "المهام مفقودة!",
+        "limitTodo": "يمكنك فقط إضافة ما يصل إلى 10 مهام!",
+        "addedTodo": "اضافة مهمة:\n{todo}",
+        "missingIndex": "الفهرس أو الفهرس المفقود غير صالح!",
+        "removedTodo": "إزالة المهام مع الفهرس:\n{indexs}",
+        "noTodo": "ليس لديك مهام!",
+        "listTodo": "قائمة المهام:\n{list}",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا!"
     }
 }
 

@@ -19,6 +19,11 @@ const langData = {
         "missingInput": "Thiếu dữ kiện!",
         "noResult": "Không tìm thấy kết quả!",
         "error": "Có lỗi xảy ra, vui lòng thử lại sau"
+    },
+    "ar_SY": {
+        "missingInput": "بيانات مفقودة!",
+        "noResult": "لم يتم العثور على نتائج!",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
     }
 }
 

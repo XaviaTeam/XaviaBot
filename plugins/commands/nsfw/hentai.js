@@ -16,6 +16,10 @@ const langData = {
     "vi_VN": {
         "invalidCategory": "Không hợp lệ, các danh mục hiện có:\n{categories}",
         "error": "Đã có lỗi xảy ra..."
+    },
+    "ar_SY": {
+        "invalidCategory": "الفئات المتاحة غير صالحة:\n{categories}",
+        "error": "خطأ ، حاول مرة أخرى في وقت لاحق..."
     }
 }
 

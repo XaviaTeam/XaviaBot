@@ -4,8 +4,7 @@ const config = {
     usage: "[text]",
     cooldown: 3,
     permissions: [0, 1, 2],
-    credits: "XaviaTeam",
-    extra: {}
+    credits: "XaviaTeam"
 }
 
 const langData = {
@@ -18,6 +17,11 @@ const langData = {
         "missingInput": "Vui lòng nhập nội dung cần trò chuyện với Nino",
         "noResult": "Nino không hiểu bạn đang nói gì :(",
         "error": "Có lỗi xảy ra, vui lòng thử lại sau"
+    },
+    "ar_SY": {
+        "missingInput": "الرجاء إدخال المحتوى الذي تريد الدردشة مع نينو",
+        "noResult": "نينو لا تفهم ما تقول :(",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
     }
 }
 

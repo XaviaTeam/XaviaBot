@@ -22,6 +22,13 @@ const langData = {
         "succeed": "Dạy thành công!",
         "failed": "Dạy thất bại!",
         "error": "Có lỗi xảy ra, vui lòng thử lại sau"
+    },
+    "ar_SY": {
+        "wrongSyntax": "بناء جملة خاطئ ، يرجى المحاولة مرة أخرى",
+        "missingInput": "بيانات مفقودة!",
+        "succeed": "نجح التدريس!",
+        "failed": "فشل التدريس!",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
     }
 }
 

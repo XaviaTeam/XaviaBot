@@ -25,6 +25,15 @@ const langData = {
         "errorGif": "Đã xảy ra lỗi khi tải gif, vui lòng thử lại!",
         "attachmentShouldBeGif": "Tệp đính kèm phải là một gif!",
         "deleted": "Đã xóa tin nhắn/gif chào mừng thành công!"
+    },
+    "ar_SY": {
+        "help": "إستعمال: setjoin [text/reply/help]\n\nمثال: setjoin أهلا وسهلا {members} الى {threadName}!\nانت {newCount} عضو جديد!",
+        "noContent": "الرجاء إدخال / الرد على الرسالة/gif تريد أن تضع!",
+        "success": "تعيين رسالة الانضمام/gif بنجاح!",
+        "error": "حدث خطأ ، يرجى المحاولة مرة أخرى!",
+        "errorGif": "حدث خطأ أثناء تنزيل ملف gif ، يرجى المحاولة مرة أخرى!",
+        "attachmentShouldBeGif": "يجب أن يكون المرفق صورة gif!",
+        "deleted": "تم حذف رسالة الانضمام /gif بنجاح!"
     }
 }
 

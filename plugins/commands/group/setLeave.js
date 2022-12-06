@@ -25,6 +25,15 @@ const langData = {
         "errorGif": "Đã xảy ra lỗi khi tải gif, vui lòng thử lại!",
         "attachmentShouldBeGif": "Tệp đính kèm phải là một gif!",
         "deleted": "Đã xóa tin nhắn/gif chào tạm biệt thành công!"
+    },
+    "ar_SY": {
+        "help": "إستعمال: setleave [text/reply/help]\n\nمثال: setleave مع السلامة {leftName}! سنفتقدك!",
+        "noContent": "الرجاء إدخال/الرد على الرسالة/gif التي تريد تعيينها!",
+        "success": "تعيين رسالة الخروج/gif بنجاح!",
+        "error": "حدث خطأ ، يرجى المحاولة مرة أخرى!",
+        "errorGif": "حدث خطأ أثناء تنزيل ملف gif ، يرجى المحاولة مرة أخرى!",
+        "attachmentShouldBeGif": "يجب أن يكون المرفق صورة gif!",
+        "deleted": "تم حذف رسالة الخروج/gif بنجاح!"
     }
 }
 

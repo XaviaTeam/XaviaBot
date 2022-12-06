@@ -24,6 +24,14 @@ const langData = {
         "changeSucceed": "Đã đổi ngôn ngữ thành {language}",
         "invalidInput": "Dữ kiện không hợp lệ, vui lòng thử lại.\n• Các dữ kiện hợp lệ:\n{input}\n• Ngôn ngữ hỗ trợ:\n{availableLangs}",
         "error": "Có lỗi xảy ra, vui lòng thử lại sau."
+    },
+    "ar_SY": {
+        "missingInput": "بيانات مفقودة!",
+        "allLangs": "اللغات المتوفرة:\n{availableLangs}",
+        "resetSucceed": "إعادة تعيين اللغة إلى {language}",
+        "changeSucceed": "تم تغيير اللغة إلى {language}",
+        "invalidInput": "إدخال غير صحيح ، يرجى المحاولة مرة أخرى.\n• المدخلات المتاحة:\n{input}\n• اللغات المتوفرة:\n{availableLangs}",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا."
     }
 }
 

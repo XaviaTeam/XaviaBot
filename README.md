@@ -55,7 +55,7 @@ npm install && npm start
 • **DimensityDU** (Lead Author):
 [Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
-[Discord](https://discord.gg/6nnVE4bY) -
+[Discord](https://discord.gg/Eu2hNRWc) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
 [Mail](mailto:xaviateam@protonmail.com)<br />
 • **FuryCS** (Co-Author):
@@ -67,6 +67,11 @@ npm install && npm start
 [Facebook](https://www.facebook.com/shibasama.dev)
 <br /><br />
 • Many thanks to TesterTeam for all the testing, feedbacks and the other Bot Projects ([c3cbot](https://github.com/c3cbot/legacy-c3cbot) - [miraibot](https://github.com/miraiPr0ject/miraiv2) - [kb2abot](https://github.com/kb2ateam/kb2abot-client)) that inspired me to create XaviaBot
+
+## Translators
+• **Vietnamese** (Main Language): DimensityDU<br />
+• **English**: DimensityDU<br />
+• **Arabic**: Malk: [Facebook](https://www.facebook.com/profile.php?id=100070177323616)<br />
 
 ## Like our work?
 

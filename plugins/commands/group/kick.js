@@ -27,6 +27,16 @@ const langData = {
         "kickResult": "Đã kick thành công {success} người",
         "kickFail": "Kick thất bại {fail} người",
         "error": "Đã có lỗi xảy ra, vui lòng thử lại sau"
+    },
+    "ar_SY": {
+        "missingTarget": "يرجى وضع علامة أو الرد على رسالة المستخدم للركلة",
+        "botNotAdmin": "يجب أن يكون البوت مسؤولا لطرد المستخدم",
+        "botTarget": "لماذا تريد طرد البوت من المجموعة :<?",
+        "senderTarget": "لماذا تريد طرد نفسك من المجموعة :v?",
+        "botAndSenderTarget": "لماذا تريد طرد البوت ونفسك من المجموعة :v?",
+        "kickResult": "تم طرد {success} مستخدم",
+        "kickFail": "فشل ركل {fail} مستخدم",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
     }
 }
 
