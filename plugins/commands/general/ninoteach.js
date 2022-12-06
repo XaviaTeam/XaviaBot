@@ -35,7 +35,7 @@ async function onCall({ message, args, getLang }) {
 
     if (!key || !value) return message.reply(getLang("missingInput"));
     global
-        .GET(`${global.xva_api}/nino/add?key=${encodeURIComponent(key)}&value=${encodeURIComponent(value)}`)
+        .GET(`${global.xva_api.main}/nino/add?key=${encodeURIComponent(key)}&value=${encodeURIComponent(value)}`)
         .then((res) => {
             const { data } = res;
             const { status } = data;

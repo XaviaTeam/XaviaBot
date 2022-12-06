@@ -57,7 +57,7 @@ async function onCall({ message, args, extra, getLang }) {
         const valueIncreaseIfWin = BigInt(bet) * BigInt(2);
 
         const valueToPass = big.includes(choice) ? "tai" : "xiu";
-        const { dices, results } = (await global.GET(`${global.xva_api}/taixiu/${valueToPass}`)).data;
+        const { dices, results } = (await global.GET(`${global.xva_api.main}/taixiu/${valueToPass}`)).data;
         if (results === "thắng") await Users.increaseMoney(message.senderID, valueIncreaseIfWin);
 
         const _dices = dices

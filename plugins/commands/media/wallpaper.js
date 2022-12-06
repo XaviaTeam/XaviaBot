@@ -5,7 +5,7 @@ const config = {
 }
 
 function onCall({ message }) {
-    global.GET(`${global.xva_api}/wallpaper`)
+    global.GET(`${global.xva_api.main}/wallpaper`)
         .then(async res => {
             try {
                 let imgStream = await global.getStream(res.data.url);

@@ -20,11 +20,10 @@ const langData = {
     }
 }
 
-const url = "https://animechan.vercel.app/api/random";
 
 async function onCall({ message, args, getLang }) {
     try {
-        let requestURL = url;
+        let requestURL = global.xva_api.quote;
         const input = args.join(" ");
         if (input) {
             requestURL += `/character?name=${input}`;

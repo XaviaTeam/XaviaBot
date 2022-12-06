@@ -3,7 +3,7 @@ const config = {
 }
 
 function onCall({ message }) {
-    global.GET(`${global.xva_api}/loli`)
+    global.GET(`${global.xva_api.main}/loli`)
         .then(async res => {
             try {
                 let imgStream = await global.getStream(res.data.url);

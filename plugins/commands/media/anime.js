@@ -18,7 +18,6 @@ const langData = {
     }
 }
 
-const url = "https://api.waifu.pics/sfw";
 const endpoints = ["waifu", "neko", "shinobu", "megumin", "bully", "cuddle", "cry", "hug", "awoo", "kiss", "lick", "pat", "smug", "bonk", "yeet", "blush", "smile", "wave", "highfive", "handhold", "nom", "bite", "glomp", "slap", "kill", "kick", "happy", "wink", "poke", "dance", "cringe"]
 
 async function onCall({ message, args, getLang }) {
@@ -26,7 +25,7 @@ async function onCall({ message, args, getLang }) {
         const input = args[0]?.toLowerCase();
         if (!endpoints.includes(input)) return message.reply(getLang("invalidCategory", { categories: endpoints.join(", ") }));
 
-        const response = await global.GET(`${url}/${input}`);
+        const response = await global.GET(`${global.xva_api.sfw}/${input}`);
         const data = response.data;
 
         if (!data.url) return message.reply(getLang("error"));
