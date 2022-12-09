@@ -44,6 +44,7 @@
     "semver": "^7.3.8",
     "string-similarity": "^4.0.4",
     "wikijs": "^6.4.0",
+    "youtube-search-without-api-key": "^1.0.7",
     "ytdl-core": "^4.11.2"
   }
 }
