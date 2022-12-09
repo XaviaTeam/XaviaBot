@@ -58,10 +58,15 @@ async function initDatabase() {
         const { MONGO_URL } = process.env;
         if (!MONGO_URL) throw new Error(global.getLang('database.mongo_url_not_found'));
 
-        global.mongo = async () => {
+        mongoose.set('strictQuery', false);
+        let mongooseConnection = async () => {
             await mongoose.connect(MONGO_URL);
             return mongoose.connection;
         }
+
+        let connection = await mongooseConnection();
+
+        global.mongo = connection;
         global.data.models = models;
 
         const threads = await models.Threads.find({});
