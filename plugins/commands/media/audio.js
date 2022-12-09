@@ -2,16 +2,19 @@ import ffmpegPath from "ffmpeg-static"
 import fluent from "fluent-ffmpeg"
 import ytdl from "ytdl-core"
 import { join } from "path";
+import { statSync } from "fs";
+import ytapi from "youtube-search-without-api-key";
+
+const _48MB = 48 * 1024 * 1024;
 
 const config = {
     name: "audio",
     aliases: ['yt2mp3', 'sing'],
     description: "Play music from youtube",
     usage: '<keyword/url>',
-    cooldown: 5,
+    cooldown: 30,
     credits: "XaviaTeam",
     extra: {
-        "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",
         "MAX_SONGS": 6
     }
 }
@@ -22,6 +25,7 @@ const langData = {
         "audio.noResult": "No result found",
         "audio.invalidUrl": "Invalid url",
         "audio.invaldIndex": "Invalid index",
+        "audio.tooLarge": "Audio is too large, max size is 48MB",
         "audio.error": "An error occured"
     },
     "vi_VN": {
@@ -29,6 +33,7 @@ const langData = {
         "audio.noResult": "Không tìm thấy kết quả",
         "audio.invalidUrl": "Url không hợp lệ",
         "audio.invaldIndex": "Số thứ tự không hợp lệ",
+        "audio.tooLarge": "Audio quá lớn, tối đa 48MB",
         "audio.error": "Đã xảy ra lỗi"
     }
 }
@@ -38,11 +43,11 @@ function onLoad() {
 }
 
 async function playMusic(message, song, getLang) {
-    const { title, url } = song;
+    const { title, id } = song;
     message.react("⏳");
     const cachePath = join(global.cachePath, `_ytaudio${Date.now()}.mp3`);
     try {
-        let stream = ytdl(url, { quality: 'lowestaudio' });
+        let stream = ytdl(id, { quality: 'lowestaudio' });
         await new Promise((resolve, reject) => {
             fluent(stream)
                 .save(cachePath)
@@ -54,7 +59,10 @@ async function playMusic(message, song, getLang) {
                 })
         });
 
-        await message.reply({
+        const stat = statSync(cachePath);
+        if (stat.size > _48MB) {
+            message.reply(getLang("audio.tooLarge"));
+        } else await message.reply({
             body: `[ ${title} ]`,
             attachment: global.reader(cachePath)
         });
@@ -83,22 +91,43 @@ async function chooseSong({ message, eventData, getLang }) {
     }
 }
 
-function formatDuration(duration) {
-    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-    const hours = (parseInt(match[1]) || 0);
-    const minutes = (parseInt(match[2]) || 0);
-    const seconds = (parseInt(match[3]) || 0);
-
-    return `${hours ? hours + ":" : ""}${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-}
-
-async function getVideoInfo(id, API_KEY) {
+async function getVideoInfo(id) {
     try {
-        let res = await global.GET(`https://www.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${id}&key=${API_KEY}`);
-        return res.data.items[0] || null;
+        const data = await ytapi.search(id);
+        return data[0] || null;
     } catch (err) {
         console.error(err);
         return null;
+    }
+}
+
+async function searchByKeyword(keyword, MAX_SONGS) {
+    try {
+        if (!keyword) return [];
+        let data = await ytapi.search(keyword);
+        if (!data) return [];
+        return data.slice(0, MAX_SONGS);
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function downloadThumbnails(urls) {
+    try {
+        const attachments = [];
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            if (!url) continue;
+            const path = join(global.cachePath, `_ytaudio${Date.now()}.jpg`);
+            await global.downloadFile(path, url);
+
+            attachments.push(path);
+        }
+
+        return attachments;
+    } catch (err) {
+        throw err;
     }
 }
 
@@ -107,25 +136,32 @@ async function onCall({ message, args, extra, getLang }) {
         if (!args[0]) return message.reply(getLang("audio.missingArguement"));
         let url = args[0];
         if (!url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
-            let res = await global.GET(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(args.join(" "))}&key=${extra.API_KEY}&maxResults=${extra.MAX_SONGS}`);
-            if (!res.data.items[0]) return message.reply(getLang("audio.noResult"));
-            const items = res.data.items;
+            let data = await searchByKeyword(url, extra.MAX_SONGS);
+            if (!data[0]) return message.reply(getLang("audio.noResult"));
+            const items = data;
             const songs = [], attachments = [];
 
-            for (let i = 0; i < extra.MAX_SONGS; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (!items[i]) break;
                 const id = items[i].id.videoId;
-                const info = await getVideoInfo(id, extra.API_KEY);
+                const info = await getVideoInfo(id);
                 if (!info) continue;
-                const duration = info.contentDetails.duration;
-                songs.push({
-                    url: `https://www.youtube.com/watch?v=${id}`,
-                    title: info.snippet.title,
-                    duration: formatDuration(duration)
-                });
 
-                attachments.push(await global.getStream(info.snippet.thumbnails.high.url));
+                const duration = info.snippet.duration;
+                songs.push({
+                    id: id,
+                    title: info.snippet.title,
+                    duration: duration
+                });
             }
+
+            const thumbnails = await downloadThumbnails(items.map(item => item.snippet.thumbnails.high.url));
+
+            attachments.push(
+                ...(thumbnails || [])
+                    .map(path => global.reader(path))
+            );
+
             if (!songs.length) return message.reply(getLang("audio.noResult"));
 
             const sendData = await message.reply({
@@ -133,16 +169,20 @@ async function onCall({ message, args, extra, getLang }) {
                 attachment: attachments
             });
 
+            for (let i = 0; i < thumbnails.length; i++) {
+                if (global.isExists(thumbnails[i])) global.deleteFile(thumbnails[i]);
+            }
+
             return sendData.addReplyEvent({ callback: chooseSong, songs });
         }
 
-        const id = url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)[0].split("v=")[1].split("&")[0];
+        const id = url.match(/(?:http(?:s):\/\/)?(?:www.|m.)?(?:youtu(?:be|.be))?(?:\.com)\/?(?:watch\?v=(?=\w.*))?([\w\.-]+)/)?.[1];
         if (!id) return message.reply(getLang("audio.invalidUrl"));
-        let info = await getVideoInfo(id, extra.API_KEY);
+        let info = await getVideoInfo(id);
         if (!info) return message.reply(getLang("audio.noResult"));
         const song = {
             title: info.snippet.title,
-            url: `https://www.youtube.com/watch?v=${info.id}`
+            id
         }
 
         await playMusic(message, song, getLang);

@@ -9,14 +9,6 @@
     "pullCost": 500,
     "refund": 150
   },
-  "audio": {
-    "API_KEY": "AIzaSyCXD9VHuJv3kqeeB4XQ1W-n4fcvk0uXCgI",
-    "MAX_SONGS": 6
-  },
-  "video": {
-    "API_KEY": "AIzaSyCXD9VHuJv3kqeeB4XQ1W-n4fcvk0uXCgI",
-    "MAX_VIDEOS": 6
-  },
   "daily": {
     "min": 300,
     "max": 1000

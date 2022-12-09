@@ -1,8 +1,9 @@
 import ffmpegPath from "ffmpeg-static"
-import fluent from "fluent-ffmpeg"
+// import fluent from "fluent-ffmpeg"
 import ytdl from "ytdl-core"
 import { join } from "path";
 import { statSync } from "fs";
+import ytapi from "youtube-search-without-api-key";
 
 const _48MB = 48 * 1024 * 1024;
 
@@ -11,10 +12,9 @@ const config = {
     aliases: ['play', 'yt2mp4'],
     description: "Play a video from youtube",
     usage: '<keyword/url>',
-    cooldown: 5,
+    cooldown: 30,
     credits: "XaviaTeam",
     extra: {
-        "API_KEY": "AIzaSyAcRx-0oTSCTgcCpzL5rTtG3IKoXl2HJyk",
         "MAX_VIDEOS": 6
     }
 }
@@ -38,25 +38,20 @@ const langData = {
     }
 }
 
-function onLoad() {
-    fluent.setFfmpegPath(ffmpegPath);
-}
+// function onLoad() {
+//     fluent.setFfmpegPath(ffmpegPath);
+// }
 
 async function playVideo(message, video, getLang) {
-    const { title, url } = video;
+    const { title, id } = video;
     message.react("⏳");
     const cachePath = join(global.cachePath, `_ytvideo${Date.now()}.mp4`);
     try {
-        let stream = ytdl(url, { quality: 18 });
+        let stream = ytdl(id, { quality: 18 });
+        stream.pipe(global.writer(cachePath));
         await new Promise((resolve, reject) => {
-            fluent(stream)
-                .save(cachePath)
-                .on('end', () => {
-                    resolve();
-                })
-                .on('error', (err) => {
-                    reject(err);
-                })
+            stream.on("end", resolve);
+            stream.on("error", reject);
         });
 
         const stat = statSync(cachePath);
@@ -91,22 +86,43 @@ async function chooseVideo({ message, eventData, getLang }) {
     }
 }
 
-function formatDuration(duration) {
-    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-    const hours = (parseInt(match[1]) || 0);
-    const minutes = (parseInt(match[2]) || 0);
-    const seconds = (parseInt(match[3]) || 0);
-
-    return `${hours ? hours + ":" : ""}${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-}
-
-async function getVideoInfo(id, API_KEY) {
+async function getVideoInfo(id) {
     try {
-        let res = await global.GET(`https://www.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${id}&key=${API_KEY}`);
-        return res.data.items[0] || null;
+        const data = await ytapi.search(id);
+        return data[0] || null;
     } catch (err) {
         console.error(err);
         return null;
+    }
+}
+
+async function searchByKeyword(keyword, MAX_VIDEOS) {
+    try {
+        if (!keyword) return [];
+        let data = await ytapi.search(keyword);
+        if (!data) return [];
+        return data.slice(0, MAX_VIDEOS);
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function downloadThumbnails(urls) {
+    try {
+        const attachments = [];
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            if (!url) continue;
+            const path = join(global.cachePath, `_ytvideo${Date.now()}.jpg`);
+            await global.downloadFile(path, url);
+
+            attachments.push(path);
+        }
+
+        return attachments;
+    } catch (err) {
+        throw err;
     }
 }
 
@@ -115,25 +131,32 @@ async function onCall({ message, args, extra, getLang }) {
         if (!args[0]) return message.reply(getLang("video.missingArguement"));
         let url = args[0];
         if (!url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
-            let res = await global.GET(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(args.join(" "))}&key=${extra.API_KEY}&maxResults=${extra.MAX_VIDEOS}`);
-            if (!res.data.items[0]) return message.reply("No result found");
-            const items = res.data.items;
+            let data = await searchByKeyword(url, extra.MAX_VIDEOS);
+            if (!data[0]) return message.reply(getLang("video.noResult"));
+            const items = data;
             const videos = [], attachments = [];
 
-            for (let i = 0; i < extra.MAX_VIDEOS; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (!items[i]) break;
                 const id = items[i].id.videoId;
-                const info = await getVideoInfo(id, extra.API_KEY);
+                const info = await getVideoInfo(id);
                 if (!info) continue;
-                const duration = info.contentDetails.duration;
-                videos.push({
-                    url: `https://www.youtube.com/watch?v=${id}`,
-                    title: info.snippet.title,
-                    duration: formatDuration(duration)
-                });
 
-                attachments.push(await global.getStream(info.snippet.thumbnails.high.url));
+                const duration = info.snippet.duration;
+                videos.push({
+                    id: id,
+                    title: info.snippet.title,
+                    duration: duration
+                });
             }
+
+            const thumbnails = await downloadThumbnails(items.map(item => item.snippet.thumbnails.high.url));
+
+            attachments.push(
+                ...(thumbnails || [])
+                    .map(path => global.reader(path))
+            );
+
             if (!videos.length) return message.reply(getLang("video.noResult"));
 
             const sendData = await message.reply({
@@ -141,16 +164,20 @@ async function onCall({ message, args, extra, getLang }) {
                 attachment: attachments
             });
 
+            for (let i = 0; i < thumbnails.length; i++) {
+                if (global.isExists(thumbnails[i])) global.deleteFile(thumbnails[i]);
+            }
+
             return sendData.addReplyEvent({ callback: chooseVideo, videos });
         }
 
-        const id = url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)[0].split("v=")[1].split("&")[0];
+        const id = url.match(/(?:http(?:s):\/\/)?(?:www.|m.)?(?:youtu(?:be|.be))?(?:\.com)\/?(?:watch\?v=(?=\w.*))?([\w\.-]+)/)?.[1];
         if (!id) return message.reply(getLang("video.invalidUrl"));
-        let info = await getVideoInfo(id, extra.API_KEY);
+        let info = await getVideoInfo(id);
         if (!info) return message.reply(getLang("video.noResult"));
         const video = {
             title: info.snippet.title,
-            url: `https://www.youtube.com/watch?v=${info.id}`
+            id
         }
 
         await playVideo(message, video, getLang);
@@ -163,6 +190,6 @@ async function onCall({ message, args, extra, getLang }) {
 export default {
     config,
     langData,
-    onLoad,
+    // onLoad,
     onCall
 }
