@@ -32,6 +32,8 @@ export default async function ({ event }) {
                 api.sendMessage(atlertMsg, adid);
             }
         }
+
+        return;
     } else if (getThread.data?.notifyChange?.status === true) {
         // const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 

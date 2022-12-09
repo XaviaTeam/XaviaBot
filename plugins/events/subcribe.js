@@ -34,6 +34,8 @@ export default async function ({ event }) {
         const PREFIX = getThreadData.prefix || global.config.PREFIX;
         api.changeNickname(`[ ${PREFIX} ] ${global.config.NAME || "Xavia"}`, threadID, botID);
         api.sendMessage(getLang("plugins.events.subcribe.connected", { PREFIX }), threadID);
+
+        return;
     } else if (getThreadData?.notifyChange?.status === true) {
         // const joinNameArray = [], mentions = [];
         // for (const id in logMessageData.addedParticipants) {
@@ -83,7 +85,31 @@ export default async function ({ event }) {
     }
 
     const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
-    if (global.isExists(gifPath)) {
+
+    if (logMessageData.addedParticipants.length == 1) {
+        const profilePicUrl = `https://graph.facebook.com/${logMessageData.addedParticipants[0].userFbId}/picture?type=large&width=500&height=500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+
+        await new Promise(resolve => {
+            global.request(`${global.xva_api.main}/imgbb`, {
+                method: "POST",
+                data: {
+                    url: profilePicUrl
+                }
+            }, async (error, res, data) => {
+                if (error) {
+                    console.error(error);
+                    return resolve();
+                }
+
+                const username = logMessageData.addedParticipants[0].fullName;
+                const welcomeCard = await global.getStream(`${global.xva_api.popcat}/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(username)}&text2=Welcome+To+${encodeURIComponent(getThreadInfo.name || threadID)}&text3=Member+${newCount[0]}&avatar=${res.data.url}`);
+
+                atlertMsg.attachment = [welcomeCard];
+
+                return resolve();
+            })
+        })
+    } else if (global.isExists(gifPath)) {
         atlertMsg.attachment = [await global.getStream(gifPath)];
     }
 
