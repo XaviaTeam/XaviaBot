@@ -20,5 +20,6 @@
     ],
     "NAME": "Xavia",
     "PREFIX": "x",
-    "timezone": "Asia/Ho_Chi_Minh"
+    "timezone": "Asia/Ho_Chi_Minh",
+    "REFRESH": "43200000"
 }
