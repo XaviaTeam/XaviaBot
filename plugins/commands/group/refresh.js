@@ -19,6 +19,7 @@ const langData = {
 }
 
 async function onCall({ message, getLang }) {
+    if (!message.isGroup) return;
     try {
         let result = await global.controllers.Threads.getInfoAPI(message.threadID);
         if (result === null) return message.reply(getLang("error"));

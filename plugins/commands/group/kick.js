@@ -50,6 +50,7 @@ function kick(userID, threadID) {
 }
 
 async function onCall({ message, getLang, data }) {
+    if (!message.isGroup) return;
     const { threadID, mentions, senderID, messageReply, type, reply } = message;
     try {
         if (Object.keys(mentions).length == 0 && type != 'message_reply') return reply(getLang('missingTarget'));

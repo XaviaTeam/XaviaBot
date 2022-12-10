@@ -48,6 +48,7 @@ function adduser(userID, threadID) {
 }
 
 async function onCall({ message, args, getLang, data }) {
+    if (!message.isGroup) return;
     const { threadID, senderID, reply } = message;
     try {
         const input = args[0]?.toLowerCase();

@@ -70,6 +70,7 @@ function downloadGif(threadID, url) {
 }
 
 async function onCall({ message, getLang, args, data }) {
+    if (!message.isGroup) return;
     const { messageReply, threadID, reply, attachments } = message;
     const { Threads } = global.controllers;
     try {

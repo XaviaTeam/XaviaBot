@@ -59,6 +59,7 @@ async function changeConfig(threadID, senderID, option) {
 }
 
 async function onCall({ message, args, getLang }) {
+    if (!message.isGroup) return;
     const { threadID, senderID, reply } = message;
     let option = args[0]?.toLowerCase();
     try {
