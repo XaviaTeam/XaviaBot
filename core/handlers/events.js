@@ -220,7 +220,7 @@ async function handleReaction(event) {
     let isValidReaction = global.client.reactions.has(messageID);
 
     if (isValidReaction) {
-        const _thread = event.isGroup === true ? await Threads.get(threadID) || {} : {};
+        const _thread = (event.senderID != event.threadID && event.userID != event.threadID) ? await Threads.get(threadID) || {} : {};
         const _user = await Users.get(userID) || {};
 
         const data = { user: _user, thread: _thread };
