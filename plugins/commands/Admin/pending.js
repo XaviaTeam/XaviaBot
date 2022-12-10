@@ -65,7 +65,7 @@ async function callback({ message, getLang, eventData }) {
             const { threadID: cTID } = thread;
 
             let _info = await sendmsg(getLang("denied"), cTID);
-            global.api.removeUserFromGroup(cTID, global.botID, (err) => {
+            global.api.removeUserFromGroup(global.botID, cTID, (err) => {
                 if (err || _info == null) fail.push(cTID);
                 else success++;
             })
