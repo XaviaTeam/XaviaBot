@@ -13,7 +13,7 @@ const langData = {
 const onCall = ({ message, getLang, data }) => {
     if (message.senderID == global.botID) return;
     if (!global.nino.hasOwnProperty(message.threadID) && !global.nino[message.threadID]) return;
-    if (message.body.startsWith(`${data?.thread?.data?.prefix || global.config.PREFIX}nino off`)) return;
+    if (message.body.startsWith(`${data?.thread?.data?.prefix || global.config.PREFIX}nino`)) return;
 
     global
         .GET(`${global.xva_api.main}/nino/get?key=${encodeURIComponent(message.body)}`)
