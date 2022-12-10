@@ -1,5 +1,6 @@
 const config = {
     name: "pending",
+    version: "1.0.2",
     description: "Approve or deny a pending message",
     usage: "",
     cooldown: 3,
@@ -34,11 +35,20 @@ const langData = {
     }
 }
 
-async function sendmsg(message, tid) {
+function sendmsg(message, tid) {
     return new Promise((resolve) => {
         global.api.sendMessage(message, tid, (err, info) => {
             if (err) return resolve(null), console.error(err);
             resolve(info);
+        })
+    });
+}
+
+function out(botID, cTID) {
+    return new Promise((resolve) => {
+        global.api.removeUserFromGroup(botID, cTID, (err) => {
+            if (err) return resolve(null), console.error(err);
+            resolve(true);
         })
     });
 }
@@ -65,10 +75,10 @@ async function callback({ message, getLang, eventData }) {
             const { threadID: cTID } = thread;
 
             let _info = await sendmsg(getLang("denied"), cTID);
-            global.api.removeUserFromGroup(global.botID, cTID, (err) => {
-                if (err || _info == null) fail.push(cTID);
-                else success++;
-            })
+            let _out = await out(global.botID, cTID);
+
+            if (_info == null || _out == null) fail.push(cTID);
+            else success++;
 
             global.sleep(500);
         }
