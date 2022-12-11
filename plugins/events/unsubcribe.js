@@ -12,7 +12,12 @@ export default async function ({ event }) {
 
 
     if (Object.keys(getThreadInfo).length === 0) return;
-    getThreadInfo.members.splice(getThreadInfo.members.findIndex(mem => mem.userID == String(logMessageData.leftParticipantFbId)), 1);
+    // getThreadInfo.members.splice(getThreadInfo.members.findIndex(mem => mem.userID == String(logMessageData.leftParticipantFbId)), 1);
+    const leftMemberIndex = getThreadInfo.members.findIndex(mem => mem.userID == logMessageData.leftParticipantFbId);
+    if (leftMemberIndex > -1) {
+        delete getThreadInfo.members[leftMemberIndex].exp;
+    }
+
     const type = (author == logMessageData.leftParticipantFbId) ? "left" : "kicked";
     const authorName = (await Users.getInfo(author))?.name || author;
 

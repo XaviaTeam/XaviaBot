@@ -71,6 +71,7 @@ plugins.events.subcribe.error.createMonitor: "تعذر إنشاء مجموعة �
 plugins.events.subcribe.createdMonitor: "المجموعة {threadId} سيتم رصد العمل في هذه المجموعة"
 # plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) اضاف {membersLength} عضو:\n{members}"
 plugins.events.subcribe.welcome: "اهلا {members} الى {threadName}!\nانت {newCount} عضو في هذه المجموعة."
+plugins.events.subcribe.warns: "{username} تم طرده بسبب تجاوز الحد الأقصى لعدد التحذيرات."
 
 plugins.events.unsubcribe.bot.left: "Bot غادر \"{threadName}\" ({threadId})."
 plugins.events.unsubcribe.bot.kicked: "Bot تم طرده من \"{threadName}\" ({threadId}) بواسطة \"{authorName}\" ({authorId})."

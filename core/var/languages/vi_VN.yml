@@ -71,6 +71,7 @@ plugins.events.subcribe.error.createMonitor: "Không thể tạo nhóm giám sá
 plugins.events.subcribe.createdMonitor: "Nhóm {threadId} sẽ được giám sát hành động ở nhóm này"
 # plugins.events.subcribe.addMembers: "\"{authorName}\" ({authorId}) đã thêm {membersLength} thành viên:\n{members}"
 plugins.events.subcribe.welcome: "Chào mừng {members} đến với nhóm {threadName}!\n(Các) bạn là thành viên thứ {newCount} của nhóm."
+plugins.events.subcribe.warns: "{username} đã bị đá khỏi nhóm vì đã bị cảnh cáo 3 lần."
 
 plugins.events.unsubcribe.bot.left: "Bot đã rời \"{threadName}\" ({threadId})."
 plugins.events.unsubcribe.bot.kicked: "Bot đã bị đá khỏi \"{threadName}\" ({threadId}) bởi \"{authorName}\" ({authorId})."

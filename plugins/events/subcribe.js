@@ -62,14 +62,48 @@ export default async function ({ event }) {
         // }
     }
 
-    const joinNameArray = [], mentions = [];
-    for (const id in logMessageData.addedParticipants) {
-        const joinName = logMessageData.addedParticipants[id].fullName;
+    const joinNameArray = [], mentions = [], warns = [];
+    for (const participant of logMessageData.addedParticipants) {
+        let uid = participant.userFbId;
+        if (getThreadInfo.members.some(mem => mem.userID == uid && mem?.warns?.length >= 3)) {
+            warns.push(uid);
+            continue;
+        }
+
+        const joinName = participant.fullName;
         joinNameArray.push(joinName);
         mentions.push({
-            id: logMessageData.addedParticipants[id].userFbId,
+            id: uid,
             tag: joinName
         })
+    }
+
+    if (warns.length > 0) {
+        for (const uid of warns) {
+            await new Promise(resolve => {
+                api.removeUserFromGroup(uid, threadID, (err) => {
+                    if (err) {
+                        console.error(err);
+                        return resolve();
+                    }
+
+                    let username = logMessageData.addedParticipants.find(i => i.userFbId == uid).fullName;
+
+                    api.sendMessage({
+                        body: getLang("plugins.events.subcribe.warns", { username }),
+                        mentions: [
+                            {
+                                id: uid,
+                                tag: username
+                            }
+                        ]
+                    }, threadID, (err) => {
+                        if (err) console.error(err);
+                        return resolve();
+                    });
+                });
+            })
+        }
     }
 
     let oldMembersLength = getThreadInfo.members.length - joinNameArray.length;
@@ -86,7 +120,7 @@ export default async function ({ event }) {
 
     const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
 
-    if (logMessageData.addedParticipants.length == 1) {
+    if (logMessageData.addedParticipants.length == 1 && warns.length == 0) {
         const profilePicUrl = `https://graph.facebook.com/${logMessageData.addedParticipants[0].userFbId}/picture?type=large&width=500&height=500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 
         await new Promise(resolve => {
@@ -113,7 +147,8 @@ export default async function ({ event }) {
         atlertMsg.attachment = [await global.getStream(gifPath)];
     }
 
-    api.sendMessage(atlertMsg, threadID, (err) => err ? console.error(err) : null);
+    if (joinNameArray.length > 0)
+        api.sendMessage(atlertMsg, threadID, (err) => err ? console.error(err) : null);
 
     await Threads.updateInfo(threadID, {
         members: getThreadInfo.members,
