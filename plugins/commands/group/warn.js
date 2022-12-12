@@ -211,7 +211,7 @@ async function onCall({ message, args, getLang, data }) {
         if (!isReset && targetIDs.length == 0) return message.reply(getLang("warns", {
             warns: (data.thread.info.members || []).filter(e => e.warns && e.warns.length > 0).map(member => {
                 let username = global.data.users.get(member.userID)?.info?.name || member.userID;
-                return `• ${username} (${member.userID}):\n${member.warns.map(warn => `→ ${warn.reason} (${warn.time})`).join("\n")}`;
+                return `• ${username} (${member.userID}):\n${member.warns.map(warn => `⇒ ${warn.reason} (${warn.time})`).join("\n")}`;
             }).join("\n\n")
         }));
 
@@ -222,7 +222,7 @@ async function onCall({ message, args, getLang, data }) {
                     .reply(getLang("chooseResetWarn", {
                         warns: allWarnedMembers.map((member, index) => {
                             let username = global.data.users.get(member.userID)?.info?.name || member.userID;
-                            return `${index + 1} • ${username} (${member.userID}):\n${member.warns.map(warn => `→ ${warn.reason} (${warn.time})`).join("\n")}`;
+                            return `${index + 1} • ${username} (${member.userID}):\n${member.warns.map(warn => `⇒ ${warn.reason} (${warn.time})`).join("\n")}`;
                         }).join("\n\n")
                     }))
                     .then(_ => _.addReplyEvent({ targetIDs: allWarnedMembers.map(e => e.userID), callback: resetChooseCallback }))
