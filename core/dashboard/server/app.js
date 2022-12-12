@@ -82,7 +82,7 @@ function startServer(serverAdminPassword) {
     if (global.config.AUTO_PING_SERVER) {
         const { isReplit, isGlitch } = global.modules.get('environments.get');
         let webURL;
-        if (isReplit) webURL = `https://${process.env.REPL_OWNER}.${process.env.REPL_SLUG}.repl.co`;
+        if (isReplit) webURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
         else if (isGlitch) webURL = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
         else return;
 
