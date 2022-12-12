@@ -1,5 +1,6 @@
 const config = {
     name: "rule34",
+    aliases: [""],
     description: "Rule34 search",
     usage: "[keyword]",
     cooldown: 3,
@@ -30,7 +31,7 @@ async function onCall({ message, args, getLang }) {
     try {
         if (!args[0]) return message.reply(getLang("noKeyword"));
         message.react("⏳");
-        const data = (await GET(`https://rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&limit=500&tags=${encodeURIComponent(args.join("_"))}`)).data;
+        const data = (await GET(`${global.xva_api.rule34}/rule34?tags=${encodeURIComponent(args.join("_"))}`)).data;
         if (!data.length) {
             message.react("❌");
             return message.reply(getLang("noResult"));
@@ -42,7 +43,7 @@ async function onCall({ message, args, getLang }) {
             data.
                 filter((img) => img.file_url.endsWith(".jpg") || img.file_url.endsWith(".png")) || img.file_url.endsWith(".jpeg")
         ).slice(0, 9)) {
-            imgStreams.push(await getStream(img.file_url));
+            imgStreams.push(await getStream(`${global.xva_api.rule34}/getImage?url=${encodeURIComponent(img.file_url)}`));
         }
 
         if (!imgStreams.length) {
