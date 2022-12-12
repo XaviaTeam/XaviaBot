@@ -54,14 +54,15 @@ async function onCall({ message, args, getLang }) {
     for (let i = 0; i < allTIDs.length; i++) {
         const tid = allTIDs[i];
         PMs.push(new Promise(resolve => {
-            setTimeout(() => {
-                global.api.sendMessage({
+            setTimeout(async () => {
+                await message.send({
                     body: getLang("sendnoti.message", { message: msg }),
                     attachment: filePath.map(item => global.reader(item))
-                }, tid, (err) => {
+                }, tid).catch((err) => {
                     if (!err) success++;
-                    resolve();
                 });
+
+                resolve();
             }, i * 350);
         }));
     }

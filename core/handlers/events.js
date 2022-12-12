@@ -15,16 +15,16 @@ function getExtraEventProperties(event, { type, commandName }) {
     const { threadID, messageID, senderID, userID } = event;
     const isReaction = type === "reaction";
     const extraEventProperties = {
-        send: function (message, DM = false) {
+        send: function (message, c_threadID = null, c_messageID = null) {
             return new Promise((resolve, reject) => {
-                const targetSendID = DM ? isReaction ? userID : senderID : threadID;
+                const targetSendID = c_threadID || threadID;
                 api.sendMessage(message, targetSendID, (err, data) => {
                     if (err) {
                         reject(err);
                     } else {
                         resolve(messageFunctionCallback(data, targetSendID));
                     }
-                });
+                }, c_messageID || null);
             });
         },
         reply: function (message) {

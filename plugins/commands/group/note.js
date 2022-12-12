@@ -46,7 +46,7 @@ async function confirmOverwrite({ message, getLang, eventData }) {
 
         await global.controllers.Users.updateData(userID, { note });
 
-        return global.api.sendMessage(getLang("noted"), threadID, targetMessageID);
+        await message.send(getLang("noted"), threadID, targetMessageID);
     } catch (e) {
         console.error(e);
         message.reply(getLang("error"));
@@ -77,13 +77,13 @@ async function onCall({ message, args, getLang, data }) {
             note.push({ threadID, messageID: targetMessageID });
             await global.controllers.Users.updateData(message.senderID, { note });
 
-            return global.api.sendMessage(getLang("noted"), threadID, targetMessageID);
+            await message.send(getLang("noted"), threadID, targetMessageID);
         } else {
             const isNoted = note.find(item => item.threadID == threadID);
             if (!isNoted) return message.reply(getLang("notNoted"));
             const notedMessageID = isNoted.messageID;
 
-            return global.api.sendMessage(getLang("note"), threadID, notedMessageID);
+            await message.send(getLang("note"), threadID, notedMessageID);
         }
     } catch (e) {
         console.error(e);

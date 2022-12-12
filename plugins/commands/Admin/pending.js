@@ -1,6 +1,5 @@
 const config = {
     name: "pending",
-    version: "1.0.2",
     description: "Approve or deny a pending message",
     usage: "",
     cooldown: 3,
@@ -35,13 +34,9 @@ const langData = {
     }
 }
 
-function sendmsg(message, tid) {
-    return new Promise((resolve) => {
-        global.api.sendMessage(message, tid, (err, info) => {
-            if (err) return resolve(null), console.error(err);
-            resolve(info);
-        })
-    });
+function handleError(e) {
+    console.error(e);
+    return null;
 }
 
 function out(botID, cTID) {
@@ -74,7 +69,7 @@ async function callback({ message, getLang, eventData }) {
         for (const thread of threads) {
             const { threadID: cTID } = thread;
 
-            let _info = await sendmsg(getLang("denied"), cTID);
+            let _info = await message.send(getLang("denied"), cTID).then(data => data).catch(handleError);
             let _out = await out(global.botID, cTID);
 
             if (_info == null || _out == null) fail.push(cTID);
@@ -94,9 +89,9 @@ async function callback({ message, getLang, eventData }) {
             const { threadID: cTID } = thread;
             let threadPrefix = global.data.threads.get(cTID)?.data?.prefix || global.config.PREFIX;
 
-            let _info = await sendmsg(getLang("approved", {
+            let _info = await message.send(getLang("approved", {
                 prefix: threadPrefix
-            }), cTID);
+            }), cTID).then(data => data).catch(handleError);
 
             if (_info == null) fail.push(cTID);
             else success++;
