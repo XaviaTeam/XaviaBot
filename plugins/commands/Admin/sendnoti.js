@@ -29,10 +29,10 @@ const exts = {
     "file": ""
 }
 
-async function onCall({ message, args, getLang }) {
+async function onCall({ message, args, getLang, prefix }) {
     const { type, messageReply, senderID, threadID } = message;
     const attachments = type == "message_reply" ? messageReply.attachments : message.attachments;
-    let msg = (type == "message_reply" && messageReply.body ? messageReply.body : args.join(" ")) || "";
+    let msg = (type == "message_reply" && messageReply.body ? messageReply.body : message.body.slice(prefix.length + config.name.length + 1)) || "";
 
     let filePath = [];
     if (attachments.length > 0) {
@@ -55,13 +55,14 @@ async function onCall({ message, args, getLang }) {
         const tid = allTIDs[i];
         PMs.push(new Promise(resolve => {
             setTimeout(async () => {
-                await message.send({
+                let tmp = await message.send({
                     body: getLang("sendnoti.message", { message: msg }),
                     attachment: filePath.map(item => global.reader(item))
-                }, tid).catch((err) => {
-                    if (!err) success++;
+                }, tid).then(data => data).catch((err) => {
+                    if (err) return null;
                 });
 
+                if (tmp) success++;
                 resolve();
             }, i * 350);
         }));
