@@ -135,7 +135,7 @@ export default function () {
                 }
             } else return false;
         } catch (e) {
-            // console.error(e);
+            console.error(e);
             return false;
         }
     }
@@ -151,7 +151,7 @@ export default function () {
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
         if (userData === null) {
-            data.thumbSrc = `https://graph.facebook.com/${uid}/picture?type=large&width=500&height=500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+            data.thumbSrc = global.getAvatarURL(uid);
 
             global.data.users.set(uid, {
                 userID: uid,
@@ -183,7 +183,6 @@ export default function () {
      * @returns money as String or null
      */
     function getMoney(uid) {
-        // null if false
         if (!uid) return null;
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
@@ -209,7 +208,7 @@ export default function () {
                 }
             } else return false;
         } catch (e) {
-            // console.error(e);
+            console.error(e);
             return false;
         }
     }
@@ -231,7 +230,7 @@ export default function () {
                 }
             } else return false;
         } catch (e) {
-            // console.error(e);
+            console.error(e);
             return false;
         }
     }
