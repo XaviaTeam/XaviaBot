@@ -223,6 +223,7 @@ export default function () {
         get,
         getAll,
         getInfo,
+        getInfoAPI,
         getData,
         updateInfo,
         updateData,

@@ -24,7 +24,8 @@ async function onCall({ message, getLang }) {
         let result = await global.controllers.Threads.getInfoAPI(message.threadID);
         if (result === null) return message.reply(getLang("error"));
         else return message.reply(getLang("success"));
-    } catch {
+    } catch (e) {
+        console.error(e)
         message.reply(getLang("failed"));
     }
 }
