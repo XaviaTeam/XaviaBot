@@ -30,14 +30,6 @@ async function initDatabase() {
         global.createDir(cachePath);
     }
 
-    // empty cache except README.txt
-    const cacheFiles = readdirSync(cachePath).filter(file => file !== 'README.txt');
-    if (cacheFiles.length > 0) {
-        for (const file of cacheFiles) {
-            unlinkSync(resolve(cachePath, file));
-        }
-    }
-
     if (DATABASE === 'JSON') {
         let threadPath = resolve(dataPath, "threads.json");
         let userPath = resolve(dataPath, "users.json");

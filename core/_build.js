@@ -1,17 +1,19 @@
+import '../cleanup.js';
+
 import { } from 'dotenv/config';
-import { readFileSync, writeFileSync } from 'fs';
-import logger from './var/modules/logger.js';
+import { writeFileSync } from 'fs';
 import { resolve as resolvePath } from 'path';
+import logger from './var/modules/logger.js';
 
 import login from '@xaviabot/fca-unofficial';
-import _init_var from './var/_init.js';
 import startServer from './dashboard/server/app.js';
 import handleListen from './handlers/listen.js';
 import environments from './var/modules/environments.get.js';
+import _init_var from './var/_init.js';
 
-import { initDatabase, updateJSON, updateMONGO, _Threads, _Users } from './handlers/database.js';
 import replitDB from "@replit/database";
 import { execSync } from 'child_process';
+import { initDatabase, updateJSON, updateMONGO, _Threads, _Users } from './handlers/database.js';
 
 const { isGlitch, isReplit } = environments;
 
@@ -96,6 +98,7 @@ function booting(logger) {
 }
 
 const _12HOUR = 1000 * 60 * 60 * 12;
+const _2HOUR = 1000 * 60 * 60 * 2;
 function refreshState() {
     global.refreshState = setInterval(() => {
         logger.custom(getLang('build.refreshState'), 'REFRESH');
@@ -129,7 +132,7 @@ function refreshMqtt() {
         logger.custom(getLang('build.refreshMqtt'), 'REFRESH');
         global.listenMqtt.stopListening();
         global.listenMqtt = global.api.listenMqtt(await handleListen());
-    }, _12HOUR);
+    }, _2HOUR);
 }
 
 function autoReloadApplication() {
