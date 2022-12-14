@@ -3,13 +3,13 @@ import fluent from "fluent-ffmpeg"
 import ytdl from "ytdl-core"
 import { join } from "path";
 import { statSync } from "fs";
-import ytapi from "youtube-search-without-api-key";
 
 const _48MB = 48 * 1024 * 1024;
 
 const config = {
     name: "audio",
     aliases: ['yt2mp3', 'sing'],
+    version: "1.0.3",
     description: "Play music from youtube",
     usage: '<keyword/url>',
     cooldown: 30,
@@ -35,6 +35,14 @@ const langData = {
         "audio.invaldIndex": "Số thứ tự không hợp lệ",
         "audio.tooLarge": "Audio quá lớn, tối đa 48MB",
         "audio.error": "Đã xảy ra lỗi"
+    },
+    "ar_SY": {
+        "audio.missingArguement": "يرجى تقديم كلمة رئيسية أو عنوان الرابط",
+        "audio.noResult": "لم يتم العثور على نتائج",
+        "audio.invalidUrl": "الرابط غير صالح",
+        "audio.invaldIndex": "فهرس غير صالح",
+        "audio.tooLarge": "الصوت كبير جدًا ، الحد الأقصى للحجم هو 48 ميجا بايت",
+        "audio.error": "حدث خطأ"
     }
 }
 
@@ -91,10 +99,19 @@ async function chooseSong({ message, eventData, getLang }) {
     }
 }
 
+function formatDuration(duration) {
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+    const hours = (parseInt(match[1]) || 0);
+    const minutes = (parseInt(match[2]) || 0);
+    const seconds = (parseInt(match[3]) || 0);
+
+    return `${hours ? hours + ":" : ""}${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
 async function getVideoInfo(id) {
     try {
-        const data = await ytapi.search(id);
-        return data[0] || null;
+        const { data } = await global.GET(`${global.xva_api.main}/ytvideodetails?id=${id}`)
+        return data.result[0] || null;
     } catch (err) {
         console.error(err);
         return null;
@@ -104,9 +121,9 @@ async function getVideoInfo(id) {
 async function searchByKeyword(keyword, MAX_SONGS) {
     try {
         if (!keyword) return [];
-        let data = await ytapi.search(keyword);
-        if (!data) return [];
-        return data.slice(0, MAX_SONGS);
+        const { data } = await global.GET(`${global.xva_api.main}/ytsearch?keyword=${encodeURIComponent(keyword)}&maxResults=${MAX_SONGS}`);
+        if (!data?.result) return [];
+        return data.result;
 
     } catch (err) {
         throw err;
@@ -136,7 +153,7 @@ async function onCall({ message, args, extra, getLang }) {
         if (!args[0]) return message.reply(getLang("audio.missingArguement"));
         let url = args[0];
         if (!url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
-            let data = await searchByKeyword(url, extra.MAX_SONGS);
+            let data = await searchByKeyword(args.join(" "), extra.MAX_SONGS);
             if (!data[0]) return message.reply(getLang("audio.noResult"));
             const items = data;
             const songs = [], attachments = [];
@@ -147,11 +164,11 @@ async function onCall({ message, args, extra, getLang }) {
                 const info = await getVideoInfo(id);
                 if (!info) continue;
 
-                const duration = info.snippet.duration;
+                const duration = info.contentDetails.duration;
                 songs.push({
                     id: id,
                     title: info.snippet.title,
-                    duration: duration
+                    duration: formatDuration(duration)
                 });
             }
 

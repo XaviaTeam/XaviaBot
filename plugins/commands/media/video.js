@@ -1,15 +1,13 @@
-import ffmpegPath from "ffmpeg-static"
-// import fluent from "fluent-ffmpeg"
 import ytdl from "ytdl-core"
 import { join } from "path";
 import { statSync } from "fs";
-import ytapi from "youtube-search-without-api-key";
 
 const _48MB = 48 * 1024 * 1024;
 
 const config = {
     name: "video",
     aliases: ['play', 'yt2mp4'],
+    version: "1.0.3",
     description: "Play a video from youtube",
     usage: '<keyword/url>',
     cooldown: 30,
@@ -35,12 +33,16 @@ const langData = {
         "video.invaldIndex": "Số thứ tự không hợp lệ",
         "video.tooLarge": "Video quá lớn, tối đa 48MB",
         "video.error": "Đã xảy ra lỗi"
+    },
+    "ar_SY": {
+        "video.missingArguement": "يرجى تقديم كلمة رئيسية أو عنوان الرابط",
+        "video.noResult": "لم يتم العثور على نتائج",
+        "video.invalidUrl": "الرابط غير صالح",
+        "video.invaldIndex": "فهرس غير صالح",
+        "video.tooLarge": "الفيديو كبير جدًا ، الحد الأقصى للحجم هو 48 ميجا بايت",
+        "video.error": "حدث خطأ"
     }
 }
-
-// function onLoad() {
-//     fluent.setFfmpegPath(ffmpegPath);
-// }
 
 async function playVideo(message, video, getLang) {
     const { title, id } = video;
@@ -86,10 +88,19 @@ async function chooseVideo({ message, eventData, getLang }) {
     }
 }
 
+function formatDuration(duration) {
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+    const hours = (parseInt(match[1]) || 0);
+    const minutes = (parseInt(match[2]) || 0);
+    const seconds = (parseInt(match[3]) || 0);
+
+    return `${hours ? hours + ":" : ""}${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
 async function getVideoInfo(id) {
     try {
-        const data = await ytapi.search(id);
-        return data[0] || null;
+        const { data } = await global.GET(`${global.xva_api.main}/ytvideodetails?id=${id}`)
+        return data.result[0] || null;
     } catch (err) {
         console.error(err);
         return null;
@@ -99,9 +110,9 @@ async function getVideoInfo(id) {
 async function searchByKeyword(keyword, MAX_VIDEOS) {
     try {
         if (!keyword) return [];
-        let data = await ytapi.search(keyword);
-        if (!data) return [];
-        return data.slice(0, MAX_VIDEOS);
+        const { data } = await global.GET(`${global.xva_api.main}/ytsearch?keyword=${encodeURIComponent(keyword)}&maxResults=${MAX_VIDEOS}`);
+        if (!data?.result) return [];
+        return data.result;
 
     } catch (err) {
         throw err;
@@ -131,7 +142,7 @@ async function onCall({ message, args, extra, getLang }) {
         if (!args[0]) return message.reply(getLang("video.missingArguement"));
         let url = args[0];
         if (!url.match(/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/)) {
-            let data = await searchByKeyword(url, extra.MAX_VIDEOS);
+            let data = await searchByKeyword(args.join(" "), extra.MAX_VIDEOS);
             if (!data[0]) return message.reply(getLang("video.noResult"));
             const items = data;
             const videos = [], attachments = [];
@@ -142,11 +153,11 @@ async function onCall({ message, args, extra, getLang }) {
                 const info = await getVideoInfo(id);
                 if (!info) continue;
 
-                const duration = info.snippet.duration;
+                const duration = info.contentDetails.duration;
                 videos.push({
                     id: id,
                     title: info.snippet.title,
-                    duration: duration
+                    duration: formatDuration(duration)
                 });
             }
 
@@ -190,6 +201,5 @@ async function onCall({ message, args, extra, getLang }) {
 export default {
     config,
     langData,
-    // onLoad,
     onCall
 }
