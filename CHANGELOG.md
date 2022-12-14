@@ -1,3 +1,14 @@
+## v2.1.0 - 2022/12/15
+- Added a bunch of new commands
+- New global functions: __getAvatarURL__
+- Added __maintain__ mode which makes the bot only listen to moderators
+- Added __isHidden__ and __isAbsolute__ to command config
+- New __ABSOLUTES__ config, the upper level of moderators
+- Even more support for Arabic Language, big thanks to Malk
+- Fixed error bot not running 24/7 on replit
+- Added cleanup function back
+- Overall improvements and bug fixes
+
 ## v2.0.7 - 2022/12/06
 - Minor bug fixes (_nsfw-mode_, _permissions_, _glitch_)
 - Added a lot of Commands

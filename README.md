@@ -55,7 +55,7 @@ npm install && npm start
 • **DimensityDU** (Lead Author):
 [Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
-[Discord](https://discord.gg/Eu2hNRWc) -
+[Discord](https://discord.gg/sMqF4NPZ) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
 [Mail](mailto:xaviateam@protonmail.com)<br />
 • **FuryCS** (Co-Author):
