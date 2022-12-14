@@ -47,7 +47,8 @@ const _global = {
     refreshMqtt: null,
     mongo: null,
     restart: restart,
-    shutdown: shutdown
+    shutdown: shutdown,
+    maintain: false
 }
 
 function _change_prototype_DATA(data) {
@@ -104,6 +105,7 @@ async function _init_global() {
     global.mongo = _global.mongo;
     global.restart = _global.restart;
     global.shutdown = _global.shutdown;
+    global.maintain = _global.maintain;
 }
 
 async function clear() {
