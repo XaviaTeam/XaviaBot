@@ -1,6 +1,5 @@
 const config = {
     name: "nsfw",
-    aliases: [""],
     description: "On/Off Nsfw",
     usage: "[on/off]",
     cooldown: 3,
