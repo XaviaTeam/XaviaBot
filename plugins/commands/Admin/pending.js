@@ -4,12 +4,13 @@ const config = {
     usage: "",
     cooldown: 3,
     permissions: [2],
-    credits: "XaviaTeam"
+    credits: "XaviaTeam",
+    isAbsolute: true
 }
 
 const langData = {
     "vi_VN": {
-        "invalidIndex": "Số thứ tự không hợp lệ",
+        "invalidIndexes": "Số thứ tự không hợp lệ",
         "successDeny": "Đã từ chối thành công {success} nhóm",
         "failDeny": "Một số nhóm không thể từ chối được:\n{fail}",
         "denied": "Rất tiếc, nhóm của bạn đã bị từ chối",
@@ -21,7 +22,7 @@ const langData = {
         "error": "Đã có lỗi xảy ra, vui lòng thử lại sau"
     },
     "en_US": {
-        "invalidIndex": "Invalid index",
+        "invalidIndexes": "Invalid indexes",
         "successDeny": "Denied successfully {success} group(s)",
         "failDeny": "Some groups could not be denied:\n{fail}",
         "denied": "Sorry, your group has been denied",
@@ -31,6 +32,18 @@ const langData = {
         "pendingThreadList": "List of pending threads:\n{pendingThread}\n\nReply with the following syntax:\nTo deny: deny <index/all>\nTo approve: approve <index/all>",
         "pendingThreadListEmpty": "There are no pending threads",
         "error": "An error has occurred, please try again later"
+    },
+    "ar_SY": {
+        "invalidIndexes": "فهارس غير صالحة",
+        "successDeny": "تم الرفض بنجاح {success} مجموعة(محموعات)",
+        "failDeny": "لا يمكن إنكار بعض الجماعات:\n{fail}",
+        "denied": "آسف ، تم رفض مجموعتك",
+        "successApprove": "تمت الموافقة بنجاح {success} مجموعة(مجموعات)",
+        "failApprove": "لا يمكن الموافقة على بعض المجموعات:\n{fail}",
+        "approved": "تهانينا ، تمت الموافقة على مجموعتك\n{prefix}تساعد في رؤية قائمة الأوامر",
+        "pendingThreadList": "قائمة المواضيع المعلقة:\n{pendingThread}\n\nالرد بالصيغة التالية:\nللرفض: رفض <index/all>\nليوافق: يوافق <index/all>",
+        "pendingThreadListEmpty": "لا توجد مواضيع معلقة",
+        "error": "حصل خطأ. الرجاء المحاوله مرة اخرى"
     }
 }
 
@@ -52,7 +65,7 @@ async function callback({ message, getLang, eventData }) {
     const { pendingThread } = eventData;
 
     const input = message.body.split(" ");
-    const indexs =
+    const indexes =
         input[1] == "all" || input[1] == "-a" ?
             pendingThread.map((_, index) => index) :
             input
@@ -62,9 +75,9 @@ async function callback({ message, getLang, eventData }) {
 
     let success = 0, fail = [];
     if (input[0] == "deny" || input[0] == "d") {
-        if (indexs.length == 0) return message.reply(getLang("invalidIndex"));
+        if (indexes.length == 0) return message.reply(getLang("invalidIndexes"));
 
-        const threads = indexs.map(index => pendingThread[index]);
+        const threads = indexes.map(index => pendingThread[index]);
 
         for (const thread of threads) {
             const { threadID: cTID } = thread;
@@ -81,9 +94,9 @@ async function callback({ message, getLang, eventData }) {
         message.reply(getLang("successDeny", { success }));
         if (fail.length > 0) message.reply(getLang("failDeny", { fail: fail.join("\n") }));
     } else {
-        if (indexs.length == 0) return message.reply(getLang("invalidIndex"));
+        if (indexes.length == 0) return message.reply(getLang("invalidIndexes"));
 
-        const threads = indexs.map(index => pendingThread[index]);
+        const threads = indexes.map(index => pendingThread[index]);
 
         for (const thread of threads) {
             const { threadID: cTID } = thread;

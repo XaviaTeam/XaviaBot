@@ -1,14 +1,10 @@
 const config = {
     name: "mods",
     aliases: ["moderators"],
+    version: "1.0.1",
     description: "List, Add or remove moderators",
     permissions: [2],
-    cooldown: 5,
-    extra: {
-        "absolute": ["100008907121641"]  // List of moderators that can add/remove moderators
-        // Danh sách các quản trị viên có thể thêm/xóa quản trị viên
-        // قائمة المشرفين الذين يمكنهم إضافة / إزالة المشرفين
-    }
+    cooldown: 5
 }
 
 const langData = {
@@ -44,12 +40,11 @@ const langData = {
     }
 }
 
-async function onCall({ message, args, extra, getLang }) {
+async function onCall({ message, args, getLang }) {
     const { type, messageReply, mentions, senderID, reply } = message;
-    const { absolute } = extra;
 
     try {
-        const isAbsolute = absolute.some(id => id == senderID);
+        const isAbsolute = global.ABSOLUTES.some(id => id == senderID);
 
         let query = args[0]?.toLowerCase();
         switch (query) {

@@ -4,7 +4,8 @@ const config = {
     permissions: [2],
     description: "Run bot scripts",
     usage: "<script>",
-    credits: "XaviaTeam"
+    credits: "XaviaTeam",
+    isAbsolute: true
 }
 
 function onCall({ message, args }) {

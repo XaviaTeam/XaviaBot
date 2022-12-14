@@ -1,7 +1,8 @@
 const config = {
     name: "data",
     permissions: [2],
-    credits: "XaviaTeam"
+    credits: "XaviaTeam",
+    isAbsolute: true
 }
 
 const langData = {
