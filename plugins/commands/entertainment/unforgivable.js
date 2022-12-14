@@ -1,6 +1,6 @@
 const config = {
-    name: "sadcat",
-    description: "sadcat meme maker",
+    name: "unforgivable",
+    description: "unforgivable meme maker",
     usage: "[text]",
     cooldown: 3,
     permissions: [0, 1, 2],
@@ -27,7 +27,7 @@ async function onCall({ message, args, getLang }) {
     if (input.length == 0) return message.reply(getLang("missingInput"));
 
     global
-        .getStream(`${global.xva_api.popcat}/sadcat?text=${input}`)
+        .getStream(`${global.xva_api.popcat}/unforgivable?text=${encodeURIComponent(input)}`)
         .then(stream => {
             message.reply({ attachment: stream });
         })
