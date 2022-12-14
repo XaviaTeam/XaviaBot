@@ -19,6 +19,11 @@ function loadConfig() {
         unlinkSync(configPathTemp);
     }
 
+    if (config.hasOwnProperty('REFRESH')) config.REFRESH = "43200000";
+    if (config.hasOwnProperty('ABSOLUTES')) config.REFRESH = [];
+
+    config.save();
+
     return config;
 }
 
@@ -31,7 +36,7 @@ function getLang(key, objectData, plugin, language = global.config.LANGUAGE) {
     if (!key || typeof key !== 'string') return '';
     if (!objectData || typeof objectData !== 'object' || Array.isArray(objectData)) objectData = {};
 
-    let gottenData = plugin ? global.data.langPlugin[language]?.[plugin]?.[key] : global.data.langSystem[language]?.[key] || '';
+    let gottenData = plugin ? (global.data.langPlugin[language]?.[plugin]?.[key] || global.data.langPlugin["en_US"]?.[plugin]?.[key]) : global.data.langSystem[language]?.[key] || '';
     if (gottenData)
         for (const dataKey in objectData) {
             gottenData = gottenData.replace(`{${dataKey}}`, objectData[dataKey]);
