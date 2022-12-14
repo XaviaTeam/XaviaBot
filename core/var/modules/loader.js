@@ -6,6 +6,9 @@ import { resolve as resolvePath } from 'path';
 function loadConfig() {
     const config = JSON.parse(readFileSync(resolvePath(global.mainPath, 'config', 'config.main.json'), 'utf8'));
 
+    if (!config.hasOwnProperty('REFRESH')) config.REFRESH = "43200000";
+    if (!config.hasOwnProperty('ABSOLUTES')) config.ABSOLUTES = [];
+
     config.save = () => {
         const configStringified = JSON.stringify(config, (key, value) => {
             if (key == 'save') return undefined;
@@ -18,9 +21,6 @@ function loadConfig() {
 
         unlinkSync(configPathTemp);
     }
-
-    if (config.hasOwnProperty('REFRESH')) config.REFRESH = "43200000";
-    if (config.hasOwnProperty('ABSOLUTES')) config.REFRESH = [];
 
     config.save();
 
