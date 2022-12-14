@@ -1,6 +1,5 @@
 const config = {
     name: "rule34",
-    aliases: [""],
     description: "Rule34 search",
     usage: "[keyword]",
     cooldown: 3,
