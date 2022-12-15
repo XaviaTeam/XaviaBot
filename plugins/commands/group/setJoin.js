@@ -86,7 +86,7 @@ async function onCall({ message, getLang, args, data }) {
         }
 
         const joinMessage = args.join(" ") || messageReply.body;
-        const joinAttachment = (messageReply.attachments || attachments)[0];
+        const joinAttachment = (messageReply?.attachments || attachments)[0];
 
         if (!joinMessage && !joinAttachment) return reply(getLang("noContent"));
         if (joinMessage) {

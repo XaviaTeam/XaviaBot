@@ -86,7 +86,7 @@ async function onCall({ message, getLang, args, data }) {
         }
 
         const leaveMessage = args.join(" ") || messageReply.body;
-        const leaveAttachment = (messageReply.attachments || attachments)[0];
+        const leaveAttachment = (messageReply?.attachments || attachments)[0];
 
         if (!leaveMessage && !leaveAttachment) return reply(getLang("noContent"));
         if (leaveMessage) {
