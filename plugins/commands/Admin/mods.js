@@ -44,7 +44,7 @@ async function onCall({ message, args, getLang }) {
     const { type, messageReply, mentions, senderID, reply } = message;
 
     try {
-        const isAbsolute = global.ABSOLUTES.some(id => id == senderID);
+        const isAbsolute = global.config.ABSOLUTES.some(id => id == senderID);
 
         let query = args[0]?.toLowerCase();
         switch (query) {
