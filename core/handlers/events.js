@@ -159,7 +159,7 @@ async function handleCommand(event) {
             const { cooldowns } = global.client;
             const permissions = commandInfo.permissions || [0];
             const userPermissions = getUserPermissions(senderID, _thread?.info);
-            const isAbsoluteUser = global.config?.ABSOLUTES.some(e => e.id == senderID);
+            const isAbsoluteUser = global.config?.ABSOLUTES.some(e => e == senderID);
             const checkAbsolute = !!commandInfo.isAbsolute ? isAbsoluteUser : true;
             const isValidUser = checkPermission(permissions, userPermissions) && checkAbsolute;
 
