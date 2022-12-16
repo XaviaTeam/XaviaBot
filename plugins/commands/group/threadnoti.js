@@ -21,6 +21,13 @@ const langData = {
         "threadnoti.alreadyOn": "Thông báo nhóm đã được bật từ trước.",
         "threadnoti.alreadyOff": "Thông báo nhóm đã được tắt từ trước.",
         "error": "Đã có lỗi xảy ra, vui lòng thử lại sau."
+    },
+    "ar_SY": {
+        "threadnoti.on": "تم تشغيل إعلامات المجموعة.",
+        "threadnoti.off": "تم إيقاف تشغيل إعلامات المجموعة.",
+        "threadnoti.alreadyOn": "تم تمكين إعلامات المجموعة بالفعل.",
+        "threadnoti.alreadyOff": "تم إيقاف تشغيل إعلامات المجموعة من قبل.",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا."
     }
 }
 

@@ -34,6 +34,19 @@ const langData = {
         "notAllowedToTurnOn": "You don't have enough permissions to turn on this feature",
         "notAllowedToTurnOff": "You don't have enough permissions to turn off this feature",
         "error": "An error has occurred"
+    },
+    "ar_SY": {
+        "dataNotReady": "بيانات المجموعة غير جاهزة",
+        "notReply": "يجب عليك الرد على رسالة الروبوت",
+        "notBotMessage": "الرسالة التي ترد عليها ليست من الروبوت",
+        "notAllowed": "هذه المجموعة غير مسموح لها بإلغاء إرسال رسالة الروبوت",
+        "alreadyOn": "ميزة رسالة إلغاء إرسال الروبوت قيد التشغيل بالفعل",
+        "on": "تم تشغيل ميزة إلغاء إرسال رسالة الروبوت",
+        "alreadyOff": "ميزة رسالة إلغاء إرسال البوت متوقفة بالفعل",
+        "off": "تم إيقاف تشغيل ميزة إلغاء إرسال رسالة الروبوت",
+        "notAllowedToTurnOn": "ليس لديك أذونات كافية لتشغيل هذه الميزة",
+        "notAllowedToTurnOff": "ليس لديك صلاحيات كافية لإيقاف تشغيل هذه الميزة",
+        "error": "حدث خطأ"
     }
 }
 

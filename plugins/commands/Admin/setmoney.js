@@ -23,6 +23,14 @@ const langData = {
         "setmoney.onlyOneMention": "Bạn chỉ có thể tag một người",
         "setmoney.success": "Thành công",
         "setmoney.failed": "Thất bại"
+    },
+    "ar_SY": {
+        "setmoney.noTarget": "قم بالرد على رسالة أو وضع علامة على شخص ما ، أو استخدم 'me' لتعيين أموالك الخاصة",
+        "setmoney.invalidAmount": "مبلغ غير صحيح",
+        "setmoney.userNoData": "المستخدم غير موجود / غير جاهز",
+        "setmoney.onlyOneMention": "يمكنك فقط ذكر شخص واحد",
+        "setmoney.success": "نجح",
+        "setmoney.failed": "باءت بالفشل"
     }
 }
 

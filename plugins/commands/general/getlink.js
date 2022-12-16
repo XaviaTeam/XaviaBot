@@ -21,6 +21,13 @@ const langData = {
         "noSupportedAttachment": "No supported attachment, only support photo and animated image",
         "uploadFailed": "Upload failed",
         "error": "An error occured"
+    },
+    "ar_SY": {
+        "replyMessage": "الرجاء الرد على الرسالة",
+        "noAttachment": "لا يوجد مرفق",
+        "noSupportedAttachment": "لا يوجد مرفق مدعوم ، يدعم فقط الصور والصورة المتحركة",
+        "uploadFailed": "فشل الرفع",
+        "error": "حدث خطأ"
     }
 }
 

@@ -17,6 +17,11 @@ const langData = {
         "sendnoti.message": "== ⌈ THÔNG BÁO ⌋ ==\n\n{message}",
         "sendnoti.success": "Đã gửi thông báo đến {count} nhóm",
         "sendnoti.fail": "Không thể gửi thông báo đến {count} nhóm"
+    },
+    "ar_SY": {
+        "sendnoti.message": "== ⌈ إـشــعـــار ⌋ ==\n\n{message}",
+        "sendnoti.success": "إرسال اشعار إلى {count} المجموعات",
+        "sendnoti.fail": "فشل في إرسال إشعار إلى {count} المجموعات"
     }
 }
 

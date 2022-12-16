@@ -28,6 +28,12 @@ const langData = {
         "work.alreadyWorked": "Bạn đã làm việc, bạn có thể làm việc lại sau {time}",
         "work.successfullyWorked": "Bạn đã làm việc và kiếm được {amount}XC",
         "work.failed": "Thất bại"
+    },
+    "ar_SY": {
+        "work.selfNoData": "البيانات الخاصة بك ليست جاهزة",
+        "work.alreadyWorked": "لقد عملت ، يمكنك العمل مرة أخرى لاحقًا {time}",
+        "work.successfullyWorked": "لقد عملت وكسبت {amount}XC",
+        "work.failed": "باءت بالفشل"
     }
 }
 

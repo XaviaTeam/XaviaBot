@@ -12,6 +12,9 @@ const langData = {
     },
     "vi_VN": {
         "say.error.noText": "Vui lòng nhập văn bản"
+    },
+    "ar_SY": {
+        "say.error.noText": "الرجاء إدخال النص"
     }
 }
 

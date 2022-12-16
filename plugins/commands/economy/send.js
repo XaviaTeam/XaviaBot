@@ -27,6 +27,14 @@ const langData = {
         "notEnoughMoney": "Bạn không đủ tiền, bạn cần thêm {amount} XC",
         "sendSuccessFee": "Bạn đã gửi {amount} XC cho {name} (thuế: {fee} XC)",
         "error": "Đã xảy ra lỗi, vui lòng thử lại sau"
+    },
+    "ar_SY": {
+        "missingMention": "تحتاج إلى ذكر شخص ما لإرسال الأموال إليه",
+        "invalidAmount": "مبلغ غير صحيح",
+        "lowerThanMin": "الحد الأدنى للمبلغ هو {minAmount} XC",
+        "notEnoughMoney": "ليس لديك ما يكفي من المال ، فأنت بحاجة إلى المزيد {amount} XC",
+        "sendSuccessFee": "لقد ارسلت {amount} XC الى {name} (مصاريف: {fee} XC)",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
     }
 }
 

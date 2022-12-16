@@ -23,6 +23,12 @@ const langData = {
         "daily.alreadyClaimed": "Bạn đã nhận thưởng hàng ngày, bạn có thể nhận lại sau {time}",
         "daily.successfullyClaimed": "Bạn đã nhận thưởng hàng ngày {amount}XC",
         "daily.failed": "Thất bại"
+    },
+    "ar_SY": {
+        "daily.selfNoData": "البيانات الخاصة بك ليست جاهزة",
+        "daily.alreadyClaimed": "لقد طالبت بالفعل على مكافأتك اليومية ، يمكنك المطالبة مرة أخرى في {time}",
+        "daily.successfullyClaimed": "لقد طالبت بمكافأتك اليومية البالغة {amount}XC",
+        "daily.failed": "فشل"
     }
 }
 

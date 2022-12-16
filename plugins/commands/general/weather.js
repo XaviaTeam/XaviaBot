@@ -19,6 +19,12 @@ const langData = {
         "notFound": "Location not found",
         "results": "Weather at {name}:\nTemperature: {temperture}°C\nTime: {day}, {date}\nObservation time: {observationtime}\nObservation point: {observationpoint}\nSky status: {skytext}\nWind speed: {windspeed}\nHumidity: {humidity}",
         "error": "An error has occurred"
+    },
+    "ar_SY": {
+        "missingInput": "الرجاء إدخال موقع",
+        "notFound": "الموقع غير موجود",
+        "results": "الطقس في {name}:\nدرجة الحرارة: {temperture}°C\الوقت: {day}, {date}\وقت المراقبة: {observationtime}\nنقطة المراقبة: {observationpoint}\nحالة السماء: {skytext}\nسرعة الريح: {windspeed}\nالرطوبة: {humidity}",
+        "error": "حدث خطأ"
     }
 }
 

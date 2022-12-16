@@ -21,6 +21,13 @@ const langData = {
         "prefix.tooLong": "Prefix phải ít hơn 5 ký tự",
         "notGroup": "Lệnh này chỉ hoạt động trong nhóm",
         "threadDataNotExists": "Dữ liệu nhóm không tồn tại"
+    },
+    "ar_VN": {
+        "prefix.get": "بادئة افتراضية: {default}\nالبادئة الحالية: {current}",
+        "prefix.set": "تم تعيين البادئة على {newPrefix}",
+        "prefix.tooLong": "يجب أن تكون البادئة أقل من 5 أحرف",
+        "notGroup": "هذا الأمر يعمل فقط في المجموعة",
+        "threadDataNotExists": "بيانات المجموعة غير موجودة"
     }
 }
 

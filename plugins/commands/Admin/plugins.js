@@ -19,6 +19,12 @@ const langData = {
         "result.list": "Lệnh: {commands}\nSự kiện: {events}\nTrình xử lý tin nhắn: {onMessage}\nTùy chỉnh: {customs}",
         "invalid.query": "Lệnh không hợp lệ!",
         "error.unknow": "Đã xảy ra lỗi, kiểm tra console để biết thêm chi tiết"
+    },
+    "ar_SY": {
+        "result.reload": "إعادة تحميل جميع المكونات الإضافية ، تحقق من وحدة التحكم لمزيد من التفاصيل",
+        "result.list": "امر: {commands}\الأحداث: {events}\nمعالج الرسائل: {onMessage}\nالعادة: {customs}",
+        "invalid.query": "أمر خاطئ!",
+        "error.unknow": "حدث خطأ ما ، تحقق من وحدة التحكم لمزيد من التفاصيل"
     }
 }
 

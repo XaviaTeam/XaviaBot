@@ -22,6 +22,13 @@ const langData = {
         "levelup.alreadyOn": "Thông báo lên cấp đã được bật trước đó.",
         "levelup.alreadyOff": "Thông báo lên cấp đã được tắt trước đó.",
         "error": "Đã xảy ra lỗi, vui lòng thử lại sau."
+    },
+    "ar_SY": {
+        "levelup.on": "تم تشغيل إشعار رفع المستوى.",
+        "levelup.off": "تم ايقاف إشعار رفع المستوى.",
+        "levelup.alreadyOn": "تم تشغيل إشعار رفع المستوى بالفعل.",
+        "levelup.alreadyOff": "تم ايقاف إشعار رفع المستوى بالفعل.",
+        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا."
     }
 }
 

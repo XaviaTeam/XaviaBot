@@ -33,6 +33,18 @@ const langData = {
         "sicbo.result_2": "tài",
         "sicbo.result_0": "ba nút bằng nhau",
         "any.error": "Đã xảy ra lỗi, vui lòng thử lại sau."
+    },
+    "ar_SY": {
+        "sicbo.userNoData": "البيانات الخاصة بك ليست جاهزة بعد.",
+        "sicbo.invalidChoice": "خيار غير صالح ، الخيارات المتاحة:\n{small}\n{big}",
+        "sicbo.notEnoughMoney": "مال غير كاف.",
+        "sicbo.minMoney": "الحد الأدنى للرهان هو {min} XC.",
+        "sicbo.win": "{dices}\nلقد فزت {money} XC.",
+        "sicbo.lose": "{dices}\nلقد خسرت {money} XC.",
+        "sicbo.result_1": "صغير",
+        "sicbo.result_2": "كبير",
+        "sicbo.result_0": "ثلاث مرات",
+        "any.error": "حدث خطأ ، حاول مرة أخرى في وقت لاحق."
     }
 }
 

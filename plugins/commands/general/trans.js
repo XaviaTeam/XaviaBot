@@ -16,6 +16,11 @@ const langData = {
         "trans.error.noText": "Vui lòng nhập văn bản cần dịch.",
         "trans.error.unknown": "Đã xảy ra lỗi",
         "trans.success": "{from} => {to}:\n{translation}"
+    },
+    'ar_SY': {
+        "trans.error.noText": "الرجاء إدخال النص الذي تريد ترجمته.",
+        "trans.error.unknown": "حدث خطأ",
+        "trans.success": "{from} => {to}:\n{translation}"
     }
 }
 

@@ -41,6 +41,23 @@ const langData = {
         "relapsed": "You have relapsed your streak",
         "alreadyStopped": "You have already stopped your streak",
         "error": "An error has occurred"
+    },
+    "ar_SY": {
+        "dataNotReady": "البيانات الخاصة بك ليست جاهزة",
+        "notStarted": "أنت لم تبدأ أي خط",
+        "alreadyStarted": "لقد بدأت بالفعل خط",
+        "invalidDays": "أيام غير صالحة",
+        "started": "لقد بدأت خطًا جديدًا",
+        "startedWithMessage": "لقد بدأت خطًا جديدًا مع الرسالة:\n{message}",
+        "stopped": "لقد أوقفت خطك",
+        "statusStopped": "توقفت",
+        "statusRunning": "تشغيل",
+        "detailsWithMessage": "خطك: {days} ايام\nرسالة: {message}\nحالة: {status}",
+        "details": "خطك: {days} ايام\nحالة: {status}",
+        "set": "لقد قمت بتعيين خطك إلى {days} ايام",
+        "relapsed": "لقد انتكست خطك",
+        "alreadyStopped": "لقد أوقفت بالفعل خطك",
+        "error": "حدث خطأ"
     }
 }
 

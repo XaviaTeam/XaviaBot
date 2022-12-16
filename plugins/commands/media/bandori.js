@@ -115,6 +115,31 @@ const langData = {
         "any.error": "Đã xảy ra lỗi.",
         "downloading": "Đang tải xuống...",
         "help": `=== BANDORI HELP ===\n${config.name} song <tên bài hát> - Chơi một bài hát.\n${config.name} song - Chọn một bài hát.\n${config.name} pico <phần> <tập> - Xem một tập garupa PICO.\n${config.name} pico - Chọn một phần.\n${config.name} pull - Pull một thẻ.\n${config.name} inventory - Hiển thị kho của bạn.\n${config.name} help - Hiển thị trợ giúp này.`
+    },
+    'ar_SY': {
+        "song.chooseBand": "اختر حزامًا:\n{bands}",
+        "song.chooseBand.invalid": "اختيار غير صحيح.",
+        "song.chooseSong": "{msg}\n⇒ الرد على رقم الأغنية.",
+        "song.chooseSong.invalid": "اختيار غير صحيح.",
+        "song.chooseSong.noAudioAvailable": "لا يوجد صوت متاح.",
+        "song.chooseAudioSource": "{msg}\n⇒ رد على عدد مصادر الصوت المراد تشغيلها.",
+        "song.chooseAudioSource.invalid": "اختيار غير صحيح.",
+        "song.search.noResult": "لم يتم العثور على الاغنية.",
+        "pico.choosePart": "اختر جزء:\n{parts}",
+        "pico.choosePart.invalid": "اختيار غير صحيح.",
+        "pico.chooseEpisode": "[ {part} ]\nالمجموع: {total} eps\n⇒ رد على عدد الحلقات التي تريد مشاهدتها.",
+        "pico.chooseEpisode.invalid": "اختيار غير صحيح.",
+        "pull.noData": "البيانات الخاصة بك ليست جاهزة...",
+        "pull.notEnoughMoney": "انت تحتاج {pullCost} XC لسحب.",
+        "pull.alreadyHave": "تسحب البطاقة التي لديك بالفعل ، وتستعيدها {refund} XC.",
+        "pull.cardType._0": "تحصل على بطاقة {rarity} نجمة! (id: {id})",
+        "pull.cardType._1": "تحصل على بطاقة خاصة! (id: {id})",
+        "pull.result": "\nاسم: {name} ({attribute})\nمهارة: {skill_name}",
+        "inventory.noData": "البيانات الخاصة بك ليست جاهزة...",
+        "inventory.data": "=== ⌈ Bandori ⌋ ===\n • المجموع: {_total}\n • Special: {_SPECIAL}\n • 4 sao: {_4STARS} ({_4STARS_AWAKENED} استيقظ)\n • 3 sao: {_3STARS} ({_3STARS_AWAKENED} استيقظ)\n • 2 sao: {_2STARS}",
+        "any.error": "حدث خطأ. اذا سمحت حاول مرة أخرى لاحقا.",
+        "downloading": "جارى التحميل...",
+        "help": `=== BANDORI HELP ===\n${config.name} song <اسم الأغنية> - اعزف اغنية.\n${config.name} song - اختر أغنية.\n${config.name} pico <جزء> <حلقة> - شاهد حلقة garupa PICO.\n${config.name} pico - اختر جزء.\n${config.name} pull - Pull بطاقة.\n${config.name} inventory - أظهر مخزونك.\n${config.name} help - أظهر هذه المساعدة.`
     }
 }
 

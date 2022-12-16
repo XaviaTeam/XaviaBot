@@ -17,6 +17,11 @@ const langData = {
         "balance.userNoData": "Người dùng không tìm thấy/chưa sẵn sàng",
         "balance.selfNoData": "Dữ liệu của bạn chưa sẵn sàng",
         "balance.result": "Số dư: {money}XC"
+    },
+    "ar_SY": {
+        "balance.userNoData": "المستخدم غير موجود / غير جاهز",
+        "balance.selfNoData": "البيانات الخاصة بك ليست جاهزة",
+        "balance.result": "فائض: {money}XC"
     }
 }
 

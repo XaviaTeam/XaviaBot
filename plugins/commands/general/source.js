@@ -10,6 +10,9 @@ const langData = {
     },
     "vi_VN": {
         "details": "Bot Messenger chạy trên NodeJS:\n{source}"
+    },
+    "ar_SY": {
+        "details": "روبوت ماسنجر يعمل على لغة NodeJS:\n{source}"
     }
 }
 

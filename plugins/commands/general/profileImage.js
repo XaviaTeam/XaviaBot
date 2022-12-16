@@ -16,6 +16,10 @@ const langData = {
     "vi_VN": {
         "profileImage.noData": "Không có dữ liệu...",
         "profileImage.error": "Đã xảy ra lỗi"
+    },
+    "ar_SY": {
+        "profileImage.noData": "لايوجد بيانات...",
+        "profileImage.error": "حدث خطأ"
     }
 }
 

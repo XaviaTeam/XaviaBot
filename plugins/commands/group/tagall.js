@@ -14,6 +14,9 @@ const langData = {
     },
     "vi_VN": {
         "tagall.defaultText": "@mọi người"
+    },
+    "ar_SY": {
+        "tagall.defaultText": "@الجميع"
     }
 }
 

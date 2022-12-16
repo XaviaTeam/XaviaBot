@@ -25,6 +25,15 @@ const langData = {
         "not_mod": "You are not a bot admin!",
         "reply_content": "📬 Reply from {senderName} ({senderID})\n📝 Content:\n{content}",
         "error": "An error has occurred, please try again later!"
+    },
+    "ar_SY": {
+        "report_no_content": "لم تقم بإدخال / الرد على أي رسالة للإبلاغ أو أن الملف المرفق غير مدعوم!",
+        "report_content": "📢 تقرير من {reporterName} ({senderID})\n📌 Thread: {reporterThreadName} ({threadID})\n📝 Content:\n{content}",
+        "report_failed": "فشل إرسال التقرير ، يرجى المحاولة مرة أخرى لاحقًا!",
+        "report_success": "تم إرسال التقرير إلى {reportSuccess} ادمن البوت",
+        "not_mod": "انت لست ادمن البوت!",
+        "reply_content": "📬 الرد من {senderName} ({senderID})\n📝 Content:\n{content}",
+        "error": "حصل خطأ. الرجاء المحاوله مرة اخرى!"
     }
 }
 

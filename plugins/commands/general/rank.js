@@ -92,6 +92,10 @@ const langData = {
     "vi_VN": {
         "rank_all_local": "-- Xếp hạng tương tác --\n👤 Exp của bạn: {senderExp} #{senderRank}\n📕 Thành viên:\n{allData}",
         "rank_all_global": "-- Xếp hạng tương tác --\n👤 Exp của bạn: {senderExp} #{senderRank}\n📕 Top 20 global:\n{allData}",
+    },
+    "ar_SY": {
+        "rank_all_local": "-- تقييم التفاعل --\n👤 المستوى الخاص بك: {senderExp} #{senderRank}\n📕 أعضاء:\n{allData}",
+        "rank_all_global": "-- تقييم التفاعل --\n👤 المستوى الخاص بك: {senderExp} #{senderRank}\n📕 افضل 20 متفاعلا:\n{allData}",
     }
 }
 

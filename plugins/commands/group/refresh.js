@@ -15,6 +15,10 @@ const langData = {
     "vi_VN": {
         "success": "Đã làm mới dữ liệu nhóm thành công.",
         "failed": "Không thể làm mới dữ liệu nhóm."
+    },
+    "ar_SY": {
+        "success": "تم تحديث بيانات المجموعة بنجاح.",
+        "failed": "تعذر تحديث بيانات المجموعة."
     }
 }
 
