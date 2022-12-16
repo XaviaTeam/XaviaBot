@@ -121,7 +121,7 @@ export default async function ({ event }) {
     const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
 
     if (logMessageData.addedParticipants.length == 1 && warns.length == 0) {
-        const profilePicUrl = global.getAvatarUrl(logMessageData.addedParticipants[0].userFbId);
+        const profilePicUrl = global.getAvatarURL(logMessageData.addedParticipants[0].userFbId);
 
         await new Promise(resolve => {
             global.request(`${global.xva_api.main}/imgbb`, {
