@@ -334,7 +334,7 @@ function handleUnsend(event) {
 }
 
 function handleEvent(event) {
-    if (event.participantIDs.length === 0) return;
+    if (event.type !== "change_thread_image" && event.participantIDs.length === 0) return;
     try {
         switch (event.type) {
             case 'event': {
