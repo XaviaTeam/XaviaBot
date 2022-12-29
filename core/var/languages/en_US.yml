@@ -63,6 +63,7 @@ database.error: "An error occurred while working with the database: {error}"
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" has changed the thread image."
 plugins.events.change_thread_image.reversed: "\nChanging thread image is not allowed so it was reversed."
+plugins.events.change_thread_image.reversed_t: "[ ANTI ALERT ]\nChanging thread image is not allowed so it was reversed!"
 plugins.events.change_thread_image.setNewImage: "\nChanging thread image is not allowed but the thread image is not set, so it will be set to the newly added one."
 
 plugins.events.subcribe.addSelf: "Bot has been added to \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
@@ -79,6 +80,8 @@ plugins.events.unsubcribe.bot.kicked: "Bot has been kicked out from \"{threadNam
 # plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) has been kicked out by \"{authorName}\" ({authorId})."
 plugins.events.unsubcribe.left: "{leftName} has left."
 plugins.events.unsubcribe.kicked: "{leftName} has been kicked out."
+plugins.events.unsubcribe.antiOut.error: "[ ANTIOUT ] Can't add member back to group!"
+plugins.events.unsubcribe.antiOut.success: "[ ANTIOUT ] Added member back to group!"
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) has started a call."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) has started a video call."
@@ -89,6 +92,7 @@ plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) has j
 
 plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) has changed the thread name to \"{newName}\"."
 plugins.events.thread-update.name.reversed: "\nChanging thread name is not allowed so it was reversed."
+plugins.events.thread-update.name.reversed_t: "[ ANTI ALERT ] Changing thread name is not allowed so it was reversed!"
 plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) has changed the thread color from {oldColor} to {newColor}."
 plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) has changed the thread emoji from {oldEmoji} to {newEmoji}."
 plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) has changed the thread approval mode to {newApprovalMode}."
@@ -98,3 +102,4 @@ plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) has
 plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) has changed \"{targetName}\" ({targetId}) nickname to \"{newNickname}\"."
 plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) has changed his/her nickname to \"{newNickname}\"."
 plugin.events.user-nickname.reversed: "\nChanging nickname is not allowed so it was reversed."
+plugin.events.user-nickname.reversed_t: "[ ANTI ALERT ] Changing nickname is not allowed so it was reversed!"

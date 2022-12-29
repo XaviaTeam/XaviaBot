@@ -63,6 +63,7 @@ database.error: "حدث خطأ أثناء الوصول إلى قاعدة الب�
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" غيرت صورة المجموعة."
 plugins.events.change_thread_image.reversed: "\nغير مسموح بتغيير صورة المجموعة ، لذلك قمت بتغييرها مرة أخرى إلى الصورة القديمة."
+plugins.events.change_thread_image.reversed_t: "[ ANTI ALERT ]\nغير مسموح بتغيير صورة المجموعة لذلك تم اعادتها!" 
 plugins.events.change_thread_image.setNewImage: "\nغير مسموح بتغيير صور المجموعة ولكن نظرًا لعدم وجود صور قديمة ، سيتم استخدام صور جديدة."
 
 plugins.events.subcribe.addSelf: "Bot تمت إضافته إلى المجموعة \"{threadName}\" ({threadId}) من قبل شخص يستخدم \"{authorName}\" ({authorId})."
@@ -79,6 +80,9 @@ plugins.events.unsubcribe.bot.kicked: "Bot تم طرده من \"{threadName}\" (
 # plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) تم طرده من قبل\"{authorName}\" ({authorId})."
 plugins.events.unsubcribe.left: "{leftName} غادر."
 plugins.events.unsubcribe.kicked: "{leftName} تم طرده."
+plugins.events.unsubcribe.antiOut.error: "[ ANTIOUT ] لا يمكن إضافة عضو مرة أخرى إلى المجموعة!"
+plugins.events.unsubcribe.antiOut.success: "[ ANTIOUT ] تمت إضافة العضو مرة أخرى إلى المجموعة!"
+
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) بدأ مكالمة."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) فتح مكالمة فيديو جماعية."
@@ -89,6 +93,7 @@ plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) ان�
 
 plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) غيرت اسم المجموعة إلى \"{newName}\"."
 plugins.events.thread-update.name.reversed: "\nغير مسموح بتغيير اسم المجموعة ، لذلك تم تغيير الاسم القديم."
+plugins.events.thread-update.name.reversed_t: "[ ANTI ALERT ] تغيير اسم المجموعة غير مسموح به لذلك تم اعادته!"
 plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) تغير لون خط المجموعة من {oldColor} الى {newColor}."
 plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) تغير الرمز التعبيري للمجموعة من {oldEmoji} الى {newEmoji}."
 plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) تم تغيير وضع الإشراف على الأعضاء إلى {newApprovalMode}."
@@ -97,3 +102,4 @@ plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) ح�
 plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) غير لقبه \"{targetName}\" ({targetId}) الى \"{newNickname}\"."
 plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) غير لقبه الى \"{newNickname}\"."
 plugin.events.user-nickname.reversed: "\nلم يُسمح بتغيير الاسم المستعار ، لذلك قمت بتغييره مرة أخرى إلى الاسم المستعار القديم."
+plugin.events.user-nickname.reversed_t: "[ ANTI ALERT ] تغيير اللقب غير مسموح به لذلك تم اعادته!"

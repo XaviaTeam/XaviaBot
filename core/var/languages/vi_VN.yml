@@ -63,6 +63,7 @@ database.error: "Đã có lỗi xảy ra khi truy cập cơ sở dữ liệu: {e
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" đã thay đổi ảnh nhóm."
 plugins.events.change_thread_image.reversed: "\nThay đổi ảnh nhóm không được cho phép nên đã đổi lại ảnh cũ."
+plugins.events.change_thread_image.reversed_t: "[ ANTI ALERT ]\nThay đổi ảnh nhóm không được cho phép nên đã đổi lại ảnh cũ!"
 plugins.events.change_thread_image.setNewImage: "\nThay đỏi ảnh nhóm không được cho phép nhưng vì không có ảnh cũ nên ảnh mới sẽ được dùng."
 
 plugins.events.subcribe.addSelf: "Bot đã được thêm vào nhóm \"{threadName}\" ({threadId}) bởi người dùng \"{authorName}\" ({authorId})."
@@ -79,6 +80,8 @@ plugins.events.unsubcribe.bot.kicked: "Bot đã bị đá khỏi \"{threadName}\
 # plugins.events.unsubcribe.kicked: "\"{leftName}\" ({leftId}) đã bị đá khỏi nhóm bởi \"{authorName}\" ({authorId})."
 plugins.events.unsubcribe.left: "{leftName} đã rời khỏi nhóm."
 plugins.events.unsubcribe.kicked: "{leftName} đã bị đá khỏi nhóm."
+plugins.events.unsubcribe.antiOut.error: "[ ANTIOUT ] Không thể thêm lại thành viên vào nhóm..."
+plugins.events.unsubcribe.antiOut.success: "[ ANTIOUT ] Đã thêm lại thành viên vào nhóm!"
 
 plugins.events.thread-call.startedCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi nhóm."
 plugins.events.thread-call.startedVideoCall: "\"{authorName}\" ({authorId}) đã mở cuộc gọi video nhóm."
@@ -89,6 +92,7 @@ plugins.events.thread-call.joinedVideoCall: "\"{authorName}\" ({authorId}) đã 
 
 plugins.events.thread-update.name.changed: "\"{authorName}\" ({authorId}) đã đổi tên nhóm thành \"{newName}\"."
 plugins.events.thread-update.name.reversed: "\nThay đổi tên nhóm không được cho phép nên đã đổi lại tên cũ."
+plugins.events.thread-update.name.reversed_t: "[ ANTI ALERT ] Thay đổi tên nhóm không được cho phép nên đã đổi lại tên cũ!"
 plugins.events.thread-update.color.changed: "\"{authorName}\" ({authorId}) đã đổi màu sắc chủ đề nhóm từ {oldColor} sang {newColor}."
 plugins.events.thread-update.emoji.changed: "\"{authorName}\" ({authorId}) đã đổi emoji nhóm từ {oldEmoji} sang {newEmoji}."
 plugins.events.thread-update.approvalMode.changed: "\"{authorName}\" ({authorId}) đã thay đổi chế độ kiểm duyệt thành viên thành {newApprovalMode}."
@@ -98,3 +102,4 @@ plugins.events.thread-update.admins.removed:  "\"{authorName}\" ({authorId}) đ�
 plugin.events.user-nickname.changedBy: "\"{authorName}\" ({authorId}) đã thay đổi biệt danh của \"{targetName}\" ({targetId}) thành \"{newNickname}\"."
 plugin.events.user-nickname.changedBySelf: "\"{authorName}\" ({authorId}) đã tự đổi biệt danh thành \"{newNickname}\"."
 plugin.events.user-nickname.reversed: "\nThay đổi biệt danh không được cho phép nên đã đổi lại biệt danh cũ."
+plugin.events.user-nickname.reversed_t: "[ ANTI ALERT ] Thay đổi biệt danh không được cho phép nên đã đổi lại biệt danh cũ!"
