@@ -7,6 +7,34 @@ const config = {
     credits: "XaviaTeam"
 }
 
+/**
+ * @TODO
+ * Rework on config, add an additional property: _name
+ * 
+ * Example:
+ * Bot Language: en_US
+ * 
+ * config = {
+ *   name: "commands",
+ *  _name: {
+ *      "vi_VN": "lệnh"
+ *  }
+ * }
+ * 
+ * if group language is vi_VN then display "lệnh" instead of "help" in help command
+ * if _name["vi_VN"] is not specified, then use the name one
+ * 
+ * if no group language then use bot language, same rule applied
+ * 
+ * All values specified in the _name will also be considered as aliaese, which for example we can use
+ * both /commands and /lệnh at the same time!
+ * 
+ * Remember to modify the commands loader too!
+ * 
+ * TO GET THE CURRENT GROUP LANGUAGE, USE:
+ * const language = data?.thread?.data?.language || global.config.LANGUAGE || 'en_US';
+ */
+
 
 const langData = {
     "en_US": {

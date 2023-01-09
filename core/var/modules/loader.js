@@ -121,7 +121,14 @@ function loadExtra(extra, pluginName) {
     return extra;
 }
 
-function aliasesValidator(commandName, aliases) {
+function aliasesValidator(commandName, aliases, _name = {}) {
+    /**
+     * This function verify and return array of valid aliaese!
+     * 
+     * @TODO 
+     * Add values of _name property into aliases
+     */
+
     const logger = global.modules.get('logger');
 
     const validatedAliases = [];
@@ -196,7 +203,7 @@ async function loadCommands() {
                         throw getLang('modules.loader.plugins.default.error.onCallNotFunction');
                     }
 
-                    config.aliases = aliasesValidator(config.name, config.aliases);
+                    config.aliases = aliasesValidator(config.name, config.aliases, config._name);
                     if (config.aliases.length === 0) {
                         throw getLang('modules.loader.plugins.commands.error.noAliases');
                     }
