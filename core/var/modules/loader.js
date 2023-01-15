@@ -135,7 +135,7 @@ function aliasesValidator(commandName, aliases, _name = {}) {
     try {
         if (!aliases || !Array.isArray(aliases)) return [];
         const allAliases = [...global.plugins.commandsAliases.keys()];
-        const _aliases = Array.from(new Set([...aliases, commandName]));
+        const _aliases = Array.from(new Set([...aliases, commandName, ...Object.values(typeof _name === "object" && !Array.isArray(_name) ? _name : {})]));
 
         for (let i = 0; i < _aliases.length; i++) {
             const alias = _aliases[i];
@@ -143,6 +143,7 @@ function aliasesValidator(commandName, aliases, _name = {}) {
             if (allAliases.includes(alias)) continue;
             validatedAliases.push(alias);
         }
+
     } catch (err) {
         logger.custom(err.message || err, 'LOADER', '\x1b[31m');
     }

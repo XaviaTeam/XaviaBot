@@ -1,5 +1,8 @@
 const config = {
     name: "help",
+    _name: {
+        "vi_VN": "cứu"
+    },
     aliases: ["cmds", "commands"],
     version: "1.0.3",
     description: "Show all commands or command details",
