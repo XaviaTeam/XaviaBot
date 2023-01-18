@@ -28,7 +28,7 @@ export default async function handleListen() {
     }
 
     return (err, event) => {
-        if (global.maintain && !global.config.MODERATORS.some(e => e == event.senderID)) return;
+        if (global.maintain && !global.config.MODERATORS.some(e => e == event.senderID || e == event.userID)) return;
         handleEventLog(event);
         if (global.config.ALLOW_INBOX !== true && event.isGroup === false) return;
         (async () => {
