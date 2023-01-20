@@ -40,6 +40,7 @@
     "js-yaml": "^4.1.0",
     "moment-timezone": "^0.5.38",
     "mongoose": "^6.7.0",
+    "node-cron": "^3.0.2",
     "node-fetch": "^3.3.0",
     "semver": "^7.3.8",
     "string-similarity": "^4.0.4",
