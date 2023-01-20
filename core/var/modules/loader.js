@@ -122,13 +122,6 @@ function loadExtra(extra, pluginName) {
 }
 
 function aliasesValidator(commandName, aliases, _name = {}) {
-    /**
-     * This function verify and return array of valid aliaese!
-     * 
-     * @TODO 
-     * Add values of _name property into aliases
-     */
-
     const logger = global.modules.get('logger');
 
     const validatedAliases = [];
