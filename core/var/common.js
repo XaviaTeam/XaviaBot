@@ -2,7 +2,7 @@ import fs from 'fs';
 import axios from 'axios';
 import canvas from 'canvas';
 import FormData from 'form-data';
-
+import { randomInt } from 'crypto';
 
 function request(url, options = {}, callback = null) {
     if (typeof options === 'function') {
@@ -229,7 +229,7 @@ function getRandomPassword(length = 8, specialChars = false) {
     const letters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' + (specialChars ? '!@#$%^&*()_+~`|}{[]\:;?><,./-=' : '');
     let password = '';
     loop(length, () => {
-        password += letters[Math.floor(Math.random() * letters.length)];
+        password += letters[randomInt(0, letters.length)];
     })
     return password;
 }
