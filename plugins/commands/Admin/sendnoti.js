@@ -74,7 +74,13 @@ async function onCall({ message, args, getLang, prefix }) {
     }
 
     await Promise.all(PMs);
-    filePath.forEach(item => global.deleteFile(item));
+    filePath.forEach(item => {
+        try {
+            global.deleteFile(item)
+        } catch (err) {
+            console.error(err);
+        }
+    });
     let resultMsg = getLang("sendnoti.success", { count: success });
     if (success < allTIDs.length) resultMsg += "\n" + getLang("sendnoti.fail", { count: allTIDs.length - success });
 

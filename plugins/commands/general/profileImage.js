@@ -58,7 +58,13 @@ async function onCall({ message, getLang }) {
             attachment: allPaths.map(e => global.reader(e))
         });
 
-        for (const path of allPaths) { global.deleteFile(path); }
+        for (const path of allPaths) {
+            try {
+                global.deleteFile(path);
+            } catch (e) {
+                console.error(e);
+            }
+        }
     } catch (e) {
         console.error(e);
         message.reply(getLang("profileImage.error"));

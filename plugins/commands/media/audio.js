@@ -81,7 +81,11 @@ async function playMusic(message, song, getLang) {
         message.reply(getLang("audio.error"));
     }
 
-    if (global.isExists(cachePath)) global.deleteFile(cachePath);
+    try {
+        if (global.isExists(cachePath)) global.deleteFile(cachePath);
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 async function chooseSong({ message, eventData, getLang }) {
@@ -187,7 +191,11 @@ async function onCall({ message, args, extra, getLang }) {
             });
 
             for (let i = 0; i < thumbnails.length; i++) {
-                if (global.isExists(thumbnails[i])) global.deleteFile(thumbnails[i]);
+                try {
+                    if (global.isExists(thumbnails[i])) global.deleteFile(thumbnails[i]);
+                } catch (err) {
+                    console.error(err);
+                }
             }
 
             return sendData.addReplyEvent({ callback: chooseSong, songs });

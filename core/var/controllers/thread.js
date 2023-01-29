@@ -15,7 +15,7 @@ async function saveImg(url) {
         const tempPath = resolvePath(global.cachePath, `${Date.now()}temp.png`);
         await global.downloadFile(tempPath, url);
         let returnData = global.saveToBase64(tempPath);
-        await global.deleteFile(tempPath);
+        global.deleteFile(tempPath);
 
         return returnData;
     } catch (e) {

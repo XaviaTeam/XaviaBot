@@ -36,7 +36,11 @@ async function onCall({ message, args, getLang }) {
 
     const path = `${global.cachePath}/pooh_${message.senderID}_${Date.now()}.png`;
     const clean = () => {
-        if (global.isExists(path)) global.deleteFile(path);
+        try {
+            if (global.isExists(path)) global.deleteFile(path);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     global

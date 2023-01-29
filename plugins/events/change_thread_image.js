@@ -29,18 +29,20 @@ export default async function ({ event }) {
                     await saveFromBase64(imagePath, oldImage);
                 }
                 // logger(`${threadID} • Downloaded, setting back to old image`);
-                await new Promise((resolve) => {
+                await new Promise((resolve, reject) => {
                     api.changeGroupImage(reader(imagePath), threadID, async (e) => {
-                        if (e) console.error(e);
-                        else {
+                        if (e) return reject(e);
+                        try {
                             // logger(`${threadID} • Reversed to old image`);
                             reversed = true;
-                            await deleteFile(imagePath);
+                            global.deleteFile(imagePath);
                             await new Promise(resolve => setTimeout(resolve, 500));
                             global.data.temps.splice(global.data.temps.indexOf({ type: 'antiChangeGroupImage', threadID: threadID }), 1);
-                        }
 
-                        resolve();
+                            resolve();
+                        } catch (e) {
+                            reject(e);
+                        }
                     });
                 })
             } catch (err) {
@@ -64,9 +66,10 @@ export default async function ({ event }) {
                     imgbb_res = saveToBase64(imagePath);
                 }
             } else imgbb_res = newImageURL == null ? null : saveToBase64(imagePath);
+
             newImageURL = imgbb_res;
-            if (newImageURL != null) await deleteFile(imagePath);
             await Threads.updateInfo(threadID, { imageSrc: newImageURL });
+            if (newImageURL != null) global.deleteFile(imagePath);
         } catch (err) {
             console.error(err);
         }

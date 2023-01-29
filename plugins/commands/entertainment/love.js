@@ -78,9 +78,17 @@ async function onCall({ message, getLang }) {
         message.reply("Error");
     }
 
-    if (global.isExists(savePath)) global.deleteFile(savePath);
-    if (global.isExists(avatarPathOne)) global.deleteFile(avatarPathOne);
-    if (global.isExists(avatarPathTwo)) global.deleteFile(avatarPathTwo);
+    cleanup(savePath, avatarPathOne, avatarPathTwo);
+}
+
+function cleanup(savePath, avatarPathOne, avatarPathTwo) {
+    try {
+        if (global.isExists(savePath)) global.deleteFile(savePath);
+        if (global.isExists(avatarPathOne)) global.deleteFile(avatarPathOne);
+        if (global.isExists(avatarPathTwo)) global.deleteFile(avatarPathTwo);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 export default {

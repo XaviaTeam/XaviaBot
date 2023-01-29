@@ -75,6 +75,14 @@ function writer(path) {
     return fs.createWriteStream(path);
 }
 
+function writeFile(path, data, encoding = 'utf8') {
+    return fs.writeFileSync(path, data, encoding);
+}
+
+function readFile(path, encoding = 'utf8') {
+    return fs.readFileSync(path, encoding);
+}
+
 function createDir(path) {
     return fs.mkdirSync(path, { recursive: true });
 }
@@ -109,15 +117,7 @@ function downloadFile(path, url) {
 
 
 function deleteFile(path) {
-    return new Promise((resolve, reject) => {
-        fs.unlink(path, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+    return fs.unlinkSync(path);
 }
 
 
@@ -341,6 +341,8 @@ export default {
     isExists,
     reader,
     writer,
+    readFile,
+    writeFile,
     createDir,
     downloadFile,
     deleteFile,
