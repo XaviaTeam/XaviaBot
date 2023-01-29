@@ -4,6 +4,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import axios from 'axios';
 
+import rateLimit from 'express-rate-limit';
+
 import { readFileSync } from 'fs';
 
 const commands = [
@@ -23,6 +25,11 @@ function startServer(serverAdminPassword) {
 
     app.use(cors());
     app.use(helmet());
+
+    app.use(rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 100
+    }));
 
     app.get('/', (req, res) => {
         res.sendFile(path.resolve('core/dashboard/public', 'index.html'));
