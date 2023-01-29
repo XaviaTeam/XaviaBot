@@ -1,7 +1,7 @@
 const config = {
     name: "help",
     _name: {
-        "vi_VN": "cứu"
+        "ar_SY": "الاوامر"
     },
     aliases: ["cmds", "commands"],
     version: "1.0.3",
@@ -67,10 +67,10 @@ const langData = {
 }
 
 function getCommandName(commandName) {
-    if(global.plugins.commandsAliases.has(commandName)) return commandName;
+    if (global.plugins.commandsAliases.has(commandName)) return commandName;
 
-    for(let [key, value] of global.plugins.commandsAliases) {
-        if(value.includes(commandName)) return key;
+    for (let [key, value] of global.plugins.commandsAliases) {
+        if (value.includes(commandName)) return key;
     }
 
     return null
