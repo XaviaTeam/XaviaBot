@@ -64,7 +64,7 @@ npm install && npm start
 
 ## Supporters
 
-• **TruongMini** (Co-Author):
+• **TruongMini**:
 [Github](https://github.com/truong9c2208) -
 [Facebook](https://www.facebook.com/shibasama.dev)
 <br /><br />
