@@ -58,13 +58,12 @@ npm install && npm start
 • **DimensityDU** (Lead Author):
 [Github](https://github.com/RFS-ADRENO) -
 [Facebook](https://www.facebook.com/Dungto213) -
-[Discord](https://discord.gg/Y5q8eb64) -
+[Discord](https://discord.gg/a5uKHKSPww) -
 [Youtube](https://www.youtube.com/channel/UCmL-430tKfEJYJ1rzBOCOjA) -
 [Mail](mailto:xaviateam@protonmail.com)<br />
-• **FuryCS** (Co-Author):
-[Github](https://github.com/FuryCSProducer) -
-[Discord](https://discord.gg/TrueSpades) -
-[Facebook](https://facebook.com/FuryCSPianist)<br />
+
+## Supporters
+
 • **TruongMini** (Co-Author):
 [Github](https://github.com/truong9c2208) -
 [Facebook](https://www.facebook.com/shibasama.dev)
