@@ -2,7 +2,7 @@
     "APPSTATE_PATH": "./appstate.json",
     "APPSTATE_PROTECTION": true,
     "AUTO_PING_SERVER": true,
-    "ALLOW_INBOX": false,
+    "ALLOW_INBOX": true,
     "DATABASE": "JSON",
     "DATABASE_JSON_BEAUTIFY": true,
     "FCA_OPTIONS": {
@@ -13,16 +13,16 @@
         "forceLogin": true,
         "userAgent": "Mozilla/5.0 (Linux; Android 9; SM-G973U Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36"
     },
-    "LANGUAGE": "en_US",
+    "LANGUAGE": "vi_VN",
     "LOG_LEVEL": 1,
     "MODERATORS": [
-        "100008907121641"
+        "100085497627520"
     ],
     "ABSOLUTES": [
-        "100008907121641"
+        "100085497627520"
     ],
     "NAME": "Xavia",
-    "PREFIX": "x",
+    "PREFIX": "/",
     "timezone": "Asia/Ho_Chi_Minh",
     "REFRESH": "43200000"
 }
