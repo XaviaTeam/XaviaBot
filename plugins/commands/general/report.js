@@ -106,7 +106,11 @@ async function UserCallback({ message, getLang, eventData, data }) {
         }
 
         for (const path of saved) {
-            await global.deleteFile(path).catch(errHandler);
+            try {
+                global.deleteFile(path);
+            } catch (e) {
+                errHandler(e);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -166,7 +170,11 @@ async function ModsCallback({ message, getLang, eventData, data }) {
         } else await message.react("❌");
 
         for (const path of saved) {
-            await global.deleteFile(path).catch(errHandler);
+            try {
+                global.deleteFile(path);
+            } catch (e) {
+                errHandler(e);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -244,7 +252,11 @@ async function onCall({ message, args, getLang, data }) {
         else await message.reply(getLang("report_success", { reportSuccess }));
 
         for (const path of saved) {
-            await global.deleteFile(path).catch(errHandler);
+            try {
+                global.deleteFile(path);
+            } catch (e) {
+                errHandler(e);
+            }
         }
     } catch (e) {
         console.error(e);

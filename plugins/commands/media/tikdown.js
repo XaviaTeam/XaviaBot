@@ -71,7 +71,11 @@ async function onCall({ message, args, getLang }) {
         message.reply(getLang('error'));
     }
 
-    if (global.isExists(cachePath)) global.deleteFile(cachePath);
+    try {
+        if (global.isExists(cachePath)) global.deleteFile(cachePath);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 export default {

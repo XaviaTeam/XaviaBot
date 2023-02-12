@@ -121,14 +121,14 @@ function loadExtra(extra, pluginName) {
     return extra;
 }
 
-function aliasesValidator(commandName, aliases) {
+function aliasesValidator(commandName, aliases, _name = {}) {
     const logger = global.modules.get('logger');
 
     const validatedAliases = [];
     try {
         if (!aliases || !Array.isArray(aliases)) return [];
         const allAliases = [...global.plugins.commandsAliases.keys()];
-        const _aliases = Array.from(new Set([...aliases, commandName]));
+        const _aliases = Array.from(new Set([...aliases, commandName, ...Object.values(typeof _name === "object" && !Array.isArray(_name) ? _name : {})]));
 
         for (let i = 0; i < _aliases.length; i++) {
             const alias = _aliases[i];
@@ -136,6 +136,7 @@ function aliasesValidator(commandName, aliases) {
             if (allAliases.includes(alias)) continue;
             validatedAliases.push(alias);
         }
+
     } catch (err) {
         logger.custom(err.message || err, 'LOADER', '\x1b[31m');
     }
@@ -196,7 +197,7 @@ async function loadCommands() {
                         throw getLang('modules.loader.plugins.default.error.onCallNotFunction');
                     }
 
-                    config.aliases = aliasesValidator(config.name, config.aliases);
+                    config.aliases = aliasesValidator(config.name, config.aliases, config._name);
                     if (config.aliases.length === 0) {
                         throw getLang('modules.loader.plugins.commands.error.noAliases');
                     }

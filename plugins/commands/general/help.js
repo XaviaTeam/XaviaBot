@@ -1,12 +1,14 @@
 const config = {
     name: "help",
+    _name: {
+        "ar_SY": "الاوامر"
+    },
     aliases: ["cmds", "commands"],
     version: "1.0.3",
     description: "Show all commands or command details",
     usage: "[command] (optional)",
     credits: "XaviaTeam"
 }
-
 
 const langData = {
     "en_US": {
@@ -64,19 +66,30 @@ const langData = {
     }
 }
 
+function getCommandName(commandName) {
+    if (global.plugins.commandsAliases.has(commandName)) return commandName;
+
+    for (let [key, value] of global.plugins.commandsAliases) {
+        if (value.includes(commandName)) return key;
+    }
+
+    return null
+}
+
 async function onCall({ message, args, getLang, userPermissions, prefix }) {
     const { commandsConfig } = global.plugins;
     const commandName = args[0]?.toLowerCase();
 
     if (!commandName) {
         let commands = {};
+        const language = data?.thread?.data?.language || global.config.LANGUAGE || 'en_US';
         for (const [key, value] of commandsConfig.entries()) {
             if (!!value.isHidden) continue;
             if (!!value.isAbsolute ? !global.config?.ABSOLUTES.some(e => e == message.senderID) : false) continue;
             if (!value.hasOwnProperty("permissions")) value.permissions = [0, 1, 2];
             if (!value.permissions.some(p => userPermissions.includes(p))) continue;
             if (!commands.hasOwnProperty(value.category)) commands[value.category] = [];
-            commands[value.category].push(key);
+            commands[value.category].push(value._name && value._name[language] ? value._name[language] : key);
         }
 
         let list = Object.keys(commands)
@@ -89,8 +102,8 @@ async function onCall({ message, args, getLang, userPermissions, prefix }) {
             syntax: message.args[0].toLowerCase()
         }));
     } else {
-        if (!commandsConfig.has(commandName)) return message.reply(getLang("help.commandNotExists", { command: commandName }));
-        const command = commandsConfig.get(commandName);
+        const command = commandsConfig.get(getCommandName(commandName, commandsConfig));
+        if (!command) return message.reply(getLang("help.commandNotExists", { command: commandName }));
 
         const isHidden = !!command.isHidden;
         const isUserValid = !!command.isAbsolute ? global.config?.ABSOLUTES.some(e => e == message.senderID) : true;
@@ -103,7 +116,7 @@ async function onCall({ message, args, getLang, userPermissions, prefix }) {
             aliases: command.aliases.join(", "),
             version: command.version || "1.0.0",
             description: command.description || '',
-            usage: `${prefix}${command.name} ${command.usage || ''}`,
+            usage: `${prefix}${commandName} ${command.usage || ''}`,
             permissions: command.permissions.map(p => getLang(String(p))).join(", "),
             category: command.category,
             cooldown: command.cooldown || 3,

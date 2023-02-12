@@ -55,24 +55,40 @@ export default async function ({ event }) {
         // }
     };
 
-    const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
+    let callback = async () => {
+        const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 
-    let atlertMsg = {
-        body: (getThread?.data?.leaveMessage ?
-            getThread.data.leaveMessage : getLang(`plugins.events.unsubcribe.${type}`))
-            .replace(/\{leftName}/g, leftName),
-        mentions: [{
-            tag: leftName,
-            id: logMessageData.leftParticipantFbId
-        }]
+        let atlertMsg = {
+            body: (getThread?.data?.leaveMessage ?
+                getThread.data.leaveMessage : getLang(`plugins.events.unsubcribe.${type}`))
+                .replace(/\{leftName}/g, leftName),
+            mentions: [{
+                tag: leftName,
+                id: logMessageData.leftParticipantFbId
+            }]
+        }
+
+        const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
+        if (global.isExists(gifPath)) {
+            atlertMsg.attachment = [await global.getStream(gifPath)];
+        }
+
+        api.sendMessage(atlertMsg, threadID);
     }
 
-    const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
-    if (global.isExists(gifPath)) {
-        atlertMsg.attachment = [await global.getStream(gifPath)];
-    }
+    if (getThread?.data?.antiSettings?.antiOut && type == "left") {
+        global.api.addUserToGroup(logMessageData.leftParticipantFbId, threadID, async (err) => {
+            let needNotify = getThread?.data?.antiSettings?.notifyChange === true;
+            if (err) {
+                await callback();
 
-    api.sendMessage(atlertMsg, threadID);
+                console.error(err);
+                if (needNotify) global.api.sendMessage(getLang("plugins.events.unsubcribe.antiOut.error"), threadID);
+            } else {
+                if (needNotify) global.api.sendMessage(getLang("plugins.events.unsubcribe.antiOut.success"), threadID);
+            }
+        })
+    } else await callback();
 
     await Threads.updateInfo(threadID, { members: getThreadInfo.members, isSubscribed: getThreadInfo.isSubscribed });
 

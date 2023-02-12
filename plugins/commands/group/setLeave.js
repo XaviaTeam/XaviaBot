@@ -47,7 +47,7 @@ function deleteThreadGif(threadID) {
         try {
             const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
             if (global.isExists(gifPath)) {
-                await global.deleteFile(gifPath);
+                global.deleteFile(gifPath);
             }
             resolve(true);
         } catch (e) {

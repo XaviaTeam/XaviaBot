@@ -43,7 +43,7 @@ async function onCall({ message, extra, getLang }) {
     if (Date.now() - userData.daily < _24HOURs) return message.reply(getLang("daily.alreadyClaimed", { time: global.msToHMS(_24HOURs - (Date.now() - userData.daily)) }));
 
     const amount = global.random(min, max);
-    const result = await Users.updateData(message.senderID, { money: BigInt(userData.money) + BigInt(amount), daily: Date.now() });
+    const result = await Users.updateData(message.senderID, { money: BigInt(userData.money || 0) + BigInt(amount), daily: Date.now() });
 
     if (result) {
         message.reply(getLang("daily.successfullyClaimed", { amount: global.addCommas(amount) }));

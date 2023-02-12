@@ -159,20 +159,24 @@ const playMusic = async (message, band, audioSource) => {
                 .on('error', reject);
         });
         global.deleteFile(songPath);
-        return message.send({
+        await message.send({
             body,
             attachment: global.reader(aacPath)
-        })
-            .then(_ => global.deleteFile(aacPath))
-            .catch(err => {
-                global.deleteFile(aacPath);
-                console.error(err);
-            });
+        });
     } catch (error) {
-        if (!global.isExists(songPath)) global.deleteFile(songPath);
-        if (!global.isExists(aacPath)) global.deleteFile(aacPath);
         console.error(error);
         return message.reply(getLang('any.error'));
+    }
+
+    cleanup_audio(songPath, aacPath);
+}
+
+const cleanup_audio = (songPath, aacPath) => {
+    try {
+        if (!global.isExists(songPath)) global.deleteFile(songPath);
+        if (!global.isExists(aacPath)) global.deleteFile(aacPath);
+    } catch (error) {
+        console.error(error);
     }
 }
 
@@ -249,25 +253,31 @@ const playVideo = async (message, videoData, part) => {
     const _writer = global.writer(savePath);
 
     video.pipe(_writer);
-    video.on('end', () => {
+    video.on('end', async () => {
         const stream = global.reader(savePath);
-        message.send({
+        await message.send({
             body: `🎬 [ ${part} ] Episode ${ep}`,
             attachment: stream
         })
-            .then(_ => global.deleteFile(savePath))
-            .catch(e => {
-                global.deleteFile(savePath);
-                console.error(e);
-            });
+
+        cleanup_video(savePath);
     });
 
     video.on('error', (error) => {
-        if (global.isExists(savePath)) global.deleteFile(savePath);
         message.send(lang('any.error'));
         console.error(error);
+
+        cleanup_video(savePath);
     });
 
+}
+
+const cleanup_video = (savePath) => {
+    try {
+        if (!global.isExists(savePath)) global.deleteFile(savePath);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 const replyForEps = async ({ message, getLang, eventData }) => {

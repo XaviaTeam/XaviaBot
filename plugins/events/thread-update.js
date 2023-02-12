@@ -7,7 +7,7 @@ export default async function ({ event }) {
     const getThreadInfo = getThread.info || {};
 
     let atlertMsg = null,
-        reversing = false;
+        reversed = false;
 
     if (Object.keys(getThreadInfo).length === 0) return;
     switch (event.logMessageType) {
@@ -17,14 +17,18 @@ export default async function ({ event }) {
                 const newName = logMessageData.name;
                 let smallCheck = false;
 
-                if (getThreadData.noChangeBoxName == true) {
+                if (getThreadData.antiSettings.antiChangeGroupName == true) {
                     const isBot = author == botID;
-                    const isReversing = global.data.temps.some(i => i.type == 'noChangeBoxName' && i.threadID == threadID);
+                    const isReversing = global.data.temps.some(i => i.type == 'antiChangeGroupName' && i.threadID == threadID);
                     if (!(isBot && isReversing)) {
-                        global.data.temps.push({ type: 'noChangeBoxName', threadID: threadID });
-                        reversing = true;
-                        api.setTitle(oldName, threadID, () => {
-                            global.data.temps.splice(global.data.temps.indexOf({ type: 'noChangeBoxName', threadID: threadID }), 1);
+                        global.data.temps.push({ type: 'antiChangeGroupName', threadID: threadID });
+                        await new Promise((resolve) => {
+                            api.setTitle(oldName, threadID, (err) => {
+                                if (!err) reversed = true;
+                                global.data.temps.splice(global.data.temps.indexOf({ type: 'antiChangeGroupName', threadID: threadID }), 1);
+
+                                resolve();
+                            });
                         });
                     } else if (isBot) {
                         smallCheck = true;
@@ -32,6 +36,10 @@ export default async function ({ event }) {
                 } else {
                     await Threads.updateInfo(threadID, { name: newName });
                 }
+
+                if (!smallCheck && reversed && getThreadData?.antiSettings?.notifyChange === true)
+                    api.sendMessage(getLang("plugins.events.thread-update.name.reversed_t"), threadID);
+
                 if (!smallCheck && getThreadData?.notifyChange?.status === true) {
                     const authorName = (await Users.getInfo(author))?.name || author;
                     atlertMsg = getLang("plugins.events.thread-update.name.changed", {
@@ -39,7 +47,7 @@ export default async function ({ event }) {
                         authorId: author,
                         newName: newName
                     });
-                    if (reversing) {
+                    if (reversed) {
                         atlertMsg += getLang("plugins.events.thread-update.name.reversed");
                     }
                 }

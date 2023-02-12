@@ -64,7 +64,11 @@ export default async function ({ event }) {
         return api.sendMessage(messageObject, threadID, async () => {
             if (filePath)
                 for (let i = 0; i < filePath.length; i++) {
-                    await global.deleteFile(filePath[i]);
+                    try {
+                        global.deleteFile(filePath[i]);
+                    } catch (err) {
+                        console.error(err);
+                    }
                 }
         });
     }

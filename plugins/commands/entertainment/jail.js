@@ -52,8 +52,16 @@ async function onCall({ message }) {
         message.reply("Error");
     }
 
-    if (global.isExists(savePath)) global.deleteFile(savePath);
-    if (global.isExists(avatarPath)) global.deleteFile(avatarPath);
+    cleanup(avatarPath, savePath);
+}
+
+function cleanup(avatarPath, savePath) {
+    try {
+        if (global.isExists(savePath)) global.deleteFile(savePath);
+        if (global.isExists(avatarPath)) global.deleteFile(avatarPath);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 export default {

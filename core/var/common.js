@@ -2,7 +2,7 @@ import fs from 'fs';
 import axios from 'axios';
 import canvas from 'canvas';
 import FormData from 'form-data';
-
+import { randomInt } from 'crypto';
 
 function request(url, options = {}, callback = null) {
     if (typeof options === 'function') {
@@ -75,6 +75,14 @@ function writer(path) {
     return fs.createWriteStream(path);
 }
 
+function writeFile(path, data, encoding = 'utf8') {
+    return fs.writeFileSync(path, data, encoding);
+}
+
+function readFile(path, encoding = 'utf8') {
+    return fs.readFileSync(path, encoding);
+}
+
 function createDir(path) {
     return fs.mkdirSync(path, { recursive: true });
 }
@@ -109,15 +117,7 @@ function downloadFile(path, url) {
 
 
 function deleteFile(path) {
-    return new Promise((resolve, reject) => {
-        fs.unlink(path, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+    return fs.unlinkSync(path);
 }
 
 
@@ -229,7 +229,7 @@ function getRandomPassword(length = 8, specialChars = false) {
     const letters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' + (specialChars ? '!@#$%^&*()_+~`|}{[]\:;?><,./-=' : '');
     let password = '';
     loop(length, () => {
-        password += letters[Math.floor(Math.random() * letters.length)];
+        password += letters[randomInt(0, letters.length)];
     })
     return password;
 }
@@ -341,6 +341,8 @@ export default {
     isExists,
     reader,
     writer,
+    readFile,
+    writeFile,
     createDir,
     downloadFile,
     deleteFile,

@@ -10,17 +10,22 @@ export default async function ({ event }) {
     if (Object.keys(getThreadInfo).length === 0) return;
     const oldNickname = getThreadInfo.nicknames[logMessageData.participant_id] || null;
     const newNickname = logMessageData.nickname;
-    let smallCheck = false, atlertMsg, reversing = false;
-    if (getThreadData.noChangeNickname == true) {
+    let smallCheck = false, atlertMsg, reversed = false;
+    if (getThreadData.antiSettings.antiChangeNickname == true) {
         const isBot = author == botID;
-        const isReversing = global.data.temps.some(i => i.type == 'noChangeNickname' && i.threadID == threadID);
+        const isReversing = global.data.temps.some(i => i.type == 'antiChangeNickname' && i.threadID == threadID);
         if (!(isBot && isReversing)) {
-            global.data.temps.push({ type: 'noChangeNickname', threadID: threadID });
-            reversing = true;
-            api.changeNickname(oldNickname, threadID, logMessageData.participant_id, async () => {
-                await new Promise(resolve => setTimeout(resolve, 300));
-                global.data.temps.splice(global.data.temps.indexOf({ type: 'noChangeNickname', threadID: threadID }), 1);
-            });
+            global.data.temps.push({ type: 'antiChangeNickname', threadID: threadID });
+
+            await new Promise((resolve, reject) => {
+                api.changeNickname(oldNickname, threadID, logMessageData.participant_id, async (err) => {
+                    if (!err) reversed = true;
+
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    global.data.temps.splice(global.data.temps.indexOf({ type: 'antiChangeNickname', threadID: threadID }), 1);
+                    resolve();
+                });
+            })
         } else if (isBot) {
             smallCheck = true;
         }
@@ -29,6 +34,9 @@ export default async function ({ event }) {
 
         await Threads.updateInfo(threadID, { nicknames: getThreadInfo.nicknames });
     }
+
+    if (!smallCheck && reversed && getThreadData?.antiSettings?.notifyChange === true)
+        api.sendMessage(getLang('plugin.events.user-nickname.reversed_t'), threadID);
 
     if (!smallCheck && getThreadData?.notifyChange?.status === true) {
         const authorName = (await Users.getInfo(author))?.name || author;
@@ -50,7 +58,7 @@ export default async function ({ event }) {
             })
         }
 
-        if (reversing) {
+        if (reversed) {
             atlertMsg += getLang('plugin.events.user-nickname.reversed');
         }
 

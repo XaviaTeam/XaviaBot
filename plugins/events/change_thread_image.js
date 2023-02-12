@@ -13,16 +13,15 @@ export default async function ({ event }) {
 
     if (Object.keys(getThreadInfo).length === 0) return;
     const oldImage = getThreadInfo.imageSrc || null;
-    let smallCheck = false, reversing = false, atlertMsg = null;
-    if (getThreadData.noChangeBoxImage == true && oldImage) {
+    let smallCheck = false, reversed = false, atlertMsg = null;
+    if (getThreadData.antiSettings.antiChangeGroupImage == true && oldImage) {
         const isBot = author == botID;
-        const isReversing = global.data.temps.some(i => i.type == 'noChangeBoxImage' && i.threadID == threadID);
+        const isReversing = global.data.temps.some(i => i.type == 'antiChangeGroupImage' && i.threadID == threadID);
         if (!(isBot && isReversing)) {
-            reversing = true;
-            let thing_to_push = { type: 'noChangeBoxImage', threadID };
+            let thing_to_push = { type: 'antiChangeGroupImage', threadID };
             global.data.temps.push(thing_to_push);
             try {
-                // logger(`${threadID} • Reversing noChangeBoxImage`);
+                // logger(`${threadID} • reversed antiChangeGroupImage`);
                 const imagePath = join(global.cachePath, `${threadID}_${Date.now()}_oldImage.jpg`);
                 if (isURL(oldImage)) {
                     await downloadFile(imagePath, oldImage);
@@ -30,15 +29,22 @@ export default async function ({ event }) {
                     await saveFromBase64(imagePath, oldImage);
                 }
                 // logger(`${threadID} • Downloaded, setting back to old image`);
-                api.changeGroupImage(reader(imagePath), threadID, async (e) => {
-                    if (e) console.error(e);
-                    else {
-                        // logger(`${threadID} • Reversed to old image`);
-                        await deleteFile(imagePath);
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        global.data.temps.splice(global.data.temps.indexOf({ type: 'noChangeBoxImage', threadID: threadID }), 1);
-                    }
-                });
+                await new Promise((resolve, reject) => {
+                    api.changeGroupImage(reader(imagePath), threadID, async (e) => {
+                        if (e) return reject(e);
+                        try {
+                            // logger(`${threadID} • Reversed to old image`);
+                            reversed = true;
+                            global.deleteFile(imagePath);
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            global.data.temps.splice(global.data.temps.indexOf({ type: 'antiChangeGroupImage', threadID: threadID }), 1);
+
+                            resolve();
+                        } catch (e) {
+                            reject(e);
+                        }
+                    });
+                })
             } catch (err) {
                 console.error(err);
             }
@@ -49,9 +55,9 @@ export default async function ({ event }) {
         let newImageURL = event.image.url;
         try {
             const imagePath = join(global.cachePath, `${threadID}_${Date.now()}_oldImage.jpg`);
-            await downloadFile(imagePath, newImageURL);
+            if (newImageURL != null) await downloadFile(imagePath, newImageURL);
             let imgbb_res;
-            if (process.env.IMGBB_KEY) {
+            if (process.env.IMGBB_KEY && newImageURL != null) {
                 try {
                     const base64Data = await global.getBase64(newImageURL).then(base64 => base64).catch(err => null);
                     imgbb_res = await global.uploadImgbb(base64Data).then(url => url).catch(err => null);
@@ -59,14 +65,19 @@ export default async function ({ event }) {
                     console.error(e);
                     imgbb_res = saveToBase64(imagePath);
                 }
-            } else imgbb_res = saveToBase64(imagePath);
+            } else imgbb_res = newImageURL == null ? null : saveToBase64(imagePath);
+
             newImageURL = imgbb_res;
-            await deleteFile(imagePath);
             await Threads.updateInfo(threadID, { imageSrc: newImageURL });
+            if (newImageURL != null) global.deleteFile(imagePath);
         } catch (err) {
             console.error(err);
         }
 
+    }
+
+    if (oldImage && reversed && getThreadData?.antiSettings?.notifyChange === true) {
+        api.sendMessage(getLang("plugins.events.change_thread_image.reversed_t"), threadID);
     }
 
     if (!smallCheck && getThreadData?.notifyChange?.status === true) {
@@ -74,15 +85,15 @@ export default async function ({ event }) {
         atlertMsg = getLang("plugins.events.change_thread_image.userChangedThreadImage", {
             author: authorName
         });
-        if (oldImage && reversing) {
+        if (oldImage && reversed) {
             atlertMsg += getLang("plugins.events.change_thread_image.reversed");
-        } else if (!oldImage && !reversing) {
+        } else if (!oldImage && !reversed) {
             atlertMsg += getLang("plugins.events.change_thread_image.setNewImage");
         }
 
         for (const rUID of getThreadData.notifyChange.registered) {
             global.sleep(300);
-            api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
+            api.sendMessage(atlertMsg, rUID, (err) => err ? console.error(err) : null);
         }
     }
 
