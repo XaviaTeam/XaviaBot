@@ -72,6 +72,14 @@ export default function () {
         return userData?.info || null;
     }
 
+    async function getName(uid) {
+        if (!uid) return null;
+        uid = String(uid);
+        const userData = await get(uid);
+
+        return userData?.info?.name || null;
+    }
+
 
     /**
      * Get user data from database
@@ -239,6 +247,7 @@ export default function () {
         get,
         getAll,
         getInfo,
+        getName,
         getData,
         updateInfo,
         updateData,
