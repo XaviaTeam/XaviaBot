@@ -1,3 +1,9 @@
+## 2.1.2 - 2023/02/12
+- New cron-job (auto-send) feature!
+- Added support for custom help display name for each language
+- Fixed security issues
+- Major bug fixes and overall improvements
+
 ## v2.1.0 - 2022/12/15
 - Added a bunch of new commands
 - New global functions: __getAvatarURL__
