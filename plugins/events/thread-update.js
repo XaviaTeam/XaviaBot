@@ -17,7 +17,7 @@ export default async function ({ event }) {
                 const newName = logMessageData.name;
                 let smallCheck = false;
 
-                if (getThreadData.antiSettings.antiChangeGroupName == true) {
+                if (getThreadData.antiSettings?.antiChangeGroupName == true) {
                     const isBot = author == botID;
                     const isReversing = global.data.temps.some(i => i.type == 'antiChangeGroupName' && i.threadID == threadID);
                     if (!(isBot && isReversing)) {
