@@ -15,6 +15,8 @@ const jobs = [
 ]
 
 export default function autoSend() {
+    cron.getTasks().forEach(task => task.destroy());
+
     const timezone = global.config?.timezone || "Asia/Ho_Chi_Minh";
     if (!timezone) return;
 
