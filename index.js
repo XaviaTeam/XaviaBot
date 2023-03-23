@@ -100,13 +100,12 @@ async function main() {
         if (code !== 0 && restartCount < 5) {
             console.log();
             logger.error(`An error occurred with exit code ${code}`);
-            logger.warn("Restarting Xavia Workers Handler...");
+            logger.warn("Restarting...");
             await new Promise(resolve => setTimeout(resolve, 2000));
             main();
         } else {
             console.log();
-            logger.error("Xavia has been closed.");
-            process.exit(0);
+            logger.error("XaviaBot has stopped, press Ctrl + C to exit.");
         }
     });
 };
