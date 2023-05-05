@@ -182,7 +182,13 @@ export default function () {
 
                 });
             }
-        } else return true;
+        } else {
+            Object.assign(userData.info, data);
+
+            global.data.users.set(uid, userData);
+
+            return;
+        }
     }
 
     /**
