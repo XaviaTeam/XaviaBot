@@ -44,7 +44,7 @@ async function initDatabase() {
                 _d = "{}";
             }
 
-            _parsed = JSON.parse(_d);
+            const _parsed = JSON.parse(_d);
 
             for (const [key, value] of Object.entries(_parsed)) {
                 value.info.adminIDs = value.info.adminIDs.map((e) => e.id);
@@ -62,7 +62,7 @@ async function initDatabase() {
                 _d = "{}";
             }
 
-            _parsed = JSON.parse(_d);
+            const _parsed = JSON.parse(_d);
 
             for (const [key, value] of Object.entries(_parsed)) {
                 global.data.users.set(key, value);
