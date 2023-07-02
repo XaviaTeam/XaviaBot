@@ -44,7 +44,12 @@ async function initDatabase() {
                 _d = "{}";
             }
 
-            global.data.threads = new Map(Object.entries(JSON.parse(_d)));
+            _parsed = JSON.parse(_d);
+
+            for (const [key, value] of Object.entries(_parsed)) {
+                value.info.adminIDs = value.info.adminIDs.map((e) => e.id);
+                global.data.threads.set(key, value);
+            }
         }
 
         if (!global.isExists(userPath, "file")) {
@@ -57,7 +62,11 @@ async function initDatabase() {
                 _d = "{}";
             }
 
-            global.data.users = new Map(Object.entries(JSON.parse(_d)));
+            _parsed = JSON.parse(_d);
+
+            for (const [key, value] of Object.entries(_parsed)) {
+                global.data.users.set(key, value);
+            }
         }
     } else if (DATABASE === "MONGO") {
         const { MONGO_URL } = process.env;
@@ -79,6 +88,7 @@ async function initDatabase() {
         const users = await models.Users.find({});
 
         for (const thread of threads) {
+            thread.info.adminIDs = thread.info.adminIDs.map((e) => e.id);
             global.data.threads.set(thread.threadID, thread);
         }
 
