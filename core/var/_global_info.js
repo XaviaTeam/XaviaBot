@@ -1,28 +1,28 @@
-import { resolve as resolvePath } from 'path';
-import axios from 'axios';
+import { resolve as resolvePath } from "path";
+import axios from "axios";
 
 const _global = {
     mainPath: resolvePath(process.cwd()),
-    corePath: resolvePath(process.cwd(), 'core'),
-    cachePath: resolvePath(process.cwd(), 'core', 'var', 'data', 'cache'),
-    assetsPath: resolvePath(process.cwd(), 'core', 'var', 'assets'),
+    corePath: resolvePath(process.cwd(), "core"),
+    cachePath: resolvePath(process.cwd(), "core", "var", "data", "cache"),
+    assetsPath: resolvePath(process.cwd(), "core", "var", "assets"),
     config: new Object(),
     modules: new Map(),
     getLang: null,
     // Plugins:
-    pluginsPath: resolvePath(process.cwd(), 'plugins'),
+    pluginsPath: resolvePath(process.cwd(), "plugins"),
     plugins: new Object({
         commands: new Map(),
         commandsAliases: new Map(),
         commandsConfig: new Map(),
         customs: new Number(0),
         events: new Map(),
-        onMessage: new Map()
+        onMessage: new Map(),
     }),
     client: new Object({
         cooldowns: new Map(),
         replies: new Map(),
-        reactions: new Map()
+        reactions: new Map(),
     }),
     // Data
     data: new Object({
@@ -32,7 +32,7 @@ const _global = {
         langPlugin: new Object(),
         langSystem: new Object(),
         messages: new Array(),
-        temps: new Array()
+        temps: new Array(),
     }),
     listenMqtt: null,
     api: null,
@@ -48,25 +48,27 @@ const _global = {
     mongo: null,
     restart: restart,
     shutdown: shutdown,
-    maintain: false
-}
+    maintain: false,
+};
 
 function _change_prototype_DATA(data) {
     data.users.set = function (key, value) {
         value.lastUpdated = Date.now();
         return Map.prototype.set.call(this, key, value);
-    }
+    };
 
     data.threads.set = function (key, value) {
         value.lastUpdated = Date.now();
         return Map.prototype.set.call(this, key, value);
-    }
+    };
 
     return data;
 }
 async function getDomains() {
     try {
-        const response = await axios.get('https://raw.githubusercontent.com/XaviaTeam/XaviaAPIs/main/domains.json');
+        const response = await axios.get(
+            "https://raw.githubusercontent.com/XaviaTeam/XaviaAPIs/main/domains.json"
+        );
         return response.data;
     } catch (error) {
         throw error;
@@ -94,8 +96,10 @@ async function _init_global() {
     global.listenMqtt = _global.listenMqtt;
     global.api = _global.api;
     global.botID = _global.botID;
-    global.updateJSON = _global.updateJSON;
-    global.updateMONGO = _global.updateMONGO;
+
+    if (!global.updateJSON) global.updateJSON = _global.updateJSON;
+    if (!global.updateMONGO) global.updateMONGO = _global.updateMONGO;
+
     global.controllers = _global.controllers;
     global.xva_api = domains.xP22;
     global.xva_ppi = domains.xP21;
@@ -111,9 +115,18 @@ async function _init_global() {
 async function clear() {
     clearInterval(global.refreshState);
     clearInterval(global.refreshMqtt);
-    if (global.server !== null) await global.server.close();
-    if (global.mongo !== null) await global.mongo.close();
-    if (global.listenMqtt !== null) await global.listenMqtt.stopListening();
+    if (global.server)
+        await global.server.close().catch((e) => {
+            console.error(e);
+        });
+    if (global.mongo)
+        await global.mongo.close().catch((e) => {
+            console.error(e);
+        });
+    if (global.listenMqtt)
+        await global.listenMqtt.stopListening().catch((e) => {
+            console.error(e);
+        });
 
     for (const global_prop in _global) {
         delete global[global_prop];
@@ -125,7 +138,6 @@ async function restart() {
     await clear();
     process.exit(1);
 }
-
 
 async function shutdown() {
     await clear();
