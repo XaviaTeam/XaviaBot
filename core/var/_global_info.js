@@ -115,18 +115,14 @@ async function _init_global() {
 async function clear() {
     clearInterval(global.refreshState);
     clearInterval(global.refreshMqtt);
-    if (global.server)
-        await global.server.close().catch((e) => {
-            console.error(e);
-        });
-    if (global.mongo)
-        await global.mongo.close().catch((e) => {
-            console.error(e);
-        });
-    if (global.listenMqtt)
-        await global.listenMqtt.stopListening().catch((e) => {
-            console.error(e);
-        });
+
+    try {
+        if (global.server) await global.server.close();
+        if (global.mongo) await global.mongo.close();
+        if (global.listenMqtt) await global.listenMqtt.stopListening();
+    } catch (error) {
+        console.log(error);
+    }
 
     for (const global_prop in _global) {
         delete global[global_prop];
