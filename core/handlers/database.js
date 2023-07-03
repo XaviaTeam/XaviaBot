@@ -47,7 +47,9 @@ async function initDatabase() {
             const _parsed = JSON.parse(_d);
 
             for (const [key, value] of Object.entries(_parsed)) {
-                value.info.adminIDs = value.info.adminIDs.map((e) => e.id || e);
+                value.info.adminIDs = value.info.adminIDs.map(
+                    (e) => e?.id || e
+                );
                 global.data.threads.set(key, value);
             }
         }
@@ -88,7 +90,7 @@ async function initDatabase() {
         const users = await models.Users.find({});
 
         for (const thread of threads) {
-            thread.info.adminIDs = thread.info.adminIDs.map((e) => e.id || e);
+            thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
             global.data.threads.set(thread.threadID, thread);
         }
 
