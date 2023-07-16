@@ -131,7 +131,7 @@ async function onCall({ message, args, getLang, extra, data, userPermissions, pr
     // prefix: Prefix used
 }
 ```
-- API docs: [here](https://github.com/XaviaTeam/fbchat-js#documentation)
+- API docs: [here](https://github.com/XaviaTeam/fca-unofficial#documentation)
 
 ```javascript
 // send message example
