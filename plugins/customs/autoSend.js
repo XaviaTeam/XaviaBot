@@ -26,13 +26,20 @@ export default function autoSend() {
                 for (const tid of job.targetIDs ||
                     Array.from(global.data.threads.keys()) ||
                     []) {
-                    setTimeout(() => {
-                        global.api.sendMessage(
-                            {
-                                body: job.message(),
-                            },
-                            tid
-                        );
+                    setTimeout(async () => {
+                        try {
+                            const msg = await job.message();
+                            await global.api.sendMessage(
+                                typeof msg == "string"
+                                    ? {
+                                          body: job.message(),
+                                      }
+                                    : msg,
+                                tid
+                            );
+                        } catch (e) {
+														console.error(e);
+												}
                     }, i++ * 300);
                 }
             },
