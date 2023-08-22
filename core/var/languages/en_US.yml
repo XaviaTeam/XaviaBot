@@ -46,6 +46,7 @@ modules.loader.plugins.customs.loaded: "Executed {customs}/{total} customs scrip
 handlers.commands.nsfwNotAllowed: "This thread doesn't allow nsfw commands."
 handlers.commands.noPermission: "You do not have permission to use this command."
 handlers.commands.error: "An error occurred while executing this command."
+handlers.listen.accountError: "There was an error with your account, please try again later."
 
 # resend
 plugins.resend.noMessage: "• {author} has unsent a message."

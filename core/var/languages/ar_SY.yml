@@ -46,6 +46,7 @@ modules.loader.plugins.customs.loaded: "انطلقت {customs}/{total} العا�
 handlers.commands.nsfwNotAllowed: "لاتسمح هذه المجموعة بأوامر nsfw."
 handlers.commands.noPermission: "انت غير مصرح لك لاستخدام."
 handlers.default.error: "حدث خطأ: {error}"
+handlers.listen.accountError: "حدث خطأ في حسابك ، يرجى المحاولة مرة أخرى لاحقًا."
 
 # resend
 plugins.resend.noMessage: "• {author} ازلت للتو رسالة معينة."

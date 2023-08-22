@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 import handleEvents from './events.js';
 import { handleDatabase } from './database.js';
+import logger from '../var/modules/logger.js';
 
 
 export default async function handleListen() {
@@ -28,6 +29,10 @@ export default async function handleListen() {
     }
 
     return (err, event) => {
+				if (!event) {
+					logger.error(getLang("handlers.listen.accountError"))
+					process.exit(0);
+				}
         if (global.maintain && !global.config.MODERATORS.some(e => e == event.senderID || e == event.userID)) return;
         handleEventLog(event);
         if (global.config.ALLOW_INBOX !== true && event.isGroup === false) return;

@@ -46,6 +46,7 @@ modules.loader.plugins.customs.loaded: "Đã khởi chạy {customs}/{total} tù
 handlers.commands.nsfwNotAllowed: "Nhóm này không cho phép các lệnh nsfw."
 handlers.commands.noPermission: "Bạn không đủ quyền hạn để sử dụng."
 handlers.default.error: "Đã có lỗi xảy ra: {error}"
+handlers.listen.accountError: "Đã có lỗi xảy ra với tài khoản của bạn? Vui lòng thử lại sau."
 
 # resend
 plugins.resend.noMessage: "• {author} vừa gỡ một tin nhắn nào đó."
