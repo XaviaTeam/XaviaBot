@@ -424,11 +424,6 @@ function handleUnsend(event) {
 }
 
 function handleEvent(event) {
-    if (
-        event.type !== "change_thread_image" &&
-        (!event.participantIDs || event.participantIDs.length === 0)
-    )
-        return;
     try {
         switch (event.type) {
             case "event": {
@@ -452,13 +447,17 @@ function handleEvent(event) {
                     case "log:thread-admins":
                         global.plugins.events.get("thread-update")({ event });
                         break;
+										case "log:thread-image":
+												global.plugins.events.get("thread-image")({ event });
+												break;
                     default:
                         break;
                 }
                 break;
             }
+						// Will be removed in the future, using log:thread-image instead
             case "change_thread_image":
-                global.plugins.events.get("change_thread_image")({ event });
+                global.plugins.events.get("thread-image")({ event });
                 break;
             default:
                 break;

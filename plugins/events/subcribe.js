@@ -193,7 +193,9 @@ export default async function ({ event }) {
                 }
             );
         });
-    } else if (global.isExists(gifPath)) {
+    }
+
+    if (!atlertMsg.attachment && global.isExists(gifPath)) {
         atlertMsg.attachment = [await global.getStream(gifPath)];
     }
 
