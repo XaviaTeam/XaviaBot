@@ -51,7 +51,7 @@ async function initDatabase() {
                     "threads.json - object based is deprecated, converting..."
                 );
 
-								_parsed = _parsed.values();
+								_parsed = Object.values(_parsed);
             }
 
             for (const tData of _parsed) {
@@ -81,7 +81,7 @@ async function initDatabase() {
 										"users.json - object based is deprecated, converting..."
 								);
 
-								_parsed = _parsed.values();
+								_parsed = Object.values(_parsed);
 						}
 
             for (const uData of _parsed) {
