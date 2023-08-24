@@ -74,7 +74,7 @@ async function initDatabase() {
                 _d = "[]";
             }
 
-            const _parsed = JSON.parse(_d);
+            let _parsed = JSON.parse(_d);
 
 						if (!Array.isArray(_parsed)) {
 								logger.warn(
