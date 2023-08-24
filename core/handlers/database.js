@@ -51,7 +51,7 @@ async function initDatabase() {
                     "threads.json - object based is deprecated, converting..."
                 );
 
-								_parsed = Object.values(_parsed);
+                _parsed = Object.values(_parsed);
             }
 
             for (const tData of _parsed) {
@@ -76,13 +76,13 @@ async function initDatabase() {
 
             let _parsed = JSON.parse(_d);
 
-						if (!Array.isArray(_parsed)) {
-								logger.warn(
-										"users.json - object based is deprecated, converting..."
-								);
+            if (!Array.isArray(_parsed)) {
+                logger.warn(
+                    "users.json - object based is deprecated, converting..."
+                );
 
-								_parsed = Object.values(_parsed);
-						}
+                _parsed = Object.values(_parsed);
+            }
 
             for (const uData of _parsed) {
                 global.data.users.set(uData.userID, uData);
@@ -108,7 +108,7 @@ async function initDatabase() {
         const users = await models.Users.find({});
 
         for (const thread of threads) {
-					  // backward compatibility for old data
+            // backward compatibility for old data
             thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
             global.data.threads.set(thread.threadID, thread);
         }
@@ -124,14 +124,6 @@ async function initDatabase() {
     );
 }
 
-function mapToObj(map) {
-    const obj = {};
-    for (const [key, value] of map.entries()) {
-        obj[key] = value;
-    }
-    return obj;
-}
-
 function updateJSON() {
     const { threads, users } = global.data;
     const { DATABASE_JSON_BEAUTIFY } = global.config;
@@ -141,13 +133,16 @@ function updateJSON() {
             ? JSON.stringify(data, null, 4)
             : JSON.stringify(data);
 
+    const threads_array = Array.from(threads.values());
+    const users_array = Array.from(users.values());
+
     saveFile(
         resolve(process.cwd(), "core", "var", "data", "threads.bak.json"),
-        JSON.stringify(mapToObj(threads))
+        JSON.stringify(threads_array)
     );
     saveFile(
         resolve(process.cwd(), "core", "var", "data", "threads.json"),
-        formatData(mapToObj(threads))
+        formatData(threads_array)
     );
     unlinkSync(
         resolve(process.cwd(), "core", "var", "data", "threads.bak.json")
@@ -155,11 +150,11 @@ function updateJSON() {
 
     saveFile(
         resolve(process.cwd(), "core", "var", "data", "users.bak.json"),
-        JSON.stringify(mapToObj(users))
+        JSON.stringify(users_array)
     );
     saveFile(
         resolve(process.cwd(), "core", "var", "data", "users.json"),
-        formatData(mapToObj(users))
+        formatData(users_array)
     );
     unlinkSync(resolve(process.cwd(), "core", "var", "data", "users.bak.json"));
 }
