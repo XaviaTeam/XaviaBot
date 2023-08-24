@@ -35,39 +35,57 @@ async function initDatabase() {
         let userPath = resolve(dataPath, "users.json");
 
         if (!global.isExists(threadPath, "file")) {
-            saveFile(threadPath, "{}");
+            saveFile(threadPath, "[]");
         } else {
             let _d = readFileSync(threadPath, "utf8");
             if (!global.isJSON(_d)) {
                 logger.warn("threads.json corrupted, resetting...");
-                saveFile(threadPath, "{}");
-                _d = "{}";
+                saveFile(threadPath, "[]");
+                _d = "[]";
             }
 
-            const _parsed = JSON.parse(_d);
+            let _parsed = JSON.parse(_d);
 
-            for (const [key, value] of Object.entries(_parsed)) {
-                value.info.adminIDs = value.info.adminIDs.map(
+            if (!Array.isArray(_parsed)) {
+                logger.warn(
+                    "threads.json - object based is deprecated, converting..."
+                );
+
+								_parsed = _parsed.values();
+            }
+
+            for (const tData of _parsed) {
+                // backward compatibility for old data
+                tData.info.adminIDs = tData.info.adminIDs.map(
                     (e) => e?.id || e
                 );
-                global.data.threads.set(key, value);
+
+                global.data.threads.set(tData.threadID, tData);
             }
         }
 
         if (!global.isExists(userPath, "file")) {
-            saveFile(userPath, "{}");
+            saveFile(userPath, "[]");
         } else {
             let _d = readFileSync(userPath, "utf8");
             if (!global.isJSON(_d)) {
                 logger.warn("users.json corrupted, resetting...");
-                saveFile(userPath, "{}");
-                _d = "{}";
+                saveFile(userPath, "[]");
+                _d = "[]";
             }
 
             const _parsed = JSON.parse(_d);
 
-            for (const [key, value] of Object.entries(_parsed)) {
-                global.data.users.set(key, value);
+						if (!Array.isArray(_parsed)) {
+								logger.warn(
+										"users.json - object based is deprecated, converting..."
+								);
+
+								_parsed = _parsed.values();
+						}
+
+            for (const uData of _parsed) {
+                global.data.users.set(uData.userID, uData);
             }
         }
     } else if (DATABASE === "MONGO") {
@@ -90,6 +108,7 @@ async function initDatabase() {
         const users = await models.Users.find({});
 
         for (const thread of threads) {
+					  // backward compatibility for old data
             thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
             global.data.threads.set(thread.threadID, thread);
         }

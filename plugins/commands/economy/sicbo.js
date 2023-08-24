@@ -57,19 +57,19 @@ const big = ["big", "b", "tài", "tai", "t"];
 async function onCall({ message, args, extra, getLang }) {
     const { Users } = global.controllers
     const choice = args[0];
-    const bet = BigInt(args[1] || extra.minbet);
+    const bet = parseInt(args[1] || extra.minbet);
 
     if (!choice || (!big.includes(choice) && !small.includes(choice)))
         return message.reply(getLang("sicbo.invalidChoice", { small: small.join(", "), big: big.join(", ") }));
 
     try {
-        const userMoney = await Users.getMoney(message.senderID) || null;
+        const userMoney = await Users.getMoney(message.senderID);
         if (userMoney === null) return message.reply(getLang("sicbo.userNoData"));
-        if (BigInt(userMoney) < bet) return message.reply(getLang("sicbo.notEnoughMoney"));
-        if (bet < BigInt(extra.minbet)) return message.reply(getLang("sicbo.minMoney", { min: extra.minbet }));
+        if (userMoney < bet) return message.reply(getLang("sicbo.notEnoughMoney"));
+        if (bet < parseInt(extra.minbet)) return message.reply(getLang("sicbo.minMoney", { min: extra.minbet }));
 
         await Users.decreaseMoney(message.senderID, bet);
-        const valueIncreaseIfWin = BigInt(bet) * BigInt(2);
+        const valueIncreaseIfWin = bet * 2;
 
         const valueToPass = big.includes(choice) ? "tai" : "xiu";
         const { dices, results } = (await global.GET(`${global.xva_api.main}/taixiu/${valueToPass}`)).data;

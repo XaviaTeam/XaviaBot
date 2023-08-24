@@ -5,47 +5,66 @@ const config = {
     cooldown: 5,
     permissions: [0, 1, 2],
     credits: "XaviaTeam",
-    nsfw: true
-}
+    nsfw: true,
+    extra: {
+        USAGE_COST: 1000,
+    },
+};
 
 const langData = {
-    "vi_VN": {
-        "userNoData": "Bạn chưa có dữ liệu, hãy sử dụng lệnh {prefix}daily để nhận thưởng hàng ngày",
-        "notEnoughMoney": "Bạn không đủ tiền để sử dụng lệnh này, cần {cost}XC để sử dụng",
-        "noKeyword": "Bạn chưa nhập từ khóa",
-        "noResult": "Không tìm thấy kết quả nào",
-        "error": "Đã có lỗi xảy ra, {error}",
+    vi_VN: {
+        userNoData:
+            "Bạn chưa có dữ liệu, hãy sử dụng lệnh {prefix}daily để nhận thưởng hàng ngày",
+        notEnoughMoney:
+            "Bạn không đủ tiền để sử dụng lệnh này, cần {cost}XC để sử dụng",
+        noKeyword: "Bạn chưa nhập từ khóa",
+        noResult: "Không tìm thấy kết quả nào",
+        error: "Đã có lỗi xảy ra, {error}",
     },
-    "en_US": {
-        "userNoData": "You don't have any data, use {prefix}daily to get daily reward",
-        "notEnoughMoney": "You don't have enough money to use this command, need {cost}XC to use",
-        "noKeyword": "Missing keyword",
-        "noResult": "No results found",
-        "error": "An error has occurred, {error}",
+    en_US: {
+        userNoData:
+            "You don't have any data, use {prefix}daily to get daily reward",
+        notEnoughMoney:
+            "You don't have enough money to use this command, need {cost}XC to use",
+        noKeyword: "Missing keyword",
+        noResult: "No results found",
+        error: "An error has occurred, {error}",
     },
-    "ar_SY": {
-        "userNoData": "ليس لديك أي بيانات ، استخدم {prefix}daily للحصول على مكافأة يومية",
-        "notEnoughMoney": "ليس لديك ما يكفي من المال لاستخدام هذا الأمر ، يحتاج {cost}XC للاستخدام",
-        "noKeyword": "الكلمة الرئيسية مفقودة",
-        "noResult": "لم يتم العثور على نتائج",
-        "error": "حدث خطأ, {error}",
-    }
-}
+    ar_SY: {
+        userNoData:
+            "ليس لديك أي بيانات ، استخدم {prefix}daily للحصول على مكافأة يومية",
+        notEnoughMoney:
+            "ليس لديك ما يكفي من المال لاستخدام هذا الأمر ، يحتاج {cost}XC للاستخدام",
+        noKeyword: "الكلمة الرئيسية مفقودة",
+        noResult: "لم يتم العثور على نتائج",
+        error: "حدث خطأ, {error}",
+    },
+};
 
-const USAGE_COST = 1000;
-async function onCall({ message, args, getLang, prefix }) {
-    const { Users } = global.controllers
+async function onCall({ message, args, getLang, prefix, extra }) {
+    const USAGE_COST = parseInt(extra.USAGE_COST);
+    const { Users } = global.controllers;
     try {
-        const userMoney = await Users.getMoney(message.senderID) || null;
-        if (userMoney === null) return message.reply(getLang("userNoData", { prefix }));
-        if (BigInt(userMoney) < USAGE_COST) return message.reply(getLang("notEnoughMoney", { cost: USAGE_COST }));
+        const userMoney = (await Users.getMoney(message.senderID)) || null;
+        if (userMoney === null)
+            return message.reply(getLang("userNoData", { prefix }));
+        if (userMoney < USAGE_COST)
+            return message.reply(
+                getLang("notEnoughMoney", { cost: USAGE_COST })
+            );
 
         if (!args[0]) return message.reply(getLang("noKeyword"));
 
         await Users.decreaseMoney(message.senderID, USAGE_COST);
 
         message.react("⏳");
-        const data = (await GET(`${global.xva_api.rule34}/rule34?tags=${encodeURIComponent(args.join("_"))}`)).data;
+        const data = (
+            await GET(
+                `${global.xva_api.rule34}/rule34?tags=${encodeURIComponent(
+                    args.join("_")
+                )}`
+            )
+        ).data;
         if (!data.length) {
             message.react("❌");
             return message.reply(getLang("noResult"));
@@ -53,11 +72,22 @@ async function onCall({ message, args, getLang, prefix }) {
 
         const imgStreams = [];
 
-        for (const img of global.shuffleArray(
-            data.
-                filter((img) => img.file_url.endsWith(".jpg") || img.file_url.endsWith(".png")) || img.file_url.endsWith(".jpeg")
-        ).slice(0, 9)) {
-            imgStreams.push(await getStream(`${global.xva_api.rule34}/getImage?url=${encodeURIComponent(img.file_url)}`));
+        for (const img of global
+            .shuffleArray(
+                data.filter(
+                    (img) =>
+                        img.file_url.endsWith(".jpg") ||
+                        img.file_url.endsWith(".png")
+                ) || img.file_url.endsWith(".jpeg")
+            )
+            .slice(0, 9)) {
+            imgStreams.push(
+                await getStream(
+                    `${global.xva_api.rule34}/getImage?url=${encodeURIComponent(
+                        img.file_url
+                    )}`
+                )
+            );
         }
 
         if (!imgStreams.length) {
@@ -67,15 +97,14 @@ async function onCall({ message, args, getLang, prefix }) {
 
         await message.reply({ attachment: imgStreams });
         return message.react("✅");
-
     } catch (error) {
         message.react("❌");
-        return message.reply(getLang("error", { error: error.message }))
+        return message.reply(getLang("error", { error: error.message }));
     }
 }
 
 export default {
     config,
     langData,
-    onCall
-}
+    onCall,
+};

@@ -33,7 +33,7 @@ async function onCall({ message, getLang }) {
         const { senderID: TSenderID } = message.messageReply;
 
         userBalance = await Users.getMoney(TSenderID);
-        if (!userBalance) return message.reply(getLang("balance.userNoData"));
+        if (userBalance == null) return message.reply(getLang("balance.userNoData"));
     } else if (Object.keys(mentions).length >= 1) {
         let msg = "";
 
@@ -45,7 +45,7 @@ async function onCall({ message, getLang }) {
         return message.reply(msg);
     } else {
         userBalance = await Users.getMoney(message.senderID);
-        if (!userBalance) return message.reply(getLang("balance.selfNoData"));
+        if (userBalance == null) return message.reply(getLang("balance.selfNoData"));
     }
 
     message.reply(getLang("balance.result", { money: global.addCommas(userBalance) }));
