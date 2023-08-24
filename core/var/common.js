@@ -92,11 +92,12 @@ function createDir(path) {
  * 
  * @param {string} path - a path to a file
  * @param {string} url - an url to a file
+ * @param {Object} headers - custom headers (optional)
  * @returns {string} path
  */
-function downloadFile(path, url) {
+function downloadFile(path, url, headers = {}) {
     return new Promise((resolve, reject) => {
-        GET(url, { responseType: 'stream' })
+        GET(url, { responseType: 'stream', headers })
             .then(res => {
                 const _writer = writer(path);
 
@@ -236,8 +237,8 @@ function getRandomPassword(length = 8, specialChars = false) {
 
 
 function addCommas(x) {
-    if (x === null) return null;
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (x === null || x === undefined) return null;
+    return String(x).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 
@@ -332,6 +333,10 @@ function getAvatarURL(uid) {
     return `https://graph.facebook.com/${uid}/picture?type=large&width=500&height=500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
 }
 
+function isAcceptableNumber(num) {
+	return !isNaN(parseInt(num));
+}
+
 
 export default {
     request,
@@ -364,5 +369,6 @@ export default {
     shuffleArray,
     expToLevel,
     levelToExp,
-    getAvatarURL
+    getAvatarURL,
+		isAcceptableNumber
 };
