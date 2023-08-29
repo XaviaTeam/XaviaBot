@@ -7,29 +7,29 @@ const Users = new mongoose.Schema({
         maxLength: 15,
         unique: true,
         validate: {
-            validator: v => !isNaN(v) && !isNaN(parseFloat(v)),
-            message: props => `${props.value} is not a valid userID`
-        }
+            validator: (v) => !isNaN(parseInt(v)),
+            message: (props) => `${props.value} is not a valid userID`,
+        },
     },
     info: {
-        type: Object
+        type: Object,
     },
     data: {
-        type: Object
+        type: Object,
     },
     banned: {
         type: Boolean,
-        default: false
+        default: false,
     },
     createdAt: {
         type: Date,
         immutable: true,
-        default: () => Date.now()
+        default: () => Date.now(),
     },
     updatedAt: {
         type: Date,
-        default: () => Date.now()
-    }
+        default: () => Date.now(),
+    },
 });
 
 export default Users;

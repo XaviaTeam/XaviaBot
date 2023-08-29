@@ -21,6 +21,8 @@ import {
     _Users,
 } from "./handlers/database.js";
 
+import crypto from "crypto";
+
 const { isGlitch, isReplit } = environments;
 
 process.stdout.write(
@@ -75,6 +77,8 @@ async function start() {
     }
 }
 
+global.listenerID = null;
+
 function booting(logger) {
     return new Promise((resolve, reject) => {
         logger.custom(getLang("build.booting.logging"), "LOGIN");
@@ -90,7 +94,11 @@ function booting(logger) {
 
                 refreshState();
                 global.config.REFRESH ? autoReloadApplication() : null;
-                global.listenMqtt = api.listenMqtt(await handleListen());
+                const newListenerID = generateListenerID();
+                global.listenerID = newListenerID;
+                global.listenMqtt = api.listenMqtt(
+                    await handleListen(newListenerID)
+                );
                 refreshMqtt();
 
                 resolve();
@@ -161,12 +169,19 @@ function refreshState() {
 }
 
 function refreshMqtt() {
-    global.refreshMqtt = setInterval(() => {
+    global.refreshMqtt = setInterval(async () => {
         logger.custom(getLang("build.refreshMqtt"), "REFRESH");
-        global.listenMqtt.stopListening(async () => {
-            global.listenMqtt = global.api.listenMqtt(await handleListen());
-        });
+        const newListenerID = generateListenerID();
+        global.listenMqtt.stopListening();
+        global.listenerID = newListenerID;
+        global.listenMqtt = global.api.listenMqtt(
+            await handleListen(newListenerID)
+        );
     }, _2HOUR);
+}
+
+function generateListenerID() {
+	return Date.now() + crypto.randomBytes(4).toString('hex');
 }
 
 function autoReloadApplication() {

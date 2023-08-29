@@ -4,7 +4,7 @@ import { handleDatabase } from './database.js';
 import logger from '../var/modules/logger.js';
 
 
-export default async function handleListen() {
+export default async function handleListen(listenerID) {
     const { handleCommand, handleReaction, handleMessage, handleReply, handleUnsend, handleEvent } = await handleEvents();
     const eventlog_excluded = ["typ", "presence", "read_receipt"];
     const logger = global.modules.get('logger');
@@ -29,6 +29,7 @@ export default async function handleListen() {
     }
 
     return (err, event) => {
+				if (global.listenerID != listenerID) return;
 				if (!event) {
 					logger.error(getLang("handlers.listen.accountError"))
 					process.exit(0);
