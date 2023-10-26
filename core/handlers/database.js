@@ -3,193 +3,28 @@ import { writeFileSync, readFileSync, unlinkSync, readdirSync } from "fs";
 import Threads from "../var/controllers/thread.js";
 import Users from "../var/controllers/user.js";
 
+import logger from "../var/modules/logger.js";
+
+import { isExists, createDir, isJSON } from "../var/common.js";
+
+import { resolve as resolvePath } from "path";
+
 import mongoose from "mongoose";
 import models from "../var/models/index.js";
 
-var _Threads;
-var _Users;
-
-function saveFile(path, data) {
-    writeFileSync(path, data, "utf8");
-}
-
-async function initDatabase() {
-    _Threads = Threads();
-    _Users = Users();
-
-    const logger = global.modules.get("logger");
-    const { DATABASE } = global.config;
-    const dataPath = resolve(process.cwd(), "core", "var", "data");
-    const cachePath = global.cachePath;
-
-    if (!global.isExists(dataPath, "dir")) {
-        global.createDir(dataPath);
-    }
-
-    if (!global.isExists(cachePath, "dir")) {
-        global.createDir(cachePath);
-    }
-
-    if (DATABASE === "JSON") {
-        let threadPath = resolve(dataPath, "threads.json");
-        let userPath = resolve(dataPath, "users.json");
-
-        if (!global.isExists(threadPath, "file")) {
-            saveFile(threadPath, "[]");
-        } else {
-            let _d = readFileSync(threadPath, "utf8");
-            if (!global.isJSON(_d)) {
-                logger.warn("threads.json corrupted, resetting...");
-                saveFile(threadPath, "[]");
-                _d = "[]";
-            }
-
-            let _parsed = JSON.parse(_d);
-
-            if (!Array.isArray(_parsed)) {
-                logger.warn(
-                    "threads.json - object based is deprecated, converting..."
-                );
-
-                _parsed = Object.values(_parsed);
-            }
-
-            for (const tData of _parsed) {
-                // backward compatibility for old data
-                tData.info.adminIDs = tData.info.adminIDs.map(
-                    (e) => e?.id || e
-                );
-
-                global.data.threads.set(tData.threadID, tData);
-            }
-        }
-
-        if (!global.isExists(userPath, "file")) {
-            saveFile(userPath, "[]");
-        } else {
-            let _d = readFileSync(userPath, "utf8");
-            if (!global.isJSON(_d)) {
-                logger.warn("users.json corrupted, resetting...");
-                saveFile(userPath, "[]");
-                _d = "[]";
-            }
-
-            let _parsed = JSON.parse(_d);
-
-            if (!Array.isArray(_parsed)) {
-                logger.warn(
-                    "users.json - object based is deprecated, converting..."
-                );
-
-                _parsed = Object.values(_parsed);
-            }
-
-            for (const uData of _parsed) {
-                global.data.users.set(uData.userID, uData);
-            }
-        }
-    } else if (DATABASE === "MONGO") {
-        const { MONGO_URL } = process.env;
-        if (!MONGO_URL)
-            throw new Error(global.getLang("database.mongo_url_not_found"));
-
-        mongoose.set("strictQuery", false);
-        let mongooseConnection = async () => {
-            await mongoose.connect(MONGO_URL);
-            return mongoose.connection;
-        };
-
-        let connection = await mongooseConnection();
-
-        global.mongo = connection;
-        global.data.models = models;
-
-        const threads = await models.Threads.find({});
-        const users = await models.Users.find({});
-
-        for (const thread of threads) {
-            // backward compatibility for old data
-            thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
-            global.data.threads.set(thread.threadID, thread);
-        }
-
-        for (const user of users) {
-            global.data.users.set(user.userID, user);
-        }
-    }
-
-    logger.custom(
-        global.getLang(`database.init`, { database: DATABASE }),
-        "DATABASE"
-    );
-}
-
-function updateJSON() {
-    const { threads, users } = global.data;
-    const { DATABASE_JSON_BEAUTIFY } = global.config;
-
-    const formatData = (data) =>
-        DATABASE_JSON_BEAUTIFY
-            ? JSON.stringify(data, null, 4)
-            : JSON.stringify(data);
-
-    const threads_array = Array.from(threads.values());
-    const users_array = Array.from(users.values());
-
-    saveFile(
-        resolve(process.cwd(), "core", "var", "data", "threads.bak.json"),
-        JSON.stringify(threads_array)
-    );
-    saveFile(
-        resolve(process.cwd(), "core", "var", "data", "threads.json"),
-        formatData(threads_array)
-    );
-    unlinkSync(
-        resolve(process.cwd(), "core", "var", "data", "threads.bak.json")
-    );
-
-    saveFile(
-        resolve(process.cwd(), "core", "var", "data", "users.bak.json"),
-        JSON.stringify(users_array)
-    );
-    saveFile(
-        resolve(process.cwd(), "core", "var", "data", "users.json"),
-        formatData(users_array)
-    );
-    unlinkSync(resolve(process.cwd(), "core", "var", "data", "users.bak.json"));
-}
-
-async function updateMONGO() {
-    const { threads, users } = global.data;
-    const { models } = global.data;
-    try {
-        for (const [key, value] of threads.entries()) {
-            await models.Threads.findOneAndUpdate({ threadID: key }, value, {
-                upsert: true,
-            });
-        }
-
-        for (const [key, value] of users.entries()) {
-            await models.Users.findOneAndUpdate({ userID: key }, value, {
-                upsert: true,
-            });
-        }
-    } catch (e) {
-        throw new Error(e);
-    }
-}
+import { effects } from "../var/_global_info.js";
 
 async function handleDatabase(event) {
-    const logger = global.modules.get("logger");
     const { senderID, userID, threadID } = event;
+    const { Threads, Users } = global.controllers;
 
     const targetID = userID || senderID;
     try {
         if (event.isGroup === true && !global.data.threads.has(threadID)) {
-            await _Threads.get(threadID);
+            await Threads.get(threadID);
         }
         if (!global.data.users.has(targetID)) {
-            await _Users.get(targetID);
+            await Users.get(targetID);
         }
     } catch (e) {
         console.error(e);
@@ -200,11 +35,392 @@ async function handleDatabase(event) {
     }
 }
 
-export {
-    initDatabase,
-    updateJSON,
-    updateMONGO,
-    handleDatabase,
-    _Threads,
-    _Users,
-};
+export class XDatabase {
+    #dataPath = resolve(process.cwd(), "core", "var", "data");
+    #cachePath = resolvePath(process.cwd(), "core", "var", "data", "cache");
+
+    #threads;
+    #users;
+    #effects;
+
+    #updateJSON() {
+        logger.custom(
+            global.getLang("database.updating", { database: "JSON" }),
+            "JSON-DB"
+        );
+
+        const threads = this.threads.getAll();
+        const users = this.users.getAll();
+
+        let now = Date.now();
+        const start = now;
+        const { DATABASE_JSON_BEAUTIFY } = global.config;
+
+        const formatData = (data) =>
+            DATABASE_JSON_BEAUTIFY
+                ? JSON.stringify(data, null, 4)
+                : JSON.stringify(data);
+
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "threads.bak.json"),
+            JSON.stringify(threads)
+        );
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "threads.json"),
+            formatData(threads)
+        );
+        unlinkSync(
+            resolve(process.cwd(), "core", "var", "data", "threads.bak.json")
+        );
+        logger.custom(`THREAD DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
+        now = Date.now();
+
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "users.bak.json"),
+            JSON.stringify(users)
+        );
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "users.json"),
+            formatData(users)
+        );
+        unlinkSync(
+            resolve(process.cwd(), "core", "var", "data", "users.bak.json")
+        );
+        logger.custom(`USER DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
+        now = Date.now();
+
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "effects.bak.json"),
+            JSON.stringify(effects.values())
+        );
+        this.#saveFile(
+            resolve(process.cwd(), "core", "var", "data", "effects.json"),
+            formatData(effects.values())
+        );
+        unlinkSync(
+            resolve(process.cwd(), "core", "var", "data", "effects.bak.json")
+        );
+        logger.custom(`EFFECT DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
+        now = Date.now();
+
+        const total = Date.now() - start;
+        logger.custom(`FINISHED UPDATING: ${total}ms`, "JSON-DB");
+    }
+
+    async #updateMONGO() {
+        logger.custom(
+            global.getLang("database.updating", { database: "MONGO" }),
+            "MONGO-DB"
+        );
+
+        const threads = this.threads.getAll();
+        const users = this.users.getAll();
+
+        try {
+            const ignoreList = ["_id", "__v", "createdAt"];
+
+            let now = Date.now();
+            const start = now;
+
+            const bulkOps = [];
+
+            for (const thread of threads) {
+                ignoreList.forEach((e) => {
+                    delete thread[e];
+                });
+
+                thread.updatedAt = Date.now();
+
+                bulkOps.push({
+                    replaceOne: {
+                        filter: { threadID: thread.threadID },
+                        replacement: thread,
+                        upsert: true,
+                    },
+                });
+            }
+
+            await models.Threads.bulkWrite(bulkOps, { ordered: false });
+
+            logger.custom(
+                `THREAD DATA UPDATED: ${Date.now() - now}ms`,
+                "MONGO-DB"
+            );
+
+            bulkOps.length = 0;
+            now = Date.now();
+
+            for (const user of users) {
+                ignoreList.forEach((e) => {
+                    delete user[e];
+                });
+
+                user.updatedAt = Date.now();
+
+                bulkOps.push({
+                    replaceOne: {
+                        filter: { userID: user.userID },
+                        replacement: user,
+                        upsert: true,
+                    },
+                });
+            }
+
+            await models.Users.bulkWrite(bulkOps, { ordered: false });
+
+            logger.custom(
+                `USER DATA UPDATED: ${Date.now() - now}ms`,
+                "MONGO-DB"
+            );
+
+            bulkOps.length = 0;
+            now = Date.now();
+
+            for (const effect of effects.values()) {
+                ignoreList.forEach((e) => {
+                    delete effect[e];
+                });
+
+                effect.updatedAt = Date.now();
+
+                bulkOps.push({
+                    replaceOne: {
+                        filter: { pluginName: effect.pluginName },
+                        replacement: effect,
+                        upsert: true,
+                    },
+                });
+            }
+
+            await models.Effects.bulkWrite(bulkOps, { ordered: false });
+
+            logger.custom(
+                `EFFECT DATA UPDATED: ${Date.now() - now}ms`,
+                "MONGO-DB"
+            );
+
+            const total = Date.now() - start;
+            logger.custom(`FINISHED UPDATING: ${total}ms`, "MONGO-DB");
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    /** @type {"JSON" | "MONGO"} */
+    #database = "JSON";
+
+    /** @type {mongoose.Connection} */
+    #mongoConnection;
+
+    #models = models;
+
+    constructor() {
+        this.#threads = Threads();
+        this.#users = Users();
+        this.#effects = effects;
+    }
+
+    /**
+     * @param {"JSON" | "MONGO"} database
+     */
+    async init(database = "JSON") {
+        logger.custom(
+            global.getLang(`database.init`, { database: database }),
+            "DATABASE"
+        );
+
+        const isValidDatabase = ["JSON", "MONGO"].includes(database);
+        if (!isValidDatabase) {
+            logger.warn(`Database ${database} not found, fallback to JSON`);
+        }
+        this.#database = isValidDatabase ? database : "JSON";
+
+        this.#ensureNecessaryFoldersExist([this.#dataPath, this.#cachePath]);
+        this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
+
+        await this.#handleMongoDB();
+    }
+
+    /**
+     * @param {string[]} paths
+     */
+    #ensureNecessaryFoldersExist(paths) {
+        for (const path of paths) {
+            if (!isExists(path, "dir")) {
+                createDir(path);
+            }
+        }
+    }
+
+    /**
+     * @param {string[]} filenames - name of files that stored in the data path
+     */
+    #handleJSONDB(filenames) {
+        if (this.#database == "MONGO") return;
+
+        for (const filename of filenames) {
+            const filePath = resolve(this.#dataPath, filename);
+
+            if (!isExists(filePath, "file")) {
+                this.#saveFile(filePath, "[]");
+            } else {
+                const jsonStringData = readFileSync(filePath, "utf8");
+                const isValidJSON = isJSON(jsonStringData);
+
+                if (!isValidJSON) {
+                    logger.warn(`${filename} corrupted, resetting...`);
+                    this.#saveFile(filePath, "[]");
+                }
+
+                let parsedData = JSON.parse(
+                    isValidJSON ? jsonStringData : "[]"
+                );
+
+                if (!Array.isArray(parsedData)) {
+                    logger.warn(
+                        `${filename} - object based is deprecated, converting...`
+                    );
+
+                    parsedData = Object.values(parsedData);
+                }
+
+                // global data will be deprecated soon
+                if (filename == "threads.json") {
+                    for (const tData of parsedData) {
+                        // backward compatibility for old data
+                        tData.info.adminIDs = tData.info.adminIDs.map(
+                            (e) => e?.id || e
+                        );
+
+                        global.data.threads.set(tData.threadID, tData);
+                    }
+                } else if (filename == "users.json") {
+                    for (const uData of parsedData) {
+                        global.data.users.set(uData.userID, uData);
+                    }
+                } else if (filename == "effects.json") {
+                    for (const eData of parsedData) {
+                        if (!effects.has(eData.pluginName)) {
+                            effects.register(eData.pluginName);
+
+                            const pluginEffects = effects.get(eData.pluginName);
+                            const expData = eData.exp;
+                            const moneyData = eData.money;
+
+                            for (const eD of expData) {
+                                for (const efD of eD.effects) {
+                                    pluginEffects.exp.add(
+                                        eD.userID,
+                                        efD.name,
+                                        efD.value
+                                    );
+                                }
+                            }
+
+                            for (const eD of moneyData) {
+                                for (const efD of eD.effects) {
+                                    pluginEffects.money.add(
+                                        eD.userID,
+                                        efD.name,
+                                        efD.value
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #saveFile(path, data) {
+        writeFileSync(path, data, "utf8");
+    }
+
+    async #handleMongoDB() {
+        if (this.#database == "JSON") return;
+
+        if (!process.env.MONGO_URL)
+            throw new Error(global.getLang("database.mongo_url_not_found"));
+
+        mongoose.set("strictQuery", false);
+        this.#mongoConnection = (
+            await mongoose.connect(process.env.MONGO_URL)
+        ).connection;
+
+        const threadsData = await models.Threads.find({});
+        const usersData = await models.Users.find({});
+        const effectsData = await models.Effects.find({});
+
+        for (const thread of threadsData) {
+            // backward compatibility for old data
+            thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
+            global.data.threads.set(thread.threadID, thread);
+        }
+
+        for (const user of usersData) {
+            global.data.users.set(user.userID, user);
+        }
+
+        for (const effect of effectsData) {
+            if (!effects.has(effect.pluginName)) {
+                effects.register(effect.pluginName);
+
+                const pluginEffects = effects.get(effect.pluginName);
+                const expData = effect.exp;
+                const moneyData = effect.money;
+
+                for (const eD of expData) {
+                    for (const efD of eD.effects) {
+                        pluginEffects.exp.add(eD.userID, efD.name, efD.value);
+                    }
+                }
+
+                for (const eD of moneyData) {
+                    for (const efD of eD.effects) {
+                        pluginEffects.money.add(eD.userID, efD.name, efD.value);
+                    }
+                }
+            }
+        }
+    }
+
+    get threads() {
+        return this.#threads;
+    }
+
+    get users() {
+        return this.#users;
+    }
+
+    get controllers() {
+        return {
+            Threads: this.#threads,
+            Users: this.#users,
+        };
+    }
+
+    get effects() {
+        return this.#effects;
+    }
+
+    get models() {
+        return this.#models;
+    }
+
+    async close() {
+        if (this.#database == "JSON") return;
+
+        await this.#mongoConnection.close();
+    }
+
+    async update() {
+        if (this.#database == "JSON") {
+            this.#updateJSON();
+        } else {
+            await this.#updateMONGO();
+        }
+    }
+}
+
+export { handleDatabase };

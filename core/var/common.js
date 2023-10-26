@@ -93,7 +93,7 @@ function createDir(path) {
  * @param {string} path - a path to a file
  * @param {string} url - an url to a file
  * @param {Object} headers - custom headers (optional)
- * @returns {string} path
+ * @returns {Promise<String>} path
  */
 function downloadFile(path, url, headers = {}) {
     return new Promise((resolve, reject) => {
@@ -273,11 +273,16 @@ function saveFromBase64(path, base64) {
     })
 }
 
-async function uploadImgbb(base64) {
+/**
+ * 
+ * @param {string} input base64 string or URL 
+ * @returns {Promise<string | undefined>}
+ */
+async function uploadImgbb(input) {
     try {
         const form = new FormData();
         form.append('key', process.env.IMGBB_KEY);
-        form.append('image', base64);
+        form.append('image', input);
 
         const config = {
             method: 'post',
@@ -338,7 +343,7 @@ function isAcceptableNumber(num) {
 }
 
 
-export default {
+export {
     request,
     GET,
     isJSON,

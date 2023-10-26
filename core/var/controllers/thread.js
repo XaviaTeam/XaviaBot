@@ -1,27 +1,31 @@
 import { resolve as resolvePath } from "path";
+import logger from "../modules/logger.js";
+
+import {
+    uploadImgbb,
+    saveToBase64,
+    downloadFile,
+    deleteFile,
+} from "../common.js";
+import models from "../models/index.js";
+
 const _4HOURS = 1000 * 60 * 60 * 4;
 
 async function saveImg(url) {
     if (!url) return null;
     try {
         if (process.env.IMGBB_KEY) {
-            const base64Data = await global
-                .getBase64(url)
-                .then((base64) => base64)
+            const imgURL = await uploadImgbb(url)
+                .then((url) => url)
                 .catch((err) => null);
-            if (base64Data) {
-                const imgURL = await global
-                    .uploadImgbb(base64Data)
-                    .then((url) => url)
-                    .catch((err) => null);
-                if (imgURL) return imgURL;
-            }
+
+            if (imgURL) return imgURL;
         }
 
         const tempPath = resolvePath(global.cachePath, `${Date.now()}temp.png`);
-        await global.downloadFile(tempPath, url);
-        let returnData = global.saveToBase64(tempPath);
-        global.deleteFile(tempPath);
+        await downloadFile(tempPath, url);
+        let returnData = saveToBase64(tempPath);
+        deleteFile(tempPath);
 
         return returnData;
     } catch (e) {
@@ -32,12 +36,11 @@ async function saveImg(url) {
 
 export default function () {
     const { DATABASE } = global.config;
-    const logger = global.modules.get("logger");
 
     /**
      * Get thread info from api
      * @param {String} tid
-     * @returns Object info or null
+     * @returns {Promise<import('@xaviabot/fca-unofficial').IFCAU_Thread | null>} Object info or null
      */
     async function getInfoAPI(tid) {
         if (!tid) return null;
@@ -71,7 +74,7 @@ export default function () {
     /**
      * Get full thread data from Database, if not exist, run create
      * @param {String} tid
-     * @returns Object data or null
+     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').Thread | null>} Object info or null
      */
     async function get(tid) {
         if (!tid) return null;
@@ -97,8 +100,8 @@ export default function () {
 
     /**
      * Get full threads data from Database
-     * @param {Array} tids
-     * @returns Array of thread data
+     * @param {string[]} tids
+     * @returns {(import('../../../plugins/commands/dev/_interfaces.js').Thread | null)[]} Array of thread data
      */
     function getAll(tids) {
         if (tids && Array.isArray(tids))
@@ -217,7 +220,7 @@ export default function () {
      * @param {Object} data
      * @returns Boolean
      */
-    function create(tid, data) {
+    async function create(tid, data) {
         if (!tid || !data) return false;
         tid = String(tid);
         if (data.isGroup === false) return false;
@@ -239,23 +242,24 @@ export default function () {
                 );
                 return true;
             } else if (DATABASE === "MONGO") {
-                global.data.models.Threads.create(
-                    {
+                try {
+                    await models.Threads.create({
                         threadID: tid,
                         info: data,
                         data: { prefix: null },
-                    },
-                    (err, doc) => {
-                        if (err) return false;
-                        logger.custom(
-                            global.getLang(`database.thread.get.success`, {
-                                threadID: tid,
-                            }),
-                            "DATABASE"
-                        );
-                        return true;
-                    }
-                );
+                    });
+
+                    logger.custom(
+                        global.getLang(`database.thread.get.success`, {
+                            threadID: tid,
+                        }),
+                        "DATABASE"
+                    );
+                    return true;
+                } catch (error) {
+                    console.error(error);
+                    return false;
+                }
             }
         } else return true;
     }

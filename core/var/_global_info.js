@@ -1,6 +1,10 @@
 import { resolve as resolvePath } from "path";
 import axios from "axios";
 
+import { EffectsGlobal } from "../effects/index.js";
+
+export const effects = new EffectsGlobal();
+
 const _global = {
     mainPath: resolvePath(process.cwd()),
     corePath: resolvePath(process.cwd(), "core"),
@@ -18,6 +22,7 @@ const _global = {
         customs: new Number(0),
         events: new Map(),
         onMessage: new Map(),
+				effects: effects,
     }),
     client: new Object({
         cooldowns: new Map(),
@@ -37,8 +42,6 @@ const _global = {
     listenMqtt: null,
     api: null,
     botID: null,
-    updateJSON: null,
-    updateMONGO: null,
     controllers: null,
     xva_api: null,
     xva_ppi: null,
@@ -75,7 +78,7 @@ async function getDomains() {
     }
 }
 
-async function _init_global() {
+async function initializeGlobal() {
     const domains = await getDomains();
 
     global.mainPath = _global.mainPath;
@@ -96,9 +99,6 @@ async function _init_global() {
     global.listenMqtt = _global.listenMqtt;
     global.api = _global.api;
     global.botID = _global.botID;
-
-    if (!global.updateJSON) global.updateJSON = _global.updateJSON;
-    if (!global.updateMONGO) global.updateMONGO = _global.updateMONGO;
 
     global.controllers = _global.controllers;
     global.xva_api = domains.xP22;
@@ -124,8 +124,8 @@ async function clear() {
         console.log(error);
     }
 
-    for (const global_prop in _global) {
-        delete global[global_prop];
+    for (const props in _global) {
+        delete global[props]; 
     }
     global.gc();
 }
@@ -140,4 +140,4 @@ async function shutdown() {
     process.exit(0);
 }
 
-export default _init_global;
+export default initializeGlobal;

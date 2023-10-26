@@ -1,3 +1,5 @@
+import { xDatabase } from "../../../core/_build.js";
+
 const config = {
     name: "balance",
     aliases: ["bal", "money"],
@@ -25,26 +27,26 @@ const langData = {
     }
 }
 
-async function onCall({ message, getLang }) {
+function onCall({ message, getLang }) {
     const { type, mentions } = message;
-    const { Users } = global.controllers;
+    const Users = xDatabase.users;
     let userBalance;
     if (type == "message_reply") {
         const { senderID: TSenderID } = message.messageReply;
 
-        userBalance = await Users.getMoney(TSenderID);
+        userBalance = Users.getMoney(TSenderID);
         if (userBalance == null) return message.reply(getLang("balance.userNoData"));
     } else if (Object.keys(mentions).length >= 1) {
         let msg = "";
 
         for (const TSenderID in mentions) {
-            userBalance = await Users.getMoney(TSenderID);
+            userBalance = Users.getMoney(TSenderID);
             msg += `${mentions[TSenderID].replace(/@/g, '')}: ${global.addCommas(userBalance || 0)}XC\n`;
         }
 
         return message.reply(msg);
     } else {
-        userBalance = await Users.getMoney(message.senderID);
+        userBalance = Users.getMoney(message.senderID);
         if (userBalance == null) return message.reply(getLang("balance.selfNoData"));
     }
 

@@ -1,7 +1,3 @@
-// import moment from 'moment-timezone';
-
-// const logger = text => global.modules.get("logger").custom(text, moment().tz(global.config.timezone).format('YYYY-MM-DD_HH:mm:ss'));
-
 export default async function ({ event }) {
     const { api } = global;
     const { threadID, author, logMessageData } = event;

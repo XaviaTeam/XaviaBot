@@ -1,3 +1,16 @@
+<!--
+## version - yyyy/mm/dd
+ -->
+
+## 2.3.1-beta.1 2023/10/26
+
+-   OOP Support for Database
+-   Brand new feature: **effects** (beta)
+-   Duplicate listener fixed
+-   Refactor code
+-   More JSDoc for functions/methods
+-   Better error handling
+
 ## 2.1.4 - 2023/07/02
 
 -   Adapted to new FCA version!

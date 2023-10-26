@@ -60,6 +60,7 @@ database.init: "Đang khởi tạo cơ sở dữ liệu {database}..."
 database.thread.get.success: "{threadID} - Nhóm mới"
 database.user.get.success: "{userID} - Người dùng mới"
 database.error: "Đã có lỗi xảy ra khi truy cập cơ sở dữ liệu: {error}"
+database.updating: "Đang cập nhật cơ sở dữ liệu {database}..."
 
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" đã thay đổi ảnh nhóm."

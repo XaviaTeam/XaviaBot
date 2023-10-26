@@ -1,5 +1,16 @@
+import { xDatabase } from "../../core/_build.js";
+
+const _30MINS = 30 * 60 * 1000;
+
+global.saveDatabaseInterval = null;
+
 export default function () {
-    const _5MINS = 5 * 60 * 1000;
-    if (global.config.DATABASE === 'JSON') setInterval(() => global.updateJSON(), _5MINS);
-    if (global.config.DATABASE === 'MONGO') setInterval(() => global.updateMONGO(), _5MINS);
+    if (global.saveDatabaseInterval != null) {
+        clearInterval(global.saveDatabaseInterval);
+    }
+
+    global.saveDatabaseInterval = setInterval(
+        () => xDatabase.update(),
+        _30MINS
+    );
 }

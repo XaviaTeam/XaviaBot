@@ -1,8 +1,10 @@
+import { loadPlugins } from "../../../core/var/modules/loader.js";
+
 const config = {
     name: "plugins",
     aliases: ["pl", "plg", "plugin"],
     description: "Manage plugins",
-    usage: "[reload]/[list]",
+    usage: "[reload]/[list]/[install]",
     permissions: [2],
     credits: "XaviaTeam"
 }
@@ -52,7 +54,7 @@ async function onCall({ message, args, getLang }) {
             delete global.data.temps;
             global.data.temps = new Array();
 
-            await global.modules.get("loader").loadPlugins();
+            await loadPlugins();
             return message.reply(getLang("result.reload"));
         } else if (query == 'list') {
             return message.reply(getLang("result.list", {

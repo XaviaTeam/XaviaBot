@@ -1,3 +1,5 @@
+import { xDatabase } from "../_build.js";
+
 var resend;
 
 function checkBanStatus(data = {}, userID) {
@@ -385,7 +387,8 @@ async function handleReply(event) {
 async function handleMessage(event) {
     const { api, getLang } = global;
     const { threadID, senderID } = event;
-    const { Threads, Users } = global.controllers;
+    // const { Threads, Users } = global.controllers;
+    const { Threads, Users } = xDatabase.controllers;
 
     const _thread =
         event.isGroup === true ? (await Threads.get(threadID)) || {} : {};
@@ -447,15 +450,15 @@ function handleEvent(event) {
                     case "log:thread-admins":
                         global.plugins.events.get("thread-update")({ event });
                         break;
-										case "log:thread-image":
-												global.plugins.events.get("thread-image")({ event });
-												break;
+                    case "log:thread-image":
+                        global.plugins.events.get("thread-image")({ event });
+                        break;
                     default:
                         break;
                 }
                 break;
             }
-						// Will be removed in the future, using log:thread-image instead
+            // Will be removed in the future, using log:thread-image instead
             case "change_thread_image":
                 global.plugins.events.get("thread-image")({ event });
                 break;

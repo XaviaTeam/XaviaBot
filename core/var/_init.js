@@ -1,64 +1,52 @@
-import { readdirSync } from 'fs';
-import { resolve as resolvePath } from 'path';
-import { pathToFileURL } from 'url';
+import { readdirSync } from "fs";
+import { resolve as resolvePath } from "path";
+import { pathToFileURL } from "url";
 
-import _init_global from './_global_info.js';
-import common from './common.js';
+import initializeGlobal from "./_global_info.js";
+import * as common from "./common.js";
 
-function _load_global() {
-    return _init_global();
-}
+import { loadConfig, loadLang, getLang } from "./modules/loader.js";
 
-async function _get_modules() {
+async function loadModules() {
+    // global modules will soon be deprecated
     try {
-        const dirModules = readdirSync(resolvePath(global.corePath, 'var', 'modules')).filter(file => file.endsWith('.js'));
+        const dirModules = readdirSync(
+            resolvePath(global.corePath, "var", "modules")
+        ).filter((file) => file.endsWith(".js"));
 
         for (const module of dirModules) {
-            const modulePath = resolvePath(global.corePath, 'var', 'modules', module);
+            const modulePath = resolvePath(
+                global.corePath,
+                "var",
+                "modules",
+                module
+            );
             const moduleURL = pathToFileURL(modulePath);
             const moduleExport = await import(moduleURL);
 
-            global.modules.set(module.slice(0, -3), moduleExport.default);
+            global.modules.set(module.slice(0, -3), moduleExport);
         }
     } catch (error) {
         throw error;
     }
 }
 
-function _load_common() {
-    for (const [key, value] of Object.entries(common)) {
-        global[key] = value;
-    }
-}
-
-function _load_config() {
-    global.config = global.modules.get('loader').loadConfig();
-}
-
-function _load_lang() {
-    global.data.langSystem = global.modules.get('loader').loadLang();
-    global.getLang = global.modules.get('loader').getLang;
-}
-
-function _load_plugins() {
-    return global.modules.get('loader').loadPlugins();
-}
-
-async function _init_var() {
+async function initializeVar() {
     try {
-        await _load_global();
+        await initializeGlobal();
+        await loadModules();
 
-        await _get_modules();
+        
+				Object.assign(global, common);
 
-        _load_common();
-        _load_config();
-        _load_lang();
+        global.config = loadConfig();
 
-        await _load_plugins();
+				// will soon be deprecated
+				global.data.langSystem = loadLang();
+				global.getLang = getLang;
     } catch (error) {
         throw error;
     }
 }
 
-
-export default _init_var;
+export default initializeVar;

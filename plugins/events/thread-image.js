@@ -1,4 +1,5 @@
 import { join } from "path";
+import * as common from "../../core/var/common.js";
 
 export default async function ({ event }) {
     const { api } = global;
@@ -55,45 +56,41 @@ export default async function ({ event }) {
                     global.data.temps.splice(tempIndex, 1);
                 }
 
-                if (global.isExists(imagePath, "file")) {
-                    global.deleteFile(imagePath);
+                if (common.isExists(imagePath, "file")) {
+                    common.deleteFile(imagePath);
                 }
             } catch (err) {
                 console.error(err);
             }
         }
     } else {
-        let newImageURL = event.image.url;
+        const newImageURL = event.image.url;
         try {
             const imagePath = join(
                 global.cachePath,
                 `${threadID}_${Date.now()}_oldImage.jpg`
             );
 
-            if (newImageURL != null) await downloadFile(imagePath, newImageURL);
-
-            let imgbb_res;
-            if (process.env.IMGBB_KEY && newImageURL != null) {
-                try {
-                    const base64Data = await global
-                        .getBase64(newImageURL)
-                        .then((base64) => base64);
-
-                    imgbb_res = await global
-                        .uploadImgbb(base64Data)
-                        .then((url) => url);
-                } catch (e) {
-                    console.error(
-                        e.stack || e.response?.body || e.message || e
-                    );
-                    imgbb_res = saveToBase64(imagePath);
+            let imgToSave = null;
+            if (newImageURL != null) {
+                if (process.env.IMGBB_KEY) {
+                    imgToSave = await common
+                        .uploadImgbb(newImageURL)
+                        .catch((e) => {
+                            console.error(
+                                e.stack || e.response?.body || e.message || e
+                            );
+                            return null;
+                        });
                 }
-            } else
-                imgbb_res =
-                    newImageURL == null ? null : saveToBase64(imagePath);
 
-            newImageURL = imgbb_res;
-            await Threads.updateInfo(threadID, { imageSrc: newImageURL });
+                if (!imgToSave) {
+                    await downloadFile(imagePath, newImageURL);
+                    imgToSave = saveToBase64(imagePath);
+                }
+            }
+
+            await Threads.updateInfo(threadID, { imageSrc: imgToSave });
 
             if (global.isExists(imagePath, "file")) {
                 global.deleteFile(imagePath);

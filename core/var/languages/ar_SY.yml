@@ -60,6 +60,7 @@ database.init: "تهيئة قاعدة البيانات {database}..."
 database.thread.get.success: "{threadID} - مجموعة جديدة"
 database.user.get.success: "{userID} - مستخدم جديد"
 database.error: "حدث خطأ أثناء الوصول إلى قاعدة البيانات: {error}"
+database.updating: "تحديث قاعدة البيانات {database}..."
 
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" غيرت صورة المجموعة."

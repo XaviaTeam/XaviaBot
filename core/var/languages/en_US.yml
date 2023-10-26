@@ -60,6 +60,7 @@ database.init: "Connecting to {database} database..."
 database.thread.get.success: "{threadID} - New Thread"
 database.user.get.success: "{userID} - New User"
 database.error: "An error occurred while working with the database: {error}"
+database.updating: "Updating {database} database..."
 
 # events
 plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" has changed the thread image."

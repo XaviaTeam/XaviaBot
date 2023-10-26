@@ -1,14 +1,17 @@
+import logger from "../modules/logger.js";
+
+import models from "../models/index.js";
+
 const _4HOURS = 1000 * 60 * 60 * 4;
 const MAX_BALANCE = Number.MAX_SAFE_INTEGER;
 
 export default function () {
     const { DATABASE } = global.config;
-    const logger = global.modules.get("logger");
 
     /**
      * Get user info from api
      * @param {String} uid
-     * @returns Object info or null
+     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').User["info"] | null>} Object info or null
      */
     async function getInfoAPI(uid) {
         if (!uid) return null;
@@ -16,7 +19,6 @@ export default function () {
         const info = await global.api.getUserInfo(uid).catch((_) => []);
         if (info[uid]) {
             let _info = { ...info[uid] };
-            delete _info.thumbSrc;
 
             updateInfo(uid, _info);
 
@@ -31,22 +33,20 @@ export default function () {
     /**
      * Get full user data from Database, if not exist, run create
      * @param {String} uid
-     * @returns Object data or null
+     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').User | null>} Object info or null
      */
     async function get(uid) {
         if (!uid) return null;
         uid = String(uid);
         let userData = global.data.users.get(uid) || null;
 
-        if (userData === null || !userData?.info?.id) {
-            if (userData === null || userData?.hasOwnProperty("lastUpdated")) {
-                if (
-                    userData === null ||
-                    userData.lastUpdated + _4HOURS < Date.now()
-                ) {
-                    await getInfoAPI(uid);
-                }
-            }
+        const isInvalidData = userData === null || !userData?.info?.id;
+        const isOutdatedData =
+            userData?.hasOwnProperty("lastUpdated") &&
+            userData.lastUpdated + _4HOURS < Date.now();
+
+        if (isInvalidData || isOutdatedData) {
+            await getInfoAPI(uid);
 
             userData = global.data.users.get(uid) || null;
         }
@@ -56,8 +56,8 @@ export default function () {
 
     /**
      * Get full users data from Database
-     * @param {Array} uids
-     * @returns Array of user data
+     * @param {string[]} uids
+     * @returns {(import('../../../plugins/commands/dev/_interfaces.js').User | null)[]} Array of user data
      */
     function getAll(uids) {
         if (uids && Array.isArray(uids))
@@ -70,7 +70,7 @@ export default function () {
     /**
      * Get user info from database
      * @param {String} uid
-     * @returns Object data or null
+		 * @returns Object info or null
      */
     async function getInfo(uid) {
         if (!uid) return null;
@@ -90,7 +90,7 @@ export default function () {
 
     /**
      * Get user data from database
-     * @param {String} uid
+     * @param {string} uid
      * @returns Object data or null
      */
     async function getData(uid) {
@@ -104,15 +104,16 @@ export default function () {
     /**
      * Update user info, if user not yet in database, try to create, if cant -> return false
      * @param {String} uid
-     * @param {Object} data
-     * @returns Boolean
+     * @param {Record<string, any} data
+     * @returns {Promise<Boolean>}
      */
-    function updateInfo(uid, data) {
+    async function updateInfo(uid, data) {
         if (!uid || !data || typeof data !== "object" || Array.isArray(data))
             return false;
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
         if (userData !== null) {
+            data.thumbSrc = global.getAvatarURL(uid);
             Object.assign(userData.info, data);
             global.data.users.set(uid, userData);
 
@@ -162,13 +163,15 @@ export default function () {
      * @param {Object} data
      * @returns Boolean
      */
-    function create(uid, data) {
+    async function create(uid, data) {
         if (!uid || !data) return false;
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
-        if (userData === null) {
-            data.thumbSrc = global.getAvatarURL(uid);
 
+        delete data.id;
+        data.thumbSrc = global.getAvatarURL(uid);
+
+        if (userData === null) {
             global.data.users.set(uid, {
                 userID: uid,
                 info: data,
@@ -184,25 +187,32 @@ export default function () {
                 );
                 return true;
             } else if (DATABASE === "MONGO") {
-                global.data.models.Users.create(
-                    {
+                const cretaeResult = await models.Users.create({
+                    userID: uid,
+                    info: data,
+                    data: { exp: 1, money: 0 },
+                }).catch((e) => {
+                    console.error(e);
+                    return null;
+                });
+
+                if (cretaeResult == null) return false;
+                logger.custom(
+                    global.getLang(`database.user.get.success`, {
                         userID: uid,
-                        info: data,
-                        data: { exp: 1, money: 0 },
-                    },
-                    (err, res) => {
-                        if (err) return false;
-                        logger.custom(
-                            global.getLang(`database.user.get.success`, {
-                                userID: uid,
-                            }),
-                            "DATABASE"
-                        );
-                        return true;
-                    }
+                    }),
+                    "DATABASE"
                 );
+                return true;
             }
         } else {
+            if (!userData.info) userData.info = {};
+            if (!userData.data)
+                userData.data = {
+                    exp: 1,
+                    money: 0,
+                };
+
             Object.assign(userData.info, data);
 
             global.data.users.set(uid, userData);
