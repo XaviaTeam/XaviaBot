@@ -4,6 +4,8 @@ import { pathToFileURL } from "url";
 import { resolve as resolvePath } from "path";
 import cron from "node-cron";
 
+import logger from "./logger.js";
+
 function loadConfig() {
     const config = JSON.parse(
         readFileSync(
@@ -124,7 +126,6 @@ function loadPluginLang(langData, pluginName) {
 }
 
 function loadExtra(extra, pluginName) {
-    const logger = global.modules.get("logger");
     try {
         if (!extra || typeof extra !== "object" || Array.isArray(extra)) return;
         if (!pluginName || typeof pluginName !== "string") return;
@@ -176,8 +177,6 @@ function loadExtra(extra, pluginName) {
 }
 
 function aliasesValidator(commandName, aliases, _name = {}) {
-    const logger = global.modules.get("logger");
-
     const validatedAliases = [];
     try {
         if (!aliases || !Array.isArray(aliases)) return [];
@@ -208,8 +207,6 @@ function aliasesValidator(commandName, aliases, _name = {}) {
 }
 
 async function loadCommands() {
-    const logger = global.modules.get("logger");
-
     let total = 0;
     const commandsPath = resolvePath(global.pluginsPath, "commands");
 
@@ -401,7 +398,6 @@ async function loadCommands() {
 }
 
 async function loadCustoms() {
-    const logger = global.modules.get("logger");
     const customsPath = resolvePath(global.pluginsPath, "customs");
 
     const customsFiles = readdirSync(customsPath).filter(
@@ -492,7 +488,6 @@ async function loadCustoms() {
 }
 
 async function loadOnMessage() {
-    const logger = global.modules.get("logger");
     const onMessagePath = resolvePath(global.pluginsPath, "onMessage");
 
     const onMessageFiles = readdirSync(onMessagePath).filter(
@@ -580,7 +575,6 @@ async function loadOnMessage() {
 }
 
 async function loadEvents() {
-    const logger = global.modules.get("logger");
     const eventsPath = resolvePath(global.pluginsPath, "events");
 
     const eventsFiles = readdirSync(eventsPath).filter(
@@ -664,10 +658,4 @@ async function loadPlugins() {
     await loadEvents();
 }
 
-export default {
-    loadConfig,
-    loadConfigPlugins,
-    getLang,
-    loadLang,
-    loadPlugins,
-};
+export { loadConfig, loadConfigPlugins, getLang, loadLang, loadPlugins };

@@ -48,4 +48,4 @@ const isGitHub = (
 const isWin = process.platform === "win32";
 const isLinux = process.platform === "linux";
 
-export default { isGlitch, isReplit, isGitHub, isWin, isLinux };
+export { isGlitch, isReplit, isGitHub, isWin, isLinux };

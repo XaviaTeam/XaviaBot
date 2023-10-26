@@ -24,7 +24,7 @@ function decrypt(encryptedObj, secretKey) {
     return JSON.parse(decrypted);
 }
 
-export default {
+export {
     encrypt,
     decrypt
 }

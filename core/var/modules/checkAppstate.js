@@ -2,16 +2,17 @@ import replitDB from "@replit/database";
 import { resolve as resolvePath } from "path";
 import { readFileSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
-import { config } from "dotenv";
-config();
+
+import logger from "./logger.js";
+import { isReplit, isGlitch } from "./environments.get.js";
+import * as aes from "./aes.js";
+
+import { createDir } from "../common.js";
 
 /**
  * Check the encrypt state of the appstate then return the decrypted one.
  */
 async function checkAppstate(APPSTATE_PATH, APPSTATE_PROTECTION) {
-    const logger = global.modules.get("logger");
-    const { isReplit, isGlitch } = global.modules.get("environments.get");
-
     let objAppState;
     APPSTATE_PATH = resolvePath(APPSTATE_PATH);
 
@@ -61,9 +62,6 @@ async function getAppStateNoProtection(
     isReplit,
     isGlitch
 ) {
-    const logger = global.modules.get("logger");
-    const aes = global.modules.get("aes");
-
     let objAppState, APPSTATE_SECRET_KEY;
 
     try {
@@ -116,8 +114,6 @@ async function getAppStateNoProtection(
 async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit) {
     try {
         let objAppState, APPSTATE_SECRET_KEY;
-        const logger = global.modules.get("logger");
-        const aes = global.modules.get("aes");
 
         if (isReplit) {
             APPSTATE_SECRET_KEY =
@@ -176,11 +172,11 @@ async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit) {
 
                 try {
                     if (!isExists(resolvePath(".data"), "dir"))
-                        global.createDir(resolvePath(".data"));
+                        createDir(resolvePath(".data"));
                 } catch (err) {
                     if (!err.code == "ENOENT") throw err;
 
-                    global.createDir(resolvePath(".data"));
+                    createDir(resolvePath(".data"));
                 }
 
                 writeFileSync(
@@ -208,4 +204,4 @@ async function getAppStateWithProtection(APPSTATE_PATH, appState, isReplit) {
     }
 }
 
-export default checkAppstate;
+export { checkAppstate };
