@@ -11,8 +11,12 @@ import { readFileSync } from "fs";
 import logger from "../../var/modules/logger.js";
 import { isReplit, isGlitch } from "../../var/modules/environments.get.js";
 
-const commands = ["help", "restart", "shutdown", "version"];
+const commands = ["help", "version"];
 
+/**
+ *
+ * @param {string} serverAdminPassword
+ */
 function startServer(serverAdminPassword) {
     const app = express();
     const port = process.env.PORT || 3000;
@@ -40,42 +44,21 @@ function startServer(serverAdminPassword) {
         next();
     });
 
-    app.get("/getConfig", (req, res) => {
-        const config = global.config;
-        return res.status(200).json({ config });
-    });
-
     app.put("/commands", (req, res) => {
         const { command } = req.body;
         if (!command) return res.status(400).send("Bad Request");
         if (!commands.includes(command))
             return res.status(400).send("Bad Request");
 
-        let returnData = {};
+        const returnData = {};
         switch (command) {
             case "help":
-                returnData = {
-                    commands: commands,
-                };
-                break;
-            case "restart":
-                global.restart();
-                returnData = {
-                    message: "Restarted",
-                };
-                break;
-            case "shutdown":
-                global.shutdown();
-                returnData = {
-                    message: "Shutdown",
-                };
+                returnData.commands = commands;
                 break;
             case "version":
-                returnData = {
-                    version: JSON.parse(
-                        readFileSync(path.resolve("package.json"))
-                    ).version,
-                };
+                returnData.version = JSON.parse(
+                    readFileSync(path.resolve("package.json"))
+                ).version;
                 break;
 
             default:
@@ -104,11 +87,6 @@ function startServer(serverAdminPassword) {
                 `${global.xva_ppi}/add`,
                 {
                     url: webURL,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                 }
             )
             .catch((e) => console.error(e));
