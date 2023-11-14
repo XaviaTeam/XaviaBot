@@ -1,5 +1,5 @@
 import { join } from "path";
-import * as common from "../../core/var/common.js";
+import * as utils from "../../core/var/utils.js";
 
 export default async function ({ event }) {
     const { api } = global;
@@ -56,8 +56,8 @@ export default async function ({ event }) {
                     global.data.temps.splice(tempIndex, 1);
                 }
 
-                if (common.isExists(imagePath, "file")) {
-                    common.deleteFile(imagePath);
+                if (utils.isExists(imagePath, "file")) {
+                    utils.deleteFile(imagePath);
                 }
             } catch (err) {
                 console.error(err);
@@ -74,7 +74,7 @@ export default async function ({ event }) {
             let imgToSave = null;
             if (newImageURL != null) {
                 if (process.env.IMGBB_KEY) {
-                    imgToSave = await common
+                    imgToSave = await utils
                         .uploadImgbb(newImageURL)
                         .catch((e) => {
                             console.error(

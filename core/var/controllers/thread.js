@@ -6,7 +6,7 @@ import {
     saveToBase64,
     downloadFile,
     deleteFile,
-} from "../common.js";
+} from "../utils.js";
 import models from "../models/index.js";
 
 const _4HOURS = 1000 * 60 * 60 * 4;

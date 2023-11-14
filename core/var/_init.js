@@ -3,7 +3,7 @@ import { resolve as resolvePath } from "path";
 import { pathToFileURL } from "url";
 
 import initializeGlobal from "./_global_info.js";
-import * as common from "./common.js";
+import * as utils from "./utils.js";
 
 import { loadConfig, loadLang, getLang } from "./modules/loader.js";
 
@@ -37,7 +37,7 @@ async function initializeVar() {
         await loadModules();
 
         
-				Object.assign(global, common);
+				Object.assign(global, utils); // will soon be deprecated
 
         global.config = loadConfig();
 

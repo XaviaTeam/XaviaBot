@@ -7,7 +7,7 @@ import logger from "./logger.js";
 import { isReplit, isGlitch } from "./environments.get.js";
 import * as aes from "./aes.js";
 
-import { createDir } from "../common.js";
+import { createDir } from "../utils.js";
 
 /**
  * Check the encrypt state of the appstate then return the decrypted one.
