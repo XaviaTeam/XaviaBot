@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const logger = {
     info: (message) => {
         //Green for the tag, reset for the message
@@ -9,7 +11,12 @@ const logger = {
     },
     error: (message) => {
         //Red for the tag, reset for the message
-        console.log(`\x1b[31m[ERROR]\x1b[0m ${message}`);
+        console.log(`\x1b[31m[ERROR]\x1b[0m ${message?.message || message}`);
+        if (message instanceof Error) {
+            console.error(message.stack);
+        } else if (axios.isAxiosError(message)) {
+            console.error(message.toJSON());
+        }
     },
     system: (message) => {
         //Blue for the tag, reset for the message
