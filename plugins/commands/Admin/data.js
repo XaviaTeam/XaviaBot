@@ -1,5 +1,3 @@
-import { xDatabase } from "../../../core/_build.js";
-
 const config = {
     name: "data",
     permissions: [2],
@@ -50,7 +48,8 @@ const langData = {
     },
 };
 
-async function resetConfirm({ message, eventData, getLang }) {
+/** @type {TReactCallback} */
+async function resetConfirm({ message, eventData, getLang, xDB }) {
     const { reaction } = message;
     const { type, chosen } = eventData;
 
@@ -61,13 +60,13 @@ async function resetConfirm({ message, eventData, getLang }) {
         global.data.threads = new Map();
 
         if (type == "MONGO") {
-            await xDatabase.models.Users.deleteMany({});
-            await xDatabase.models.Threads.deleteMany({});
+            await xDB.models.Users.deleteMany({});
+            await xDB.models.Threads.deleteMany({});
         }
     } else {
         global.data[chosen] = new Map();
         if (type == "MONGO")
-            await xDatabase.models[
+            await xDB.models[
                 chosen.charAt(0).toUpperCase() + chosen.slice(1)
             ].deleteMany({});
     }
@@ -99,7 +98,8 @@ function chooseReset({ message, getLang }) {
         });
 }
 
-async function onCall({ message, args, getLang }) {
+/** @type {TOnCallCommand} */
+async function onCall({ message, args, getLang, xDB }) {
     const query = args[0]?.toLowerCase();
 
     switch (query) {
@@ -107,7 +107,7 @@ async function onCall({ message, args, getLang }) {
             await message.react("🕐");
             let start = Date.now();
 						
-						await xDatabase.update();
+						await xDB.update();
 
             await message.react("✅");
 

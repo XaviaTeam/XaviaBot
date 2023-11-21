@@ -38,6 +38,7 @@ async function initializeVar() {
 
         
 				Object.assign(global, utils); // will soon be deprecated
+				global.utils = utils;
 
         global.config = loadConfig();
 

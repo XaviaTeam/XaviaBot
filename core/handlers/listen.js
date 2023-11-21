@@ -39,9 +39,10 @@ function handleEventLog(event) {
 /**
  *
  * @param {string} listenerID
+ * @param {xDatabase} xDatabase
  * @returns
  */
-export default async function handleListen(listenerID) {
+export default async function handleListen(listenerID, xDatabase) {
     const {
         handleCommand,
         handleReaction,
@@ -82,12 +83,12 @@ export default async function handleListen(listenerID) {
         switch (event.type) {
             case "message":
             case "message_reply":
-                handleMessage({ ...event });
-                handleReply({ ...event });
-                handleCommand({ ...event });
+                handleMessage({ ...event }, xDatabase);
+                handleReply({ ...event }, xDatabase);
+                handleCommand({ ...event }, xDatabase);
                 break;
             case "message_reaction":
-                handleReaction({ ...event });
+                handleReaction({ ...event }, xDatabase);
                 break;
             case "message_unsend":
                 handleUnsend({ ...event });

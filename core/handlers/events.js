@@ -1,5 +1,3 @@
-import { xDatabase } from "../_build.js";
-
 var resend;
 
 function checkBanStatus(data = {}, userID) {
@@ -163,12 +161,17 @@ function checkPermission(permissions, userPermissions) {
     );
 }
 
-async function handleCommand(event) {
+/**
+ * 
+ * @param {TMessageObject} event 
+ * @param {xDatabase} xDatabase 
+ * @returns 
+ */
+async function handleCommand(event, xDatabase) {
     const { threadID, messageID, senderID, args } = event;
-    const { Threads, Users } = global.controllers;
-    const _thread =
-        event.isGroup === true ? (await Threads.get(threadID)) || {} : {};
-    const _user = (await Users.get(senderID)) || {};
+		const { Threads, Users } = xDatabase.controllers;
+    const _thread = event.isGroup === true ? await Threads.get(threadID) : null;
+    const _user = await Users.get(senderID);
 
     const data = { thread: _thread, user: _user };
     if (checkBanStatus(data, senderID)) return;
@@ -235,10 +238,11 @@ async function handleCommand(event) {
                         try {
                             command({
                                 message: event,
-                                args: [...args].slice(1),
+                                args: args.slice(1),
                                 getLang: getLangForCommand,
                                 extra,
                                 data,
+																xDB: xDatabase,
                                 userPermissions,
                                 prefix,
                             });
@@ -273,17 +277,23 @@ async function handleCommand(event) {
     }
 }
 
-async function handleReaction(event) {
+/**
+ * 
+ * @param {TReactionObject} event 
+ * @param {xDatabase} xDatabase 
+ * @returns 
+ */
+async function handleReaction(event, xDatabase) {
     const { threadID, messageID, userID } = event;
-    const { Threads, Users } = global.controllers;
+		const { Threads, Users } = xDatabase.controllers;
     let isValidReaction = global.client.reactions.has(messageID);
 
     if (isValidReaction) {
         const _thread =
             event.senderID != event.threadID && event.userID != event.threadID
-                ? (await Threads.get(threadID)) || {}
-                : {};
-        const _user = (await Users.get(userID)) || {};
+                ? await Threads.get(threadID)
+                : null;
+        const _user = await Users.get(userID);
 
         const data = { user: _user, thread: _thread };
         if (checkBanStatus(data, userID)) return;
@@ -314,6 +324,7 @@ async function handleReaction(event) {
                 message: event,
                 getLang: getLangForCommand,
                 data,
+								xDB: xDatabase,
                 eventData: _eventData,
             });
         } catch (err) {
@@ -329,16 +340,22 @@ async function handleReaction(event) {
     }
 }
 
-async function handleReply(event) {
+/**
+ * 
+ * @param {TMessageReplyObject} event 
+ * @param {xDatabase} xDatabase 
+ * @returns 
+ */
+async function handleReply(event, xDatabase) {
     const { threadID, messageID, senderID, messageReply } = event;
     if (!messageReply) return;
-    const { Threads, Users } = global.controllers;
+    const { Threads, Users } = xDatabase.controllers;
     let isValidReply = global.client.replies.has(messageReply.messageID);
 
     if (isValidReply) {
         const _thread =
-            event.isGroup === true ? (await Threads.get(threadID)) || {} : {};
-        const _user = (await Users.get(senderID)) || {};
+            event.isGroup === true ? await Threads.get(threadID) : null;
+        const _user = await Users.get(senderID);
 
         const data = { user: _user, thread: _thread };
         if (checkBanStatus(data, senderID)) return;
@@ -369,6 +386,7 @@ async function handleReply(event) {
                 message: event,
                 getLang: getLangForCommand,
                 data,
+								xDB: xDatabase,
                 eventData: _eventData,
             });
         } catch (err) {
@@ -384,15 +402,19 @@ async function handleReply(event) {
     }
 }
 
-async function handleMessage(event) {
+/**
+ * 
+ * @param {TMessageObject} event 
+ * @param {xDatabase} xDatabase
+ * @returns 
+ */
+async function handleMessage(event, xDatabase) {
     const { api, getLang } = global;
     const { threadID, senderID } = event;
-    // const { Threads, Users } = global.controllers;
     const { Threads, Users } = xDatabase.controllers;
 
-    const _thread =
-        event.isGroup === true ? (await Threads.get(threadID)) || {} : {};
-    const _user = (await Users.get(senderID)) || {};
+    const _thread = event.isGroup === true ? await Threads.get(threadID) : null;
+    const _user = await Users.get(senderID);
 
     const data = { user: _user, thread: _thread };
     if (checkBanStatus(data, senderID)) return;
@@ -413,6 +435,7 @@ async function handleMessage(event) {
                 message: event,
                 getLang: getLangForCommand,
                 data,
+								xDB: xDatabase,
             });
         } catch (err) {
             console.error(err);
@@ -426,6 +449,10 @@ function handleUnsend(event) {
     resend.default({ event });
 }
 
+/**
+ * 
+ * @param {TEventObject} event 
+ */
 function handleEvent(event) {
     try {
         switch (event.type) {

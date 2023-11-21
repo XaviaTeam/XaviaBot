@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import { writeFileSync, readFileSync, unlinkSync, readdirSync } from "fs";
-import Threads from "../var/controllers/thread.js";
-import Users from "../var/controllers/user.js";
+import getCThread from "../var/controllers/thread.js";
+import getCUser from "../var/controllers/user.js";
 
 import logger from "../var/modules/logger.js";
 
@@ -42,6 +42,41 @@ export class XDatabase {
     #threads;
     #users;
     #effects;
+
+    /** @type {"JSON" | "MONGO"} */
+    #database = "JSON";
+
+    /** @type {mongoose.Connection} */
+    #mongoConnection;
+
+    #models = models;
+
+    constructor() {
+        this.#threads = getCThread(this, global.api);
+        this.#users = getCUser(this, global.api);
+        this.#effects = effects;
+    }
+
+    /**
+     * @param {"JSON" | "MONGO"} database
+     */
+    async init(database = "JSON") {
+        logger.custom(
+            global.getLang(`database.init`, { database: database }),
+            "DATABASE"
+        );
+
+        const isValidDatabase = ["JSON", "MONGO"].includes(database);
+        if (!isValidDatabase) {
+            logger.warn(`Database ${database} not found, fallback to JSON`);
+        }
+        this.#database = isValidDatabase ? database : "JSON";
+
+        this.#ensureNecessaryFoldersExist([this.#dataPath, this.#cachePath]);
+        this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
+
+        await this.#handleMongoDB();
+    }
 
     #updateJSON() {
         logger.custom(
@@ -206,41 +241,6 @@ export class XDatabase {
         }
     }
 
-    /** @type {"JSON" | "MONGO"} */
-    #database = "JSON";
-
-    /** @type {mongoose.Connection} */
-    #mongoConnection;
-
-    #models = models;
-
-    constructor() {
-        this.#threads = Threads();
-        this.#users = Users();
-        this.#effects = effects;
-    }
-
-    /**
-     * @param {"JSON" | "MONGO"} database
-     */
-    async init(database = "JSON") {
-        logger.custom(
-            global.getLang(`database.init`, { database: database }),
-            "DATABASE"
-        );
-
-        const isValidDatabase = ["JSON", "MONGO"].includes(database);
-        if (!isValidDatabase) {
-            logger.warn(`Database ${database} not found, fallback to JSON`);
-        }
-        this.#database = isValidDatabase ? database : "JSON";
-
-        this.#ensureNecessaryFoldersExist([this.#dataPath, this.#cachePath]);
-        this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
-
-        await this.#handleMongoDB();
-    }
-
     /**
      * @param {string[]} paths
      */
@@ -384,6 +384,10 @@ export class XDatabase {
             }
         }
     }
+
+		get DATABASE() {
+			return this.#database;
+		}
 
     get threads() {
         return this.#threads;

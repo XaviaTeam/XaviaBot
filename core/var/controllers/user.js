@@ -5,18 +5,24 @@ import models from "../models/index.js";
 const _4HOURS = 1000 * 60 * 60 * 4;
 const MAX_BALANCE = Number.MAX_SAFE_INTEGER;
 
-export default function () {
-    const { DATABASE } = global.config;
+/**
+ *
+ * @param {xDatabase} database
+ * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+ * @returns
+ */
+export default function getCUser(database, api) {
+    const { DATABASE } = database;
 
     /**
      * Get user info from api
      * @param {String} uid
-     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').User["info"] | null>} Object info or null
+     * @returns {Promise<User["info"] | null>} Object info or null
      */
     async function getInfoAPI(uid) {
         if (!uid) return null;
         uid = String(uid);
-        const info = await global.api.getUserInfo(uid).catch((_) => []);
+        const info = await api.getUserInfo(uid).catch((_) => []);
         if (info[uid]) {
             let _info = { ...info[uid] };
 
@@ -33,14 +39,14 @@ export default function () {
     /**
      * Get full user data from Database, if not exist, run create
      * @param {String} uid
-     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').User | null>} Object info or null
+     * @returns {Promise<User | null>} Object info or null
      */
     async function get(uid) {
         if (!uid) return null;
         uid = String(uid);
-        let userData = global.data.users.get(uid) || null;
+        let userData = global.data.users.get(uid);
 
-        const isInvalidData = userData === null || !userData?.info?.id;
+        const isInvalidData = userData === null || userData?.info?.id == undefined;
         const isOutdatedData =
             userData?.hasOwnProperty("lastUpdated") &&
             userData.lastUpdated + _4HOURS < Date.now();
@@ -48,16 +54,16 @@ export default function () {
         if (isInvalidData || isOutdatedData) {
             await getInfoAPI(uid);
 
-            userData = global.data.users.get(uid) || null;
+            userData = global.data.users.get(uid);
         }
 
-        return userData;
+        return userData || null;
     }
 
     /**
      * Get full users data from Database
      * @param {string[]} uids
-     * @returns {(import('../../../plugins/commands/dev/_interfaces.js').User | null)[]} Array of user data
+     * @returns {(User | null)[]} Array of user data
      */
     function getAll(uids) {
         if (uids && Array.isArray(uids))
@@ -70,7 +76,7 @@ export default function () {
     /**
      * Get user info from database
      * @param {String} uid
-		 * @returns Object info or null
+     * @returns Object info or null
      */
     async function getInfo(uid) {
         if (!uid) return null;
@@ -113,7 +119,7 @@ export default function () {
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
         if (userData !== null) {
-            data.thumbSrc = global.getAvatarURL(uid);
+            data.thumbSrc = global.utils.getAvatarURL(uid);
             Object.assign(userData.info, data);
             global.data.users.set(uid, userData);
 
@@ -138,7 +144,8 @@ export default function () {
             const userData = await get(uid);
             if (userData !== null) {
                 if (data.hasOwnProperty("money")) {
-                    if (!global.isAcceptableNumber(data.money)) return false;
+                    if (!global.utils.isAcceptableNumber(data.money))
+                        return false;
                     data.money = parseInt(data.money);
                     if (data.money > MAX_BALANCE) data.money = MAX_BALANCE;
                     else if (data.money < 0) data.money = 0;
@@ -169,7 +176,7 @@ export default function () {
         const userData = global.data.users.get(uid) || null;
 
         delete data.id;
-        data.thumbSrc = global.getAvatarURL(uid);
+        data.thumbSrc = global.utils.getAvatarURL(uid);
 
         if (userData === null) {
             global.data.users.set(uid, {
@@ -235,9 +242,15 @@ export default function () {
         } else return null;
     }
 
+		/**
+		 * 
+		 * @param {string} uid 
+		 * @param {number} amount 
+		 * @returns 
+		 */
     function increaseMoney(uid, amount) {
         if (!uid || !amount) return false;
-        if (!global.isAcceptableNumber(amount)) return false;
+        if (!global.utils.isAcceptableNumber(amount)) return false;
 
         uid = String(uid);
 
@@ -263,9 +276,15 @@ export default function () {
         }
     }
 
+		/**
+		 * 
+		 * @param {string} uid 
+		 * @param {number} amount 
+		 * @returns 
+		 */
     function decreaseMoney(uid, amount) {
         if (!uid || !amount) return false;
-        if (!global.isAcceptableNumber(amount)) return false;
+        if (!global.utils.isAcceptableNumber(amount)) return false;
 
         uid = String(uid);
 

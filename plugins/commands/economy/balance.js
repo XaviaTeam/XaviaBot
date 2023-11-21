@@ -1,5 +1,3 @@
-import { xDatabase } from "../../../core/_build.js";
-
 const config = {
     name: "balance",
     aliases: ["bal", "money"],
@@ -27,9 +25,10 @@ const langData = {
     }
 }
 
-function onCall({ message, getLang }) {
+/** @type {TOnCallCommand} */
+function onCall({ message, getLang, xDB }) {
     const { type, mentions } = message;
-    const Users = xDatabase.users;
+    const Users = xDB.users;
     let userBalance;
     if (type == "message_reply") {
         const { senderID: TSenderID } = message.messageReply;

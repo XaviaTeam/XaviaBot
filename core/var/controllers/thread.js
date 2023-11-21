@@ -34,8 +34,14 @@ async function saveImg(url) {
     }
 }
 
-export default function () {
-    const { DATABASE } = global.config;
+/**
+ *
+ * @param {xDatabase} database
+ * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+ * @returns
+ */
+export default function getCThread(database, api) {
+    const { DATABASE } = database;
 
     /**
      * Get thread info from api
@@ -45,7 +51,7 @@ export default function () {
     async function getInfoAPI(tid) {
         if (!tid) return null;
         tid = String(tid);
-        const info = await global.api.getThreadInfo(tid).catch((_) => null);
+        const info = await api.getThreadInfo(tid).catch((_) => null);
         if (info) {
             if (info.adminIDs) {
                 // backward compatibility for older fca versions
@@ -74,7 +80,7 @@ export default function () {
     /**
      * Get full thread data from Database, if not exist, run create
      * @param {String} tid
-     * @returns {Promise<import('../../../plugins/commands/dev/_interfaces.js').Thread | null>} Object info or null
+     * @returns {Promise<Thread | null>} Object info or null
      */
     async function get(tid) {
         if (!tid) return null;
@@ -101,7 +107,7 @@ export default function () {
     /**
      * Get full threads data from Database
      * @param {string[]} tids
-     * @returns {(import('../../../plugins/commands/dev/_interfaces.js').Thread | null)[]} Array of thread data
+     * @returns {(Thread | null)[]} Array of thread data
      */
     function getAll(tids) {
         if (tids && Array.isArray(tids))

@@ -50,7 +50,7 @@ process.on("SIGHUP", () => {
 });
 
 await initializeVar();
-export const xDatabase = new XDatabase();
+const xDatabase = new XDatabase();
 
 async function start() {
     try {
@@ -92,7 +92,7 @@ async function booting() {
 
         const newListenerID = generateListenerID();
         global.listenerID = newListenerID;
-        global.listenMqtt = api.listenMqtt(await handleListen(newListenerID));
+        global.listenMqtt = api.listenMqtt(await handleListen(newListenerID, xDatabase));
 
         refreshMqtt();
     } catch (error) {
@@ -163,7 +163,7 @@ function refreshMqtt() {
         global.listenMqtt.stopListening();
         global.listenerID = newListenerID;
         global.listenMqtt = global.api.listenMqtt(
-            await handleListen(newListenerID)
+            await handleListen(newListenerID, xDatabase)
         );
     }, _2HOUR);
 }

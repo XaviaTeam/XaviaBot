@@ -31,7 +31,6 @@ const _global = {
     }),
     // Data
     data: new Object({
-        models: new Object(),
         users: new Map(),
         threads: new Map(),
         langPlugin: new Object(),
@@ -48,7 +47,6 @@ const _global = {
     server: null,
     refreshState: null,
     refreshMqtt: null,
-    mongo: null,
     restart: restart,
     shutdown: shutdown,
     maintain: false,
@@ -106,7 +104,6 @@ async function initializeGlobal() {
     global.server = _global.server;
     global.refreshState = _global.refreshState;
     global.refreshMqtt = _global.refreshMqtt;
-    global.mongo = _global.mongo;
     global.restart = _global.restart;
     global.shutdown = _global.shutdown;
     global.maintain = _global.maintain;
@@ -117,9 +114,8 @@ async function clear() {
     clearInterval(global.refreshMqtt);
 
     try {
-        if (global.server) await global.server.close();
-        if (global.mongo) await global.mongo.close();
-        if (global.listenMqtt) await global.listenMqtt.stopListening();
+        if (global.server) global.server.close();
+        if (global.listenMqtt) global.listenMqtt.stopListening();
     } catch (error) {
         console.log(error);
     }
