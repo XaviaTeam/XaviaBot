@@ -67,6 +67,7 @@ plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" đã th
 plugins.events.change_thread_image.reversed: "\nThay đổi ảnh nhóm không được cho phép nên đã đổi lại ảnh cũ."
 plugins.events.change_thread_image.reversed_t: "[ ANTI ALERT ]\nThay đổi ảnh nhóm không được cho phép nên đã đổi lại ảnh cũ!"
 plugins.events.change_thread_image.setNewImage: "\nThay đỏi ảnh nhóm không được cho phép nhưng vì không có ảnh cũ nên ảnh mới sẽ được dùng."
+plugins.events.change_thread_image.unsupported: "Định dạng ảnh không được hỗ trợ cho nhóm {threadId}, chỉ nhận URL."
 
 plugins.events.subcribe.addSelf: "Bot đã được thêm vào nhóm \"{threadName}\" ({threadId}) bởi người dùng \"{authorName}\" ({authorId})."
 plugins.events.subcribe.connected: "Kết nối thành công!\nSử dụng {PREFIX}help để xem danh sách lệnh."

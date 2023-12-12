@@ -22,6 +22,7 @@ declare global {
             corePath: string;
             cachePath: string;
             assetsPath: string;
+            tPath: string;
             config: IConfig;
             modules: Map<string, any>;
             getLang: (
@@ -41,14 +42,8 @@ declare global {
                         [commandName: string]: number;
                     }
                 >;
-                replies: Map<
-                    string,
-                    IReplyEventListenerData
-                >;
-                reactions: Map<
-                    string,
-                    IReactEventListenerData
-                >;
+                replies: Map<string, IReplyEventListenerData>;
+                reactions: Map<string, IReactEventListenerData>;
             };
             data: {
                 users: Map<string, User>;
@@ -118,16 +113,18 @@ declare global {
             isSubscribed: boolean;
             folder: "INBOX" | "ARCHIVE" | string;
             isArchived: boolean;
+            imageSrc: string;
             emoji: string | null;
             color: string | null;
             adminIDs: string[];
             approvalMode: boolean;
+            nicknames: Record<string, string>;
             members: {
                 userID: string;
                 exp?: number;
             }[];
         } & Record<string, any>;
-        data?: Record<string, any>;
+        data: Record<string, any>;
     }
 
     export interface IConfig {
@@ -238,7 +235,7 @@ declare global {
             thread: null | Thread;
             user: null | User;
         };
-				xDB: xDatabase;
+        xDB: xDatabase;
         userPermissions: number[];
         prefix: string;
     }) => void | Promise<void>;
@@ -254,11 +251,16 @@ declare global {
             thread: null | Thread;
             user: null | User;
         };
-				xDB: xDatabase;
+        xDB: xDatabase;
     }) => void | Promise<void>;
 
     export type TOnCallEvents = (props: {
         event: TEventObject;
+    }) => void | Promise<void>;
+
+    export type TOnCallCustom = (props: {
+        getLang: (key: string, objectData: { [p: string]: any }) => string;
+        xDB: xDatabase;
     }) => void | Promise<void>;
 
     export interface IBaseEventListenerData {
@@ -281,7 +283,7 @@ declare global {
             thread: null | Thread;
             user: null | User;
         };
-				xDB: xDatabase;
+        xDB: xDatabase;
         eventData: IBaseEventListenerData;
     }) => void | Promise<void>;
 
@@ -294,7 +296,7 @@ declare global {
             thread: null | Thread;
             user: null | User;
         };
-				xDB: xDatabase;
+        xDB: xDatabase;
         eventData: IBaseEventListenerData;
     }) => void | Promise<void>;
 
@@ -325,7 +327,7 @@ declare global {
                 [p: string]: any;
             }
         >;
-        customs: number;
+        customs: Number;
         events: Map<string, TOnCallEvents>;
         onMessage: Map<string, TOnCallOnMessage>;
     }

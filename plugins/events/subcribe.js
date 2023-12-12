@@ -1,10 +1,18 @@
-export default async function ({ event }) {
+/**
+ * 
+ * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:subscribe" }> }} param0 
+ * @returns 
+ */
+export default async function subscribe({ event }) {
     const { api } = global;
     const { threadID, author, logMessageData } = event;
     const { Threads, Users } = global.controllers;
-    const getThread = (await Threads.get(threadID)) || {};
-    const getThreadData = getThread.data || {};
-    const getThreadInfo = getThread.info || {};
+    const getThread = await Threads.get(threadID);
+
+		if (getThread == null) return;
+		
+    const getThreadData = getThread.data;
+    const getThreadInfo = getThread.info;
 
     if (Object.keys(getThreadInfo).length > 0) {
         for (const user of logMessageData.addedParticipants) {
@@ -20,11 +28,10 @@ export default async function ({ event }) {
     const authorName = (await Users.getInfo(author))?.name || author;
 
     if (logMessageData.addedParticipants.some((i) => i.userFbId == botID)) {
-        // logger(`${threadID} • ${author} added bot to thread`, 'EVENT');
         if (getThreadInfo.isSubscribed == false)
             getThreadInfo.isSubscribed = true;
         for (const adid of global.config.MODERATORS) {
-            global.sleep(300);
+            await global.utils.sleep(300);
             api.sendMessage(
                 getLang("plugins.events.subcribe.addSelf"),
                 {
@@ -58,7 +65,7 @@ export default async function ({ event }) {
         //         tag: joinName
         //     })
         // }
-        // let atlertMsg = {
+        // let alertMsg = {
         //     body: getLang("plugins.events.subcribe.addMembers", {
         //         authorName: authorName,
         //         authorId: author,
@@ -69,7 +76,7 @@ export default async function ({ event }) {
         // }
         // for (const rUID of getThreadData.notifyChange.registered) {
         //     global.sleep(300);
-        //     api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
+        //     api.sendMessage(alertMsg, rUID, (err) => console.error(err));
         // }
     }
 
@@ -134,7 +141,7 @@ export default async function ({ event }) {
     let oldMembersLength = getThreadInfo.members.length - joinNameArray.length;
     let newCount = joinNameArray.map((_, i) => i + oldMembersLength + 1);
 
-    let atlertMsg = {
+    let alertMsg = {
         body: (getThreadData?.joinMessage
             ? getThreadData.joinMessage
             : getLang("plugins.events.subcribe.welcome")
@@ -183,7 +190,7 @@ export default async function ({ event }) {
                         )
                         .catch(() => null);
 
-                    if (welcomeCard) atlertMsg.attachment = [welcomeCard];
+                    if (welcomeCard) alertMsg.attachment = [welcomeCard];
 
                     return resolve();
                 }
@@ -191,12 +198,12 @@ export default async function ({ event }) {
         });
     }
 
-    if (!atlertMsg.attachment && global.isExists(gifPath)) {
-        atlertMsg.attachment = [await global.getStream(gifPath)];
+    if (!alertMsg.attachment && global.isExists(gifPath)) {
+        alertMsg.attachment = [await global.getStream(gifPath)];
     }
 
     if (joinNameArray.length > 0)
-        api.sendMessage(atlertMsg, threadID, (err) =>
+        api.sendMessage(alertMsg, threadID, (err) =>
             err ? console.error(err) : null
         );
 

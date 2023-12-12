@@ -37,7 +37,10 @@ async function handleDatabase(event) {
 
 export class XDatabase {
     #dataPath = resolve(process.cwd(), "core", "var", "data");
+    #tPath = resolve(process.cwd(), "core", "var", "data", "t_img");
     #cachePath = resolvePath(process.cwd(), "core", "var", "data", "cache");
+
+    #api;
 
     #threads;
     #users;
@@ -51,9 +54,13 @@ export class XDatabase {
 
     #models = models;
 
-    constructor() {
-        this.#threads = getCThread(this, global.api);
-        this.#users = getCUser(this, global.api);
+    /**
+     * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+     */
+    constructor(api) {
+        this.#api = api;
+        this.#threads = getCThread(this, this.#api);
+        this.#users = getCUser(this, this.#api);
         this.#effects = effects;
     }
 
@@ -72,7 +79,11 @@ export class XDatabase {
         }
         this.#database = isValidDatabase ? database : "JSON";
 
-        this.#ensureNecessaryFoldersExist([this.#dataPath, this.#cachePath]);
+        this.#ensureNecessaryFoldersExist([
+            this.#dataPath,
+            this.#cachePath,
+            this.#tPath,
+        ]);
         this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
 
         await this.#handleMongoDB();
@@ -288,11 +299,13 @@ export class XDatabase {
                 if (filename == "threads.json") {
                     for (const tData of parsedData) {
                         // backward compatibility for old data
-                        tData.info.adminIDs = tData.info.adminIDs.map(
-                            (e) => e?.id || e
-                        );
+                        if (tData.info.hasOwnProperty("adminIDs")) {
+                            tData.info.adminIDs = tData.info.adminIDs.map(
+                                (e) => e?.id || e
+                            );
+                        }
 
-                        global.data.threads.set(tData.threadID, tData);
+                        global.data.threads.set(tData.threadID, tData, true);
                     }
                 } else if (filename == "users.json") {
                     for (const uData of parsedData) {
@@ -355,7 +368,7 @@ export class XDatabase {
         for (const thread of threadsData) {
             // backward compatibility for old data
             thread.info.adminIDs = thread.info.adminIDs.map((e) => e?.id || e);
-            global.data.threads.set(thread.threadID, thread);
+            global.data.threads.set(thread.threadID, thread, true);
         }
 
         for (const user of usersData) {
@@ -385,9 +398,9 @@ export class XDatabase {
         }
     }
 
-		get DATABASE() {
-			return this.#database;
-		}
+    get DATABASE() {
+        return this.#database;
+    }
 
     get threads() {
         return this.#threads;

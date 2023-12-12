@@ -10,6 +10,7 @@ const _global = {
     corePath: resolvePath(process.cwd(), "core"),
     cachePath: resolvePath(process.cwd(), "core", "var", "data", "cache"),
     assetsPath: resolvePath(process.cwd(), "core", "var", "assets"),
+    tPath: resolvePath(process.cwd(), "core", "var", "data", "t_img"),
     config: new Object(),
     modules: new Map(),
     getLang: null,
@@ -22,7 +23,7 @@ const _global = {
         customs: new Number(0),
         events: new Map(),
         onMessage: new Map(),
-				effects: effects,
+        effects: effects,
     }),
     client: new Object({
         cooldowns: new Map(),
@@ -53,13 +54,13 @@ const _global = {
 };
 
 function _change_prototype_DATA(data) {
-    data.users.set = function (key, value) {
-        value.lastUpdated = Date.now();
+    data.users.set = function (key, value, init = false) {
+        if (!init) value.lastUpdated = Date.now();
         return Map.prototype.set.call(this, key, value);
     };
 
-    data.threads.set = function (key, value) {
-        value.lastUpdated = Date.now();
+    data.threads.set = function (key, value, init = false) {
+        if (!init) value.lastUpdated = Date.now();
         return Map.prototype.set.call(this, key, value);
     };
 
@@ -83,6 +84,7 @@ async function initializeGlobal() {
     global.corePath = _global.corePath;
     global.cachePath = _global.cachePath;
     global.assetsPath = _global.assetsPath;
+    global.tPath = _global.tPath;
     global.config = _global.config;
     global.modules = _global.modules;
     global.getLang = _global.getLang;
@@ -121,7 +123,7 @@ async function clear() {
     }
 
     for (const props in _global) {
-        delete global[props]; 
+        delete global[props];
     }
     global.gc();
 }

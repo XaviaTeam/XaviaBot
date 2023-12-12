@@ -4,46 +4,36 @@ const config = {
     usage: "[@mention/reply] [text]",
     cooldown: 3,
     permissions: [0, 1, 2],
-    credits: "XaviaTeam"
-}
+    credits: "XaviaTeam",
+};
 
 const langData = {
-    "vi_VN": {
-        "error": "Có lỗi xảy ra, vui lòng thử lại sau"
+    vi_VN: {
+        error: "Có lỗi xảy ra, vui lòng thử lại sau",
     },
-    "en_US": {
-        "error": "An error occurred, please try again later"
+    en_US: {
+        error: "An error occurred, please try again later",
     },
-    "ar_SY": {
-        "error": "لقد حدث خطأ، رجاء أعد المحاولة لاحقا"
-    }
-}
+    ar_SY: {
+        error: "لقد حدث خطأ، رجاء أعد المحاولة لاحقا",
+    },
+};
 
 async function onCall({ message, getLang }) {
     try {
         const { mentions, messageReply, senderID } = message;
-        const targetID = Object.keys(mentions)[0] || messageReply?.senderID || senderID;
+        const targetID =
+            Object.keys(mentions)[0] || messageReply?.senderID || senderID;
 
-        const avatarURL = global.getAvatarURL(targetID);
-
-        global.request(`${global.xva_api.main}/imgbb`, {
-            method: "POST",
-            data: {
-                url: avatarURL
-            }
-        }, async (error, res, data) => {
-            if (error) {
-                console.error(error);
-                return message.reply(getLang("error"));
-            }
-
-            const communism = await global.getStream(`${global.xva_api.popcat}/communism?image=${res.data.url}`);
-
-            return message.reply({
-                attachment: communism
-            });
-        })
-
+        const avatarURL = global.utils.getAvatarURL(targetID);
+        const communism = await global.getStream(
+            `${global.xva_api.popcat}/communism?image=${encodeURIComponent(
+                avatarURL
+            )}`
+        );
+        return message.reply({
+            attachment: communism,
+        });
     } catch (e) {
         console.error(e);
         return message.reply(getLang("error"));
@@ -53,5 +43,5 @@ async function onCall({ message, getLang }) {
 export default {
     config,
     langData,
-    onCall
-}
+    onCall,
+};

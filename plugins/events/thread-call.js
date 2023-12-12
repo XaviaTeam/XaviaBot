@@ -1,44 +1,67 @@
+/**
+ *
+ * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:thread-call" }> }} param0
+ * @returns
+ */
 export default async function ({ event }) {
-    const { api } = global;
+    const { api, getLang } = global;
     const { threadID, logMessageData } = event;
-    const { Users, Threads } = global.controllers;
+    const { Threads, Users } = global.controllers;
 
     const getThread = await Threads.get(threadID);
-    const getThreadData = getThread.data || {};
 
+    if (getThread == null) return;
 
-    if (getThreadData?.notifyChange?.status !== true) return;
+    const getThreadData = getThread.data;
 
-    const typeofCall = logMessageData.video ? 'Video' : '';
-    let atlertMsg = null;
+    if (getThreadData.notifyChange?.status !== true) return;
 
+    const typeofCall = logMessageData.video ? "Video" : "";
+		const callerID = logMessageData.caller_id;
+		const joinerID = logMessageData.joining_user;
+
+    let alertMsg = "";
 
     if (logMessageData.event == "group_call_started") {
-        const authorName = (await Users.getInfo(logMessageData.caller_id))?.name || logMessageData.caller_id;
+        const authorName =
+            (await Users.getInfo(callerID))?.name ??
+            callerID;
 
-        atlertMsg = getLang(`plugins.events.thread-call.started${typeofCall}Call`, {
-            authorName: authorName,
-            authorId: logMessageData.caller_id
-        });
+        alertMsg = getLang(
+            `plugins.events.thread-call.started${typeofCall}Call`,
+            {
+                authorName: authorName,
+                authorId: callerID,
+            }
+        );
     } else if (logMessageData.event == "group_call_ended") {
-        const callDuration = global.msToHMS(logMessageData.call_duration * 1000);
+        const callDuration = global.utils.msToHMS(
+            logMessageData.call_duration * 1000
+        );
 
-        atlertMsg = getLang(`plugins.events.thread-call.ended${typeofCall}Call`, {
-            callDuration: callDuration
-        })
+        alertMsg = getLang(
+            `plugins.events.thread-call.ended${typeofCall}Call`,
+            {
+                callDuration: callDuration,
+            }
+        );
+    } else if (joinerID) {
+        const authorName =
+            (await Users.getInfo(joinerID))?.name ??
+            joinerID;
 
-    } else if (logMessageData.joining_user) {
-        const authorName = (await Users.getInfo(logMessageData.joining_user))?.name || logMessageData.joining_user;
-
-        atlertMsg = getLang(`plugins.events.thread-call.joined${typeofCall}Call`, {
-            authorName: authorName,
-            authorId: logMessageData.joining_user
-        })
+        alertMsg = getLang(
+            `plugins.events.thread-call.joined${typeofCall}Call`,
+            {
+                authorName: authorName,
+                authorId: joinerID,
+            }
+        );
     }
 
     for (const rUID of getThreadData.notifyChange.registered) {
-        global.sleep(300);
-        api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
+        await global.utils.sleep(300);
+        api.sendMessage(alertMsg, rUID, (err) => console.error(err));
     }
 
     return;

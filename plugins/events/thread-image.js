@@ -1,22 +1,27 @@
-import { join } from "path";
-import * as utils from "../../core/var/utils.js";
+import logger from "../../core/var/modules/logger.js";
 
+/**
+ *
+ * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:thread-image" }> }} param0
+ * @returns
+ */
 export default async function ({ event }) {
-    const { api } = global;
+    const { api, utils } = global;
     const { threadID, author } = event;
     const { Threads, Users } = global.controllers;
 
-    const getThread = (await Threads.get(threadID)) || {};
-    const getThreadData = getThread.data || {};
-    const getThreadInfo = getThread.info;
+    const getThread = await Threads.get(threadID);
 
-    if (!getThreadInfo) return;
+    if (getThread == null) return;
+
+    const getThreadData = getThread.data;
+    const getThreadInfo = getThread.info;
 
     const oldImage = getThreadInfo.imageSrc || null;
     const isBot = author == botID;
 
     let reversed = false,
-        atlertMsg = null;
+        alertMsg = null;
 
     if (
         getThreadData.antiSettings &&
@@ -27,21 +32,45 @@ export default async function ({ event }) {
             (i) => i.type == "antiChangeGroupImage" && i.threadID == threadID
         );
 
+        if (!isBot && isReversing); // might bug
         if (!isBot && !isReversing) {
             global.data.temps.push({ type: "antiChangeGroupImage", threadID });
 
             try {
-                const imagePath = join(
-                    global.cachePath,
+                const imagePath = utils.buildCachePath(
                     `${threadID}_${Date.now()}_oldImage.jpg`
                 );
-                if (isURL(oldImage)) {
-                    await downloadFile(imagePath, oldImage);
-                } else {
-                    await saveFromBase64(imagePath, oldImage);
+                let builtUrl = utils.buildURL(oldImage);
+                if (builtUrl == null) {
+                    // possible base64 image, deprecated
+                    logger.warn(
+                        global.getLang(
+                            "plugins.events.change_thread_image.unsupported",
+                            {
+                                threadId: threadID,
+                            }
+                        )
+                    );
+                    // backwards compatibility, save base64 image to file and save path to database
+                    const imgPath = join(global.tPath, `${threadID}.jpg`);
+                    await utils.saveFromBase64(imgPath, oldImage);
+
+                    getThreadData.imageSrc = imgPath;
+
+                    builtUrl = utils.buildURL(oldImage);
                 }
 
-                await api.changeGroupImage(reader(imagePath), threadID);
+                const isLocal =
+                    builtUrl.protocol != "http:" &&
+                    builtUrl.protocol != "https:";
+                if (!isLocal) {
+                    await utils.downloadFile(imagePath, builtUrl.href);
+                }
+
+                await api.changeGroupImage(
+                    reader(isLocal ? oldImage : imagePath),
+                    threadID
+                );
 
                 reversed = true;
 
@@ -64,10 +93,9 @@ export default async function ({ event }) {
             }
         }
     } else {
-        const newImageURL = event.image.url;
+        const newImageURL = event.logMessageData.image.url;
         try {
-            const imagePath = join(
-                global.cachePath,
+            const imagePath = utils.buildCachePath(
                 `${threadID}_${Date.now()}_oldImage.jpg`
             );
 
@@ -85,15 +113,17 @@ export default async function ({ event }) {
                 }
 
                 if (!imgToSave) {
-                    await downloadFile(imagePath, newImageURL);
-                    imgToSave = saveToBase64(imagePath);
+										const imgPath = join(global.tPath, `${threadID}.jpg`);
+										await utils.downloadFile(imgPath, newImageURL);
+
+										imgToSave = imgPath;
                 }
             }
 
             await Threads.updateInfo(threadID, { imageSrc: imgToSave });
 
-            if (global.isExists(imagePath, "file")) {
-                global.deleteFile(imagePath);
+            if (utils.isExists(imagePath, "file")) {
+                utils.deleteFile(imagePath);
             }
         } catch (err) {
             console.error(
@@ -105,7 +135,7 @@ export default async function ({ event }) {
     if (
         oldImage &&
         reversed &&
-        getThreadData?.antiSettings?.notifyChange === true
+        getThreadData.antiSettings?.notifyChange === true
     ) {
         api.sendMessage(
             getLang("plugins.events.change_thread_image.reversed_t"),
@@ -113,25 +143,25 @@ export default async function ({ event }) {
         );
     }
 
-    if (!isBot && getThreadData?.notifyChange?.status === true) {
+    if (!isBot && getThreadData.notifyChange?.status === true) {
         const authorName = (await Users.getInfo(author))?.name || author;
-        atlertMsg = getLang(
+        alertMsg = getLang(
             "plugins.events.change_thread_image.userChangedThreadImage",
             {
                 author: authorName,
             }
         );
         if (oldImage && reversed) {
-            atlertMsg += getLang("plugins.events.change_thread_image.reversed");
+            alertMsg += getLang("plugins.events.change_thread_image.reversed");
         } else if (!oldImage && !reversed) {
-            atlertMsg += getLang(
+            alertMsg += getLang(
                 "plugins.events.change_thread_image.setNewImage"
             );
         }
 
         for (const rUID of getThreadData.notifyChange.registered) {
-            global.sleep(300);
-            api.sendMessage(atlertMsg, rUID, (err) =>
+            await utils.sleep(300);
+            api.sendMessage(alertMsg, rUID, (err) =>
                 err ? console.error(err) : null
             );
         }

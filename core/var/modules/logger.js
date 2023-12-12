@@ -16,6 +16,8 @@ const logger = {
             console.error(message.stack);
         } else if (axios.isAxiosError(message)) {
             console.error(message.toJSON());
+        } else if (typeof message === "object") {
+            console.error(message);
         }
     },
     system: (message) => {

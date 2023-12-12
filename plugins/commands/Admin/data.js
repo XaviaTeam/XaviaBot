@@ -72,7 +72,7 @@ async function resetConfirm({ message, eventData, getLang, xDB }) {
     }
 
     try {
-        if (type == "JSON") global.updateJSON();
+        if (type == "JSON") await xDB.update();
 
         message.send(getLang("resetSuccess"));
     } catch {
@@ -106,8 +106,8 @@ async function onCall({ message, args, getLang, xDB }) {
         case "update": {
             await message.react("🕐");
             let start = Date.now();
-						
-						await xDB.update();
+
+            await xDB.update();
 
             await message.react("✅");
 

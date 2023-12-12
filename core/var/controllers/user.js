@@ -24,11 +24,9 @@ export default function getCUser(database, api) {
         uid = String(uid);
         const info = await api.getUserInfo(uid).catch((_) => []);
         if (info[uid]) {
-            let _info = { ...info[uid] };
+            updateInfo(uid, { ...info[uid] });
 
-            updateInfo(uid, _info);
-
-            return info;
+            return info[uid];
         } else {
             create(uid, {});
 
@@ -46,7 +44,8 @@ export default function getCUser(database, api) {
         uid = String(uid);
         let userData = global.data.users.get(uid);
 
-        const isInvalidData = userData === null || userData?.info?.id == undefined;
+        const isInvalidData =
+            userData === null || userData?.info?.id == undefined;
         const isOutdatedData =
             userData?.hasOwnProperty("lastUpdated") &&
             userData.lastUpdated + _4HOURS < Date.now();
@@ -182,7 +181,7 @@ export default function getCUser(database, api) {
             global.data.users.set(uid, {
                 userID: uid,
                 info: data,
-                data: {},
+                data: { exp: 1, money: 0 },
             });
 
             if (DATABASE === "JSON") {
@@ -194,7 +193,7 @@ export default function getCUser(database, api) {
                 );
                 return true;
             } else if (DATABASE === "MONGO") {
-                const cretaeResult = await models.Users.create({
+                const createResult = await models.Users.create({
                     userID: uid,
                     info: data,
                     data: { exp: 1, money: 0 },
@@ -203,7 +202,7 @@ export default function getCUser(database, api) {
                     return null;
                 });
 
-                if (cretaeResult == null) return false;
+                if (createResult == null) return false;
                 logger.custom(
                     global.getLang(`database.user.get.success`, {
                         userID: uid,
@@ -242,12 +241,12 @@ export default function getCUser(database, api) {
         } else return null;
     }
 
-		/**
-		 * 
-		 * @param {string} uid 
-		 * @param {number} amount 
-		 * @returns 
-		 */
+    /**
+     *
+     * @param {string} uid
+     * @param {number} amount
+     * @returns
+     */
     function increaseMoney(uid, amount) {
         if (!uid || !amount) return false;
         if (!global.utils.isAcceptableNumber(amount)) return false;
@@ -276,12 +275,12 @@ export default function getCUser(database, api) {
         }
     }
 
-		/**
-		 * 
-		 * @param {string} uid 
-		 * @param {number} amount 
-		 * @returns 
-		 */
+    /**
+     *
+     * @param {string} uid
+     * @param {number} amount
+     * @returns
+     */
     function decreaseMoney(uid, amount) {
         if (!uid || !amount) return false;
         if (!global.utils.isAcceptableNumber(amount)) return false;

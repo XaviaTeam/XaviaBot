@@ -50,25 +50,24 @@ process.on("SIGHUP", () => {
 });
 
 await initializeVar();
-const xDatabase = new XDatabase();
 
 async function start() {
     try {
         logger.system(getLang("build.start.varLoaded"));
-        await xDatabase.init(global.config.DATABASE);
-        global.controllers = {
-            Threads: xDatabase.threads,
-            Users: xDatabase.users,
-        };
 
-        await loadPlugins();
+        const api = await loginState();
+
+        const xDatabase = new XDatabase(api);
+        await xDatabase.init(global.config.DATABASE);
+
+        await loadPlugins(xDatabase);
 
         const serverAdminPassword = getRandomPassword(8);
         startServer(serverAdminPassword);
 
         process.env.SERVER_ADMIN_PASSWORD = serverAdminPassword;
 
-        await booting();
+        await booting(api, xDatabase);
     } catch (err) {
         logger.error(err);
         return global.shutdown();
@@ -77,13 +76,22 @@ async function start() {
 
 global.listenerID = null;
 
-async function booting() {
+/**
+ * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+ * @param {xDatabase} xDatabase
+ */
+async function booting(api, xDatabase) {
     logger.custom(getLang("build.booting.logging"), "LOGIN");
 
     try {
-        const api = await loginState();
+        global.controllers = {
+            Threads: xDatabase.threads,
+            Users: xDatabase.users,
+        };
+
         global.api = api;
         global.botID = api.getCurrentUserID();
+
         logger.custom(getLang("build.booting.logged", { botID }), "LOGIN");
 
         refreshState();
@@ -92,9 +100,11 @@ async function booting() {
 
         const newListenerID = generateListenerID();
         global.listenerID = newListenerID;
-        global.listenMqtt = api.listenMqtt(await handleListen(newListenerID, xDatabase));
+        global.listenMqtt = api.listenMqtt(
+            await handleListen(newListenerID, xDatabase)
+        );
 
-        refreshMqtt();
+        refreshMqtt(xDatabase);
     } catch (error) {
         const glitchAppstatePath = resolvePath(
             process.cwd(),
@@ -107,7 +117,7 @@ async function booting() {
             execSync("refresh");
         }
 
-				throw error;
+        throw error;
     }
 }
 
@@ -156,7 +166,11 @@ function refreshState() {
     }, _12HOUR);
 }
 
-function refreshMqtt() {
+/**
+ *
+ * @param {xDatabase} xDatabase
+ */
+function refreshMqtt(xDatabase) {
     global.refreshMqtt = setInterval(async () => {
         logger.custom(getLang("build.refreshMqtt"), "REFRESH");
         const newListenerID = generateListenerID();

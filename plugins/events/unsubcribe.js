@@ -21,16 +21,16 @@ export default async function ({ event }) {
         // logger(`${threadID} • ${author} removed bot from thread`);
         getThreadInfo.isSubscribed = false;
 
-        let atlertMsg = getLang(`plugins.events.unsubcribe.bot.${type}`, {
+        let alertMsg = getLang(`plugins.events.unsubcribe.bot.${type}`, {
             authorName: authorName,
             authorId: author,
             threadName: getThreadInfo.name,
             threadId: threadID
         });
         for (const adid of global.config.MODERATORS) {
-            global.sleep(300);
+            await global.utils.sleep(300);
             if (adid != threadID) {
-                api.sendMessage(atlertMsg, adid);
+                api.sendMessage(alertMsg, adid);
             }
         }
 
@@ -38,7 +38,7 @@ export default async function ({ event }) {
     } else if (getThread.data?.notifyChange?.status === true) {
         // const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 
-        // let atlertMsg = getLang(`plugins.events.unsubcribe.${type}`, {
+        // let alertMsg = getLang(`plugins.events.unsubcribe.${type}`, {
         //     authorName: authorName,
         //     authorId: author,
         //     leftName: leftName,
@@ -47,14 +47,14 @@ export default async function ({ event }) {
 
         // for (const rUID of getThread.data.notifyChange.registered) {
         //     global.sleep(300);
-        //     api.sendMessage(atlertMsg, rUID);
+        //     api.sendMessage(alertMsg, rUID);
         // }
     };
 
     let callback = async () => {
         const leftName = (await Users.getInfo(logMessageData.leftParticipantFbId))?.name || logMessageData.leftParticipantFbId;
 
-        let atlertMsg = {
+        let alertMsg = {
             body: (getThread?.data?.leaveMessage ?
                 getThread.data.leaveMessage : getLang(`plugins.events.unsubcribe.${type}`))
                 .replace(/\{leftName}/g, leftName),
@@ -66,10 +66,10 @@ export default async function ({ event }) {
 
         const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
         if (global.isExists(gifPath)) {
-            atlertMsg.attachment = [await global.getStream(gifPath)];
+            alertMsg.attachment = [await global.getStream(gifPath)];
         }
 
-        api.sendMessage(atlertMsg, threadID);
+        api.sendMessage(alertMsg, threadID);
     }
 
     if (getThread?.data?.antiSettings?.antiOut && type == "left") {

@@ -397,7 +397,11 @@ async function loadCommands() {
     return true;
 }
 
-async function loadCustoms() {
+/**
+ *
+ * @param {xDatabase} xDatabase
+ */
+async function loadCustoms(xDatabase) {
     const customsPath = resolvePath(global.pluginsPath, "customs");
 
     const customsFiles = readdirSync(customsPath).filter(
@@ -448,7 +452,7 @@ async function loadCustoms() {
                     getLang(key, data, pluginName);
                 try {
                     global.plugins.customs++;
-                    await onCall({ getLang: getLangForPlugin });
+                    await onCall({ getLang: getLangForPlugin, xDB: xDatabase });
                 } catch (error) {
                     console.error(error);
                 }
@@ -457,7 +461,10 @@ async function loadCustoms() {
                     getLang(key, data, pluginName);
                 try {
                     global.plugins.customs++;
-                    await pluginExport({ getLang: getLangForPlugin });
+                    await pluginExport({
+                        getLang: getLangForPlugin,
+                        xDB: xDatabase,
+                    });
                 } catch (error) {
                     console.error(error);
                 }
@@ -650,10 +657,14 @@ async function loadEvents() {
     );
 }
 
-async function loadPlugins() {
+/**
+ *
+ * @param {xDatabase} xDatabase
+ */
+async function loadPlugins(xDatabase) {
     cron.getTasks().forEach((task) => task.stop());
     await loadCommands();
-    await loadCustoms();
+    await loadCustoms(xDatabase);
     await loadOnMessage();
     await loadEvents();
 }

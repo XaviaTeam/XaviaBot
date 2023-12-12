@@ -55,12 +55,6 @@ async function changeConfig(threadID, senderID, option) {
         throw "Already";
     }
 
-    if (notifyChange.registered.length == 0) {
-        notifyChange.status = false;
-    } else {
-        notifyChange.status = true;
-    }
-
     await Threads.updateData(threadID, { notifyChange: notifyChange });
     return option;
 }

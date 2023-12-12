@@ -67,6 +67,7 @@ plugins.events.change_thread_image.userChangedThreadImage: "\"{author}\" has cha
 plugins.events.change_thread_image.reversed: "\nChanging thread image is not allowed so it was reversed."
 plugins.events.change_thread_image.reversed_t: "[ ANTI ALERT ]\nChanging thread image is not allowed so it was reversed!"
 plugins.events.change_thread_image.setNewImage: "\nChanging thread image is not allowed but the thread image is not set, so it will be set to the newly added one."
+plugins.events.change_thread_image.unsupported: "Unsupported image format for thread {threadId}, only URL is accepted."
 
 plugins.events.subcribe.addSelf: "Bot has been added to \"{threadName}\" ({threadId}) by \"{authorName}\" ({authorId})."
 plugins.events.subcribe.connected: "Connected successfully!\nUse {PREFIX}help to see all commands."

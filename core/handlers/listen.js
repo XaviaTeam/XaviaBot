@@ -61,6 +61,7 @@ export default async function handleListen(listenerID, xDatabase) {
         if (global.listenerID != listenerID) return;
         if (!event || err) {
             logger.error(getLang("handlers.listen.accountError"));
+            logger.error(err);
             process.exit(0);
         }
         if (

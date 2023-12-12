@@ -85,7 +85,7 @@ async function onCall({ message, getLang, data }) {
             if (targetID == global.botID || targetID == senderID) continue;
             try {
                 await kick(targetID, threadID);
-                global.sleep(500);
+                await global.utils.sleep(500);
                 success++;
             } catch (e) {
                 console.error(e);

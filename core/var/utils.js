@@ -3,6 +3,7 @@ import axios from "axios";
 import canvas from "canvas";
 import FormData from "form-data";
 import { randomInt } from "crypto";
+import { join } from "path";
 
 export function request(url, options = {}, callback = null) {
     if (typeof options === "function") {
@@ -33,7 +34,7 @@ export function isJSON(input) {
         JSON.parse(input);
         return true;
     } catch (e) {
-				return false;
+        return false;
     }
 }
 
@@ -174,6 +175,14 @@ export function isURL(url) {
     );
 }
 
+export function buildURL(url) {
+    try {
+        return new URL(url);
+    } catch {
+        return null;
+    }
+}
+
 export function random(min, max) {
     min = parseInt(min);
     max = parseInt(max);
@@ -195,9 +204,8 @@ export function circle(image, x, y, radius) {
     return tempCanvas;
 }
 
-export function sleep(ms) {
-    const date = Date.now();
-    while (Date.now() - date < ms) {}
+export async function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -342,4 +350,22 @@ export function getAvatarURL(uid) {
 
 export function isAcceptableNumber(num) {
     return !isNaN(parseInt(num));
+}
+
+/**
+ *
+ * @param {string} path
+ * @returns
+ */
+export function buildCachePath(path) {
+    return join(global.cachePath, path);
+}
+
+/**
+ *
+ * @param {string} path
+ * @returns
+ */
+export function buildAssetesPath(path) {
+    return join(global.assetsPath, path);
 }

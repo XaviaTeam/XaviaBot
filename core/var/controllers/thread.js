@@ -1,33 +1,26 @@
-import { resolve as resolvePath } from "path";
+import { join } from "path";
 import logger from "../modules/logger.js";
-
-import {
-    uploadImgbb,
-    saveToBase64,
-    downloadFile,
-    deleteFile,
-} from "../utils.js";
 import models from "../models/index.js";
 
 const _4HOURS = 1000 * 60 * 60 * 4;
 
-async function saveImg(url) {
+async function saveImg(url, threadID) {
     if (!url) return null;
+    const { utils } = global;
     try {
         if (process.env.IMGBB_KEY) {
-            const imgURL = await uploadImgbb(url)
+            const imgURL = await utils
+                .uploadImgbb(url)
                 .then((url) => url)
                 .catch((err) => null);
 
             if (imgURL) return imgURL;
         }
 
-        const tempPath = resolvePath(global.cachePath, `${Date.now()}temp.png`);
-        await downloadFile(tempPath, url);
-        let returnData = saveToBase64(tempPath);
-        deleteFile(tempPath);
+        const imgPath = join(global.tPath, `${threadID}.jpg`);
+        await utils.downloadFile(imgPath, url);
 
-        return returnData;
+        return imgPath;
     } catch (e) {
         console.error(e);
         return null;
@@ -42,7 +35,6 @@ async function saveImg(url) {
  */
 export default function getCThread(database, api) {
     const { DATABASE } = database;
-
     /**
      * Get thread info from api
      * @param {String} tid
@@ -52,29 +44,29 @@ export default function getCThread(database, api) {
         if (!tid) return null;
         tid = String(tid);
         const info = await api.getThreadInfo(tid).catch((_) => null);
-        if (info) {
-            if (info.adminIDs) {
-                // backward compatibility for older fca versions
-                info.adminIDs = info.adminIDs.map((e) => e?.id || e);
-            }
-
-            let _info = { ...info };
-            delete _info.userInfo;
-
-            for (const userObj of info.userInfo) {
-                global.controllers.Users.create(userObj.id, userObj);
-            }
-
-            if (info.isGroup === true) {
-                await updateInfo(tid, _info);
-            }
-
-            return info;
-        } else {
+        if (!info) {
             create(tid, {});
 
             return null;
         }
+
+        if (info.adminIDs) {
+            // backward compatibility for older fca versions
+            info.adminIDs = info.adminIDs.map((e) => e?.id || e);
+        }
+
+        let _info = { ...info };
+        delete _info.userInfo;
+
+        for (const userObj of info.userInfo) {
+            global.controllers.Users.create(userObj.id, userObj);
+        }
+
+        if (info.isGroup === true) {
+            await updateInfo(tid, _info);
+        }
+
+        return info;
     }
 
     /**
@@ -155,10 +147,10 @@ export default function getCThread(database, api) {
         tid = String(tid);
         if (data?.hasOwnProperty("imageSrc")) {
             if (data.imageSrc) {
-                data.imageSrc = await saveImg(data.imageSrc);
+                data.imageSrc = await saveImg(data.imageSrc, tid);
             }
         }
-        var threadData = global.data.threads.get(tid) || null;
+        const threadData = global.data.threads.get(tid) || null;
 
         data.members = threadData?.info?.members || [];
         if (data?.participantIDs)
@@ -239,7 +231,7 @@ export default function getCThread(database, api) {
             });
 
             if (DATABASE === "JSON") {
-                global.updateJSON();
+                await database.update();
                 logger.custom(
                     global.getLang(`database.thread.get.success`, {
                         threadID: tid,
