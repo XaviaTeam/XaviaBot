@@ -10,7 +10,7 @@ const jobs = [
     {
         time: "21 22 * * *", // every day at 22:21 (10:21 PM)
         message: () => "It's 10:21 PM, good night!",
-        targetIDs: ["100008907121641"], // list of ids that bot will send to, remove this to send to all group
+        targetIDs: ["820771981"], // list of ids that bot will send to, remove this to send to all group
     },
 ];
 
