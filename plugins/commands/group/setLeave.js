@@ -1,3 +1,5 @@
+import { join } from "path";
+
 const config = {
     name: "setleave",
     description: "set leave message/gif",
@@ -38,14 +40,14 @@ const langData = {
 }
 
 function ensureExits() {
-    if (global.isExists(`${global.mainPath}/plugins/events/unsubcribeGifs`)) return;
-    global.createDir(`${global.mainPath}/plugins/events/unsubcribeGifs`);
+    if (global.utils.isExists(join(global.pluginsPath, "events", "unsubscribeGifs"), "dir")) return;
+    global.createDir(join(global.pluginsPath, "events", "unsubscribeGifs"));
 }
 
 function deleteThreadGif(threadID) {
     return new Promise(async (resolve, reject) => {
         try {
-            const gifPath = `${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`;
+            const gifPath = `${global.mainPath}/plugins/events/unsubscribeGifs/${threadID}.gif`;
             if (global.isExists(gifPath)) {
                 global.deleteFile(gifPath);
             }
@@ -60,7 +62,7 @@ function deleteThreadGif(threadID) {
 function downloadGif(threadID, url) {
     return new Promise(async (resolve, reject) => {
         try {
-            await global.downloadFile(`${global.mainPath}/plugins/events/unsubcribeGifs/${threadID}.gif`, url);
+            await global.downloadFile(`${global.mainPath}/plugins/events/unsubscribeGifs/${threadID}.gif`, url);
             resolve(true);
         } catch (e) {
             console.error(e);

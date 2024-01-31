@@ -1,7 +1,7 @@
 /**
- * 
- * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:subscribe" }> }} param0 
- * @returns 
+ *
+ * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:subscribe" }> }} param0
+ * @returns
  */
 export default async function subscribe({ event }) {
     const { api } = global;
@@ -9,8 +9,8 @@ export default async function subscribe({ event }) {
     const { Threads, Users } = global.controllers;
     const getThread = await Threads.get(threadID);
 
-		if (getThread == null) return;
-		
+    if (getThread == null) return;
+
     const getThreadData = getThread.data;
     const getThreadInfo = getThread.info;
 
@@ -33,7 +33,7 @@ export default async function subscribe({ event }) {
         for (const adid of global.config.MODERATORS) {
             await global.utils.sleep(300);
             api.sendMessage(
-                getLang("plugins.events.subcribe.addSelf"),
+                getLang("plugins.events.subscribe.addSelf"),
                 {
                     threadName: getThreadInfo.name || threadID,
                     threadId: threadID,
@@ -50,7 +50,7 @@ export default async function subscribe({ event }) {
             botID
         );
         api.sendMessage(
-            getLang("plugins.events.subcribe.connected", { PREFIX }),
+            getLang("plugins.events.subscribe.connected", { PREFIX }),
             threadID
         );
 
@@ -66,7 +66,7 @@ export default async function subscribe({ event }) {
         //     })
         // }
         // let alertMsg = {
-        //     body: getLang("plugins.events.subcribe.addMembers", {
+        //     body: getLang("plugins.events.subscribe.addMembers", {
         //         authorName: authorName,
         //         authorId: author,
         //         membersLength: joinNameArray.length,
@@ -117,7 +117,7 @@ export default async function subscribe({ event }) {
 
                     api.sendMessage(
                         {
-                            body: getLang("plugins.events.subcribe.warns", {
+                            body: getLang("plugins.events.subscribe.warns", {
                                 username,
                             }),
                             mentions: [
@@ -144,7 +144,7 @@ export default async function subscribe({ event }) {
     let alertMsg = {
         body: (getThreadData?.joinMessage
             ? getThreadData.joinMessage
-            : getLang("plugins.events.subcribe.welcome")
+            : getLang("plugins.events.subscribe.welcome")
         )
             .replace(/\{members}/g, joinNameArray.join(", "))
             .replace(/\{newCount}/g, newCount.join(", "))
@@ -152,50 +152,29 @@ export default async function subscribe({ event }) {
         mentions,
     };
 
-    const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
+    const gifPath = `${global.mainPath}/plugins/events/subscribeGifs/${threadID}.gif`;
 
     if (logMessageData.addedParticipants.length == 1 && warns.length == 0) {
-        const profilePicUrl = global.getAvatarURL(
+        const profilePicUrl = global.utils.getAvatarURL(
             logMessageData.addedParticipants[0].userFbId
         );
 
-        await new Promise((resolve) => {
-            global.request(
-                `${global.xva_api.main}/imgbb`,
-                {
-                    method: "POST",
-                    data: {
-                        url: profilePicUrl,
-                    },
-                },
-                async (error, res, data) => {
-                    if (error) {
-                        console.error(error);
-                        return resolve();
-                    }
+        const username = logMessageData.addedParticipants[0].fullName;
+        const welcomeCard = await global.utils
+            .getStream(
+                `${
+                    global.xva_api.popcat
+                }/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(
+                    username
+                )}&text2=Welcome+To+${encodeURIComponent(
+                    getThreadInfo.name || threadID
+                )}&text3=Member+${newCount[0]}&avatar=${encodeURIComponent(
+                    profilePicUrl
+                )}`
+            )
+            .catch(() => null);
 
-                    const username =
-                        logMessageData.addedParticipants[0].fullName;
-                    const welcomeCard = await global
-                        .getStream(
-                            `${
-                                global.xva_api.popcat
-                            }/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(
-                                username
-                            )}&text2=Welcome+To+${encodeURIComponent(
-                                getThreadInfo.name || threadID
-                            )}&text3=Member+${newCount[0]}&avatar=${
-                                res.data.url
-                            }`
-                        )
-                        .catch(() => null);
-
-                    if (welcomeCard) alertMsg.attachment = [welcomeCard];
-
-                    return resolve();
-                }
-            );
-        });
+        if (welcomeCard) alertMsg.attachment = [welcomeCard];
     }
 
     if (!alertMsg.attachment && global.isExists(gifPath)) {

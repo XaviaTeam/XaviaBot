@@ -1,17 +1,14 @@
 import yaml from "js-yaml";
-import { readFileSync, readdirSync, writeFileSync, unlinkSync } from "fs";
+import { readFileSync, readdirSync, writeFileSync, unlinkSync, copyFileSync, rmSync } from "fs";
 import { pathToFileURL } from "url";
-import { resolve as resolvePath } from "path";
+import { join, resolve as resolvePath } from "path";
 import cron from "node-cron";
 
 import logger from "./logger.js";
 
 function loadConfig() {
     const config = JSON.parse(
-        readFileSync(
-            resolvePath(global.mainPath, "config", "config.main.json"),
-            "utf8"
-        )
+        readFileSync(resolvePath(global.mainPath, "config", "config.main.json"), "utf8")
     );
 
     if (!config.hasOwnProperty("REFRESH")) config.REFRESH = "43200000";
@@ -26,11 +23,7 @@ function loadConfig() {
             },
             4
         );
-        const configPathTemp = resolvePath(
-            global.mainPath,
-            "config",
-            "config.main.temp.json"
-        );
+        const configPathTemp = resolvePath(global.mainPath, "config", "config.main.temp.json");
 
         writeFileSync(configPathTemp, configStringified, "utf8");
         writeFileSync(
@@ -49,22 +42,14 @@ function loadConfig() {
 
 function loadConfigPlugins() {
     const config = JSON.parse(
-        readFileSync(
-            resolvePath(global.mainPath, "config", "config.plugins.json"),
-            "utf8"
-        )
+        readFileSync(resolvePath(global.mainPath, "config", "config.plugins.json"), "utf8")
     );
     return config;
 }
 
 function getLang(key, objectData, plugin, language = global.config.LANGUAGE) {
     if (!key || typeof key !== "string") return "";
-    if (
-        !objectData ||
-        typeof objectData !== "object" ||
-        Array.isArray(objectData)
-    )
-        objectData = {};
+    if (!objectData || typeof objectData !== "object" || Array.isArray(objectData)) objectData = {};
 
     let gottenData = plugin
         ? global.data.langPlugin[language]?.[plugin]?.[key] ||
@@ -72,10 +57,7 @@ function getLang(key, objectData, plugin, language = global.config.LANGUAGE) {
         : global.data.langSystem[language]?.[key] || "";
     if (gottenData)
         for (const dataKey in objectData) {
-            gottenData = gottenData.replace(
-                `{${dataKey}}`,
-                objectData[dataKey]
-            );
+            gottenData = gottenData.replace(`{${dataKey}}`, objectData[dataKey]);
         }
 
     return gottenData;
@@ -84,16 +66,13 @@ function getLang(key, objectData, plugin, language = global.config.LANGUAGE) {
 function loadLang() {
     try {
         const languageData = {};
-        const allLangFiles = readdirSync(
-            resolvePath("./core/var/languages")
-        ).filter((file) => file.endsWith(".yml"));
+        const allLangFiles = readdirSync(resolvePath("./core/var/languages")).filter((file) =>
+            file.endsWith(".yml")
+        );
         for (let i = 0; i < allLangFiles.length; i++) {
             const langFile = allLangFiles[i];
             const langFileData = yaml.load(
-                readFileSync(
-                    resolvePath("./core/var/languages", langFile),
-                    "utf8"
-                )
+                readFileSync(resolvePath("./core/var/languages", langFile), "utf8")
             );
             languageData[langFile.replace(".yml", "")] = langFileData;
         }
@@ -119,8 +98,7 @@ function formatPermission(permissions) {
 
 function loadPluginLang(langData, pluginName) {
     for (const langKey in langData) {
-        if (!global.data.langPlugin.hasOwnProperty(langKey))
-            global.data.langPlugin[langKey] = {};
+        if (!global.data.langPlugin.hasOwnProperty(langKey)) global.data.langPlugin[langKey] = {};
         global.data.langPlugin[langKey][pluginName] = langData[langKey];
     }
 }
@@ -130,11 +108,7 @@ function loadExtra(extra, pluginName) {
         if (!extra || typeof extra !== "object" || Array.isArray(extra)) return;
         if (!pluginName || typeof pluginName !== "string") return;
 
-        const extraConfigPath = resolvePath(
-            global.mainPath,
-            "config",
-            "config.plugins.json"
-        );
+        const extraConfigPath = resolvePath(global.mainPath, "config", "config.plugins.json");
         const extraConfig = readFileSync(extraConfigPath, "utf8");
         const extraConfigParsed = JSON.parse(extraConfig);
         let changed = false;
@@ -153,11 +127,7 @@ function loadExtra(extra, pluginName) {
         }
 
         if (changed) {
-            const extraConfigStringified = JSON.stringify(
-                extraConfigParsed,
-                null,
-                2
-            );
+            const extraConfigStringified = JSON.stringify(extraConfigParsed, null, 2);
             const extraConfigPathTemp = resolvePath(
                 global.mainPath,
                 "config",
@@ -185,11 +155,7 @@ function aliasesValidator(commandName, aliases, _name = {}) {
             new Set([
                 ...aliases,
                 commandName,
-                ...Object.values(
-                    typeof _name === "object" && !Array.isArray(_name)
-                        ? _name
-                        : {}
-                ),
+                ...Object.values(typeof _name === "object" && !Array.isArray(_name) ? _name : {}),
             ])
         );
 
@@ -222,21 +188,14 @@ async function loadCommands() {
             continue;
         const categoryPath = resolvePath(commandsPath, category);
         const categoryFiles = readdirSync(categoryPath).filter(
-            (file) =>
-                file.endsWith(".js") ||
-                file.endsWith(".mjs") ||
-                file.endsWith(".cjs")
+            (file) => file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")
         );
         total += categoryFiles.length;
 
         for (const plugin of categoryFiles) {
             const fileName = plugin;
             try {
-                const pluginPath = resolvePath(
-                    commandsPath,
-                    category,
-                    fileName
-                );
+                const pluginPath = resolvePath(commandsPath, category, fileName);
                 const pluginURL = pathToFileURL(pluginPath);
 
                 pluginURL.searchParams.set("version", Number(Date.now()));
@@ -244,9 +203,7 @@ async function loadCommands() {
                 let pluginExport = await import(pluginURL);
 
                 pluginExport = pluginExport.default || pluginExport;
-                const pluginName = plugin
-                    .slice(0, plugin.lastIndexOf("."))
-                    .toLowerCase();
+                const pluginName = plugin.slice(0, plugin.lastIndexOf(".")).toLowerCase();
 
                 if (
                     typeof pluginExport === "object" &&
@@ -254,11 +211,7 @@ async function loadCommands() {
                     !Array.isArray(pluginExport)
                 ) {
                     var { config, onLoad, langData, onCall } = pluginExport;
-                    if (
-                        !config ||
-                        typeof config !== "object" ||
-                        Array.isArray(config)
-                    ) {
+                    if (!config || typeof config !== "object" || Array.isArray(config)) {
                         config = {
                             name: pluginName,
                             aliases: [pluginName],
@@ -271,41 +224,27 @@ async function loadCommands() {
                     config.category = category;
 
                     if (global.plugins.commands.has(config.name)) {
-                        throw getLang(
-                            "modules.loader.plugins.commands.error.nameExists",
-                            { name: config.name }
-                        );
+                        throw getLang("modules.loader.plugins.commands.error.nameExists", {
+                            name: config.name,
+                        });
                     }
 
                     if (!onCall) {
-                        throw getLang(
-                            "modules.loader.plugins.default.error.onCallNotExists"
-                        );
+                        throw getLang("modules.loader.plugins.default.error.onCallNotExists");
                     }
 
                     if (typeof onCall !== "function") {
-                        throw getLang(
-                            "modules.loader.plugins.default.error.onCallNotFunction"
-                        );
+                        throw getLang("modules.loader.plugins.default.error.onCallNotFunction");
                     }
 
-                    config.aliases = aliasesValidator(
-                        config.name,
-                        config.aliases,
-                        config._name
-                    );
+                    config.aliases = aliasesValidator(config.name, config.aliases, config._name);
                     if (config.aliases.length === 0) {
-                        throw getLang(
-                            "modules.loader.plugins.commands.error.noAliases"
-                        );
+                        throw getLang("modules.loader.plugins.commands.error.noAliases");
                     }
 
                     config.permissions = formatPermission(config.permissions);
 
-                    if (
-                        typeof langData === "object" &&
-                        !Array.isArray(langData)
-                    ) {
+                    if (typeof langData === "object" && !Array.isArray(langData)) {
                         loadPluginLang(langData, config.name);
                     }
 
@@ -321,19 +260,15 @@ async function loadCommands() {
                         try {
                             await onLoad({ extra: config.extra });
                         } catch (error) {
-                            throw getLang(
-                                "modules.loader.plugins.default.error.onLoadFailed",
-                                { error }
-                            );
+                            throw getLang("modules.loader.plugins.default.error.onLoadFailed", {
+                                error,
+                            });
                         }
                     }
 
                     global.plugins.commands.set(config.name, onCall);
                     global.plugins.commandsConfig.set(config.name, config);
-                    global.plugins.commandsAliases.set(
-                        config.name,
-                        config.aliases
-                    );
+                    global.plugins.commandsAliases.set(config.name, config.aliases);
                 } else if (typeof pluginExport === "function") {
                     var config = {
                         name: pluginName,
@@ -342,34 +277,23 @@ async function loadCommands() {
                     };
 
                     if (global.plugins.commands.has(config.name)) {
-                        throw getLang(
-                            "modules.loader.plugins.commands.error.nameExists",
-                            { name: config.name }
-                        );
+                        throw getLang("modules.loader.plugins.commands.error.nameExists", {
+                            name: config.name,
+                        });
                     }
 
-                    config.aliases = aliasesValidator(
-                        config.name,
-                        config.aliases
-                    );
+                    config.aliases = aliasesValidator(config.name, config.aliases);
                     if (config.aliases.length === 0) {
-                        throw getLang(
-                            "modules.loader.plugins.commands.error.noAliases"
-                        );
+                        throw getLang("modules.loader.plugins.commands.error.noAliases");
                     }
 
                     config.extra = loadExtra({}, config.name);
 
                     global.plugins.commands.set(config.name, pluginExport);
                     global.plugins.commandsConfig.set(config.name, config);
-                    global.plugins.commandsAliases.set(
-                        config.name,
-                        config.aliases
-                    );
+                    global.plugins.commandsAliases.set(config.name, config.aliases);
                 } else {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.noExport"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.noExport");
                 }
             } catch (error) {
                 console.error(error);
@@ -405,10 +329,7 @@ async function loadCustoms(xDatabase) {
     const customsPath = resolvePath(global.pluginsPath, "customs");
 
     const customsFiles = readdirSync(customsPath).filter(
-        (file) =>
-            file.endsWith(".js") ||
-            file.endsWith(".mjs") ||
-            file.endsWith(".cjs")
+        (file) => file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")
     );
 
     for (const plugin of customsFiles) {
@@ -422,9 +343,7 @@ async function loadCustoms(xDatabase) {
             let pluginExport = await import(pluginURL);
 
             pluginExport = pluginExport.default || pluginExport;
-            let pluginName = plugin
-                .slice(0, plugin.lastIndexOf("."))
-                .toLowerCase();
+            let pluginName = plugin.slice(0, plugin.lastIndexOf(".")).toLowerCase();
 
             if (
                 typeof pluginExport === "object" &&
@@ -433,23 +352,18 @@ async function loadCustoms(xDatabase) {
             ) {
                 var { langData, onCall } = pluginExport;
                 if (!onCall) {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotExists"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotExists");
                 }
 
                 if (typeof onCall !== "function") {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotFunction"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotFunction");
                 }
 
                 if (typeof langData === "object" && !Array.isArray(langData)) {
                     loadPluginLang(langData, pluginName);
                 }
 
-                const getLangForPlugin = (key, data) =>
-                    getLang(key, data, pluginName);
+                const getLangForPlugin = (key, data) => getLang(key, data, pluginName);
                 try {
                     global.plugins.customs++;
                     await onCall({ getLang: getLangForPlugin, xDB: xDatabase });
@@ -457,8 +371,7 @@ async function loadCustoms(xDatabase) {
                     console.error(error);
                 }
             } else if (typeof pluginExport === "function") {
-                const getLangForPlugin = (key, data) =>
-                    getLang(key, data, pluginName);
+                const getLangForPlugin = (key, data) => getLang(key, data, pluginName);
                 try {
                     global.plugins.customs++;
                     await pluginExport({
@@ -498,10 +411,7 @@ async function loadOnMessage() {
     const onMessagePath = resolvePath(global.pluginsPath, "onMessage");
 
     const onMessageFiles = readdirSync(onMessagePath).filter(
-        (file) =>
-            file.endsWith(".js") ||
-            file.endsWith(".mjs") ||
-            file.endsWith(".cjs")
+        (file) => file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")
     );
 
     for (const plugin of onMessageFiles) {
@@ -515,9 +425,7 @@ async function loadOnMessage() {
             let pluginExport = await import(pluginURL);
 
             pluginExport = pluginExport.default || pluginExport;
-            let pluginName = plugin
-                .slice(0, plugin.lastIndexOf("."))
-                .toLowerCase();
+            let pluginName = plugin.slice(0, plugin.lastIndexOf(".")).toLowerCase();
 
             if (
                 typeof pluginExport === "object" &&
@@ -526,15 +434,11 @@ async function loadOnMessage() {
             ) {
                 var { onLoad, langData, onCall } = pluginExport;
                 if (!onCall) {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotExists"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotExists");
                 }
 
                 if (typeof onCall !== "function") {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotFunction"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotFunction");
                 }
 
                 if (typeof langData === "object" && !Array.isArray(langData)) {
@@ -545,10 +449,9 @@ async function loadOnMessage() {
                     try {
                         await onLoad();
                     } catch (error) {
-                        throw getLang(
-                            "modules.loader.plugins.default.error.onLoadFailed",
-                            { error }
-                        );
+                        throw getLang("modules.loader.plugins.default.error.onLoadFailed", {
+                            error,
+                        });
                     }
                 }
 
@@ -581,14 +484,45 @@ async function loadOnMessage() {
     );
 }
 
+function move(oldPath, newPath) {
+    logger.warn(`MOVING ${oldPath} -> ${newPath}`);
+    if (!global.utils.isExists(newPath)) global.utils.createDir(newPath);
+
+    const allFiles = readdirSync(oldPath, { withFileTypes: true });
+    const noneFileIncluded = allFiles.some((e) => !e.isFile());
+
+    allFiles.forEach((e) => {
+        if (e.isFile()) {
+            copyFileSync(join(oldPath, e.name), join(newPath, e.name));
+            unlinkSync(join(oldPath, e.name));
+
+            logger.warn(`MOVED ${e.name}`);
+        } else {
+            logger.warn(`NONE FILE TYPE DETECTED: ${e.name}`);
+        }
+    });
+
+    if (!noneFileIncluded) {
+        logger.warn(`REMOVING ${oldPath}`);
+        rmSync(oldPath, { recursive: true });
+    }
+}
+
 async function loadEvents() {
+    const oldUNS = join(global.pluginsPath, "events", "unsubcribeGifs");
+    const newUNS = join(global.pluginsPath, "events", "unsubscribeGifs");
+    const oldSUB = join(global.pluginsPath, "events", "subcribeGifs");
+    const newSUB = join(global.pluginsPath, "events", "subscribeGifs");
+
+    // backward compatible for version exists before typo fix
+    if (!global.utils.isExists(newUNS, "dir") && global.utils.isExists(oldUNS, "dir")) move(oldUNS, newUNS);
+    if (!global.utils.isExists(newSUB, "dir") && global.utils.isExists(oldSUB, "dir")) move(oldSUB, newSUB);
+
+
     const eventsPath = resolvePath(global.pluginsPath, "events");
 
     const eventsFiles = readdirSync(eventsPath).filter(
-        (file) =>
-            file.endsWith(".js") ||
-            file.endsWith(".mjs") ||
-            file.endsWith(".cjs")
+        (file) => file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")
     );
 
     for (const plugin of eventsFiles) {
@@ -602,9 +536,7 @@ async function loadEvents() {
             let pluginExport = await import(pluginURL);
 
             pluginExport = pluginExport.default || pluginExport;
-            let pluginName = plugin
-                .slice(0, plugin.lastIndexOf("."))
-                .toLowerCase();
+            let pluginName = plugin.slice(0, plugin.lastIndexOf(".")).toLowerCase();
 
             if (
                 typeof pluginExport === "object" &&
@@ -613,15 +545,11 @@ async function loadEvents() {
             ) {
                 var { langData, onCall } = pluginExport;
                 if (!onCall) {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotExists"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotExists");
                 }
 
                 if (typeof onCall !== "function") {
-                    throw getLang(
-                        "modules.loader.plugins.default.error.onCallNotFunction"
-                    );
+                    throw getLang("modules.loader.plugins.default.error.onCallNotFunction");
                 }
 
                 if (typeof langData === "object" && !Array.isArray(langData)) {

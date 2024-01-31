@@ -459,10 +459,10 @@ function handleEvent(event) {
             case "event": {
                 switch (event.logMessageType) {
                     case "log:subscribe":
-                        global.plugins.events.get("subcribe")({ event });
+                        global.plugins.events.get("subscribe")({ event });
                         break;
                     case "log:unsubscribe":
-                        global.plugins.events.get("unsubcribe")({ event });
+                        global.plugins.events.get("unsubscribe")({ event });
                         break;
                     case "log:user-nickname":
                         global.plugins.events.get("user-nickname")({ event });
