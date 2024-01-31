@@ -22,9 +22,7 @@ import { XDatabase } from "./handlers/database.js";
 
 import crypto from "crypto";
 
-process.stdout.write(
-    String.fromCharCode(27) + "]0;" + "Xavia" + String.fromCharCode(7)
-);
+process.stdout.write(String.fromCharCode(27) + "]0;" + "Xavia" + String.fromCharCode(7));
 
 process.on("unhandledRejection", (reason, p) => {
     console.error(reason, "Unhandled Rejection at Promise", p);
@@ -100,17 +98,11 @@ async function booting(api, xDatabase) {
 
         const newListenerID = generateListenerID();
         global.listenerID = newListenerID;
-        global.listenMqtt = api.listenMqtt(
-            await handleListen(newListenerID, xDatabase)
-        );
+        global.listenMqtt = api.listenMqtt(await handleListen(newListenerID, xDatabase));
 
         refreshMqtt(xDatabase);
     } catch (error) {
-        const glitchAppstatePath = resolvePath(
-            process.cwd(),
-            ".data",
-            "appstate.json"
-        );
+        const glitchAppstatePath = resolvePath(process.cwd(), ".data", "appstate.json");
 
         if (isGlitch && global.isExists(glitchAppstatePath, "file")) {
             global.deleteFile(glitchAppstatePath);
@@ -176,9 +168,7 @@ function refreshMqtt(xDatabase) {
         const newListenerID = generateListenerID();
         global.listenMqtt.stopListening();
         global.listenerID = newListenerID;
-        global.listenMqtt = global.api.listenMqtt(
-            await handleListen(newListenerID, xDatabase)
-        );
+        global.listenMqtt = global.api.listenMqtt(await handleListen(newListenerID, xDatabase));
     }, _2HOUR);
 }
 

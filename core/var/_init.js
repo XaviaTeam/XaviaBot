@@ -10,17 +10,12 @@ import { loadConfig, loadLang, getLang } from "./modules/loader.js";
 async function loadModules() {
     // global modules will soon be deprecated
     try {
-        const dirModules = readdirSync(
-            resolvePath(global.corePath, "var", "modules")
-        ).filter((file) => file.endsWith(".js"));
+        const dirModules = readdirSync(resolvePath(global.corePath, "var", "modules")).filter(
+            (file) => file.endsWith(".js")
+        );
 
         for (const module of dirModules) {
-            const modulePath = resolvePath(
-                global.corePath,
-                "var",
-                "modules",
-                module
-            );
+            const modulePath = resolvePath(global.corePath, "var", "modules", module);
             const moduleURL = pathToFileURL(modulePath);
             const moduleExport = await import(moduleURL);
 
@@ -36,15 +31,14 @@ async function initializeVar() {
         await initializeGlobal();
         await loadModules();
 
-        
-				Object.assign(global, utils); // will soon be deprecated
-				global.utils = utils;
+        Object.assign(global, utils); // will soon be deprecated
+        global.utils = utils;
 
         global.config = loadConfig();
 
-				// will soon be deprecated
-				global.data.langSystem = loadLang();
-				global.getLang = getLang;
+        // will soon be deprecated
+        global.data.langSystem = loadLang();
+        global.getLang = getLang;
     } catch (error) {
         throw error;
     }

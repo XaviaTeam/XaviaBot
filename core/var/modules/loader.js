@@ -515,9 +515,10 @@ async function loadEvents() {
     const newSUB = join(global.pluginsPath, "events", "subscribeGifs");
 
     // backward compatible for version exists before typo fix
-    if (!global.utils.isExists(newUNS, "dir") && global.utils.isExists(oldUNS, "dir")) move(oldUNS, newUNS);
-    if (!global.utils.isExists(newSUB, "dir") && global.utils.isExists(oldSUB, "dir")) move(oldSUB, newSUB);
-
+    if (!global.utils.isExists(newUNS, "dir") && global.utils.isExists(oldUNS, "dir"))
+        move(oldUNS, newUNS);
+    if (!global.utils.isExists(newSUB, "dir") && global.utils.isExists(oldSUB, "dir"))
+        move(oldSUB, newSUB);
 
     const eventsPath = resolvePath(global.pluginsPath, "events");
 
