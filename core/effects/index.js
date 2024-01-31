@@ -15,9 +15,7 @@ class EffectsBase {
         const returnValues = [];
 
         for (const effect of this.#effects) {
-            const userEffects = returnValues.find(
-                (e) => e.userID == effect.userID
-            );
+            const userEffects = returnValues.find((e) => e.userID == effect.userID);
 
             if (userEffects) {
                 userEffects.effects.push({
@@ -59,9 +57,7 @@ class EffectsBase {
      * @returns {boolean}
      */
     remove(userID, name) {
-        const effectIndex = this.#effects.findIndex(
-            (e) => e.userID == userID && e.name == name
-        );
+        const effectIndex = this.#effects.findIndex((e) => e.userID == userID && e.name == name);
 
         if (effectIndex == -1) return false;
         this.#effects.splice(effectIndex, 1);
@@ -75,23 +71,20 @@ class EffectsBase {
      * @returns {object | null}
      */
     get(userID, name) {
-        return (
-            this.#effects.find((e) => e.userID == userID && e.name == name) ||
-            null
-        );
+        return this.#effects.find((e) => e.userID == userID && e.name == name) || null;
     }
 
-		/**
-		 * @param {string} userID 
-		 * @param {string} name 
-		 */
-		has(userID, name) {
-			return this.#effects.some((e) => e.userID == userID && e.name == name);
-		}
+    /**
+     * @param {string} userID
+     * @param {string} name
+     */
+    has(userID, name) {
+        return this.#effects.some((e) => e.userID == userID && e.name == name);
+    }
 
-		/**
-		 * @param {string} userID 
-		 */
+    /**
+     * @param {string} userID
+     */
     getAll(userID) {
         return this.#effects.filter((e) => e.userID == userID);
     }
@@ -164,7 +157,27 @@ class EffectsGlobal {
             });
         }
 
-				return returnValues;
+        return returnValues;
+    }
+
+    /**
+     * 
+     * @param {string} userID 
+     * @returns 
+     */
+    getCalculated(userID) {
+        if (!userID) throw new Error("Missing userID");
+
+        let calculated = {
+            money: 0,
+            exp: 0,
+        };
+        this.#effects.forEach((v, k) => {
+            calculated.money += v.money.getAll(userID).reduce((acc, cur) => acc + cur.value, 0);
+            calculated.exp += v.exp.getAll(userID).reduce((acc, cur) => acc + cur.value, 0);
+        });
+
+        return calculated;
     }
 }
 

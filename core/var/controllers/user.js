@@ -4,6 +4,7 @@ import models from "../models/index.js";
 
 const _4HOURS = 1000 * 60 * 60 * 4;
 const MAX_BALANCE = Number.MAX_SAFE_INTEGER;
+const MAX_EXP = Number.MAX_SAFE_INTEGER;
 
 /**
  *
@@ -44,11 +45,9 @@ export default function getCUser(database, api) {
         uid = String(uid);
         let userData = global.data.users.get(uid);
 
-        const isInvalidData =
-            userData === null || userData?.info?.id == undefined;
+        const isInvalidData = userData === null || userData?.info?.id == undefined;
         const isOutdatedData =
-            userData?.hasOwnProperty("lastUpdated") &&
-            userData.lastUpdated + _4HOURS < Date.now();
+            userData?.hasOwnProperty("lastUpdated") && userData.lastUpdated + _4HOURS < Date.now();
 
         if (isInvalidData || isOutdatedData) {
             await getInfoAPI(uid);
@@ -66,9 +65,7 @@ export default function getCUser(database, api) {
      */
     function getAll(uids) {
         if (uids && Array.isArray(uids))
-            return uids.map(
-                (uid) => global.data.users.get(String(uid)) || null
-            );
+            return uids.map((uid) => global.data.users.get(String(uid)) || null);
         else return Array.from(global.data.users.values());
     }
 
@@ -113,8 +110,7 @@ export default function getCUser(database, api) {
      * @returns {Promise<Boolean>}
      */
     async function updateInfo(uid, data) {
-        if (!uid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!uid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         uid = String(uid);
         const userData = global.data.users.get(uid) || null;
         if (userData !== null) {
@@ -135,16 +131,14 @@ export default function getCUser(database, api) {
      * @returns Boolean
      */
     async function updateData(uid, data) {
-        if (!uid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!uid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         uid = String(uid);
 
         try {
             const userData = await get(uid);
             if (userData !== null) {
                 if (data.hasOwnProperty("money")) {
-                    if (!global.utils.isAcceptableNumber(data.money))
-                        return false;
+                    if (!global.utils.isAcceptableNumber(data.money)) return false;
                     data.money = parseInt(data.money);
                     if (data.money > MAX_BALANCE) data.money = MAX_BALANCE;
                     else if (data.money < 0) data.money = 0;
@@ -229,6 +223,91 @@ export default function getCUser(database, api) {
 
     /**
      *
+     * @param {string} uid
+     * @param {number} amount
+     * @param {boolean} withEffect
+     */
+    function increaseExp(uid, amount, withEffect) {
+        if (!uid || !amount) return false;
+        if (!global.utils.isAcceptableNumber(amount)) return false;
+
+        uid = String(uid);
+
+        try {
+            const userData = global.data.users.get(uid) || null;
+            if (userData !== null) {
+                let finalNumber = parseInt(userData.data.exp || 0) + parseInt(amount);
+
+                if (withEffect) {
+                    const extraPercentFromEffect = global.plugins.effects.getCalculated(uid).exp;
+                    finalNumber = parseInt(finalNumber * (1 + extraPercentFromEffect));
+                }
+
+                if (finalNumber > MAX_EXP) finalNumber = MAX_EXP;
+                else if (finalNumber < 0) finalNumber = 0;
+
+                userData.data.exp = finalNumber;
+                global.data.users.set(uid, userData);
+
+                if (DATABASE === "JSON" || DATABASE === "MONGO") {
+                    return true;
+                }
+            } else return false;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param {string} uid
+     * @param {number} amount
+     * @returns
+     */
+    function decreaseExp(uid, amount) {
+        if (!uid || !amount) return false;
+        if (!global.utils.isAcceptableNumber(amount)) return false;
+
+        uid = String(uid);
+
+        try {
+            const userData = global.data.users.get(uid) || null;
+            if (userData !== null) {
+                const finalNumber = parseInt(userData.data.exp || 0) - parseInt(amount);
+
+                if (finalNumber > MAX_EXP) finalNumber = MAX_EXP;
+                else if (finalNumber < 0) finalNumber = 0;
+
+                userData.data.exp = finalNumber;
+                global.data.users.set(uid, userData);
+
+                if (DATABASE === "JSON" || DATABASE === "MONGO") {
+                    return true;
+                }
+            } else return false;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param {String} uid
+     * @returns exp as Number or null
+     */
+    function getExp(uid) {
+        if (!uid) return null;
+        uid = String(uid);
+        const userData = global.data.users.get(uid) || null;
+        if (userData !== null) {
+            return parseInt(userData.data.exp || 0);
+        } else return null;
+    }
+
+    /**
+     *
      * @param {String} uid
      * @returns money as Number or null
      */
@@ -245,9 +324,10 @@ export default function getCUser(database, api) {
      *
      * @param {string} uid
      * @param {number} amount
+     * @param {boolean} withEffect
      * @returns
      */
-    function increaseMoney(uid, amount) {
+    function increaseMoney(uid, amount, withEffect = true) {
         if (!uid || !amount) return false;
         if (!global.utils.isAcceptableNumber(amount)) return false;
 
@@ -256,8 +336,12 @@ export default function getCUser(database, api) {
         try {
             const userData = global.data.users.get(uid) || null;
             if (userData !== null) {
-                let finalNumber =
-                    parseInt(userData.data.money || 0) + parseInt(amount);
+                let finalNumber = parseInt(userData.data.money || 0) + parseInt(amount);
+
+                if (withEffect) {
+                    const extraPercentFromEffect = global.plugins.effects.getCalculated(uid).money;
+                    finalNumber = parseInt(finalNumber * (1 + extraPercentFromEffect));
+                }
 
                 if (finalNumber > MAX_BALANCE) finalNumber = MAX_BALANCE;
                 else if (finalNumber < 0) finalNumber = 0;
@@ -290,8 +374,7 @@ export default function getCUser(database, api) {
         try {
             const userData = global.data.users.get(uid) || null;
             if (userData !== null) {
-                const finalNumber =
-                    parseInt(userData.data.money || 0) - parseInt(amount);
+                const finalNumber = parseInt(userData.data.money || 0) - parseInt(amount);
 
                 if (finalNumber > MAX_BALANCE) finalNumber = MAX_BALANCE;
                 else if (finalNumber < 0) finalNumber = 0;
@@ -318,6 +401,9 @@ export default function getCUser(database, api) {
         updateInfo,
         updateData,
         create,
+        getExp,
+        increaseExp,
+        decreaseExp,
         getMoney,
         increaseMoney,
         decreaseMoney,
