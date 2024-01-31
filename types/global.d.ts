@@ -9,6 +9,7 @@ import type {
 import * as _utils from "../core/var/utils.js";
 import type { Server } from "http";
 import { XDatabase } from "../core/handlers/database.js";
+import { EffectsGlobal } from "../core/effects/index.js";
 
 import getCUser from "../core/var/controllers/user.js";
 import getCThread from "../core/var/controllers/thread.js";
@@ -330,5 +331,6 @@ declare global {
         customs: Number;
         events: Map<string, TOnCallEvents>;
         onMessage: Map<string, TOnCallOnMessage>;
+        effects: EffectsGlobal;
     }
 }
