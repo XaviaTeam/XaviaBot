@@ -55,8 +55,8 @@ async function start() {
 
         const api = await loginState();
 
-        const xDatabase = new XDatabase(api);
-        await xDatabase.init(global.config.DATABASE);
+        const xDatabase = new XDatabase(api, global.config.DATABASE);
+        await xDatabase.init();
 
         await loadPlugins(xDatabase);
 

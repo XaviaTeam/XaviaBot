@@ -80,14 +80,8 @@ export default function getCThread(database, api) {
         const threadData = global.data.threads.get(tid) || null;
 
         if (threadData === null || !threadData?.info?.threadID) {
-            if (
-                threadData === null ||
-                threadData?.hasOwnProperty("lastUpdated")
-            ) {
-                if (
-                    threadData === null ||
-                    threadData.lastUpdated + _4HOURS < Date.now()
-                ) {
+            if (threadData === null || threadData?.hasOwnProperty("lastUpdated")) {
+                if (threadData === null || threadData.lastUpdated + _4HOURS < Date.now()) {
                     await getInfoAPI(tid);
                 }
             }
@@ -103,9 +97,7 @@ export default function getCThread(database, api) {
      */
     function getAll(tids) {
         if (tids && Array.isArray(tids))
-            return tids.map(
-                (tid) => global.data.threads.get(String(tid)) || null
-            );
+            return tids.map((tid) => global.data.threads.get(String(tid)) || null);
         else return Array.from(global.data.threads.values());
     }
 
@@ -142,8 +134,7 @@ export default function getCThread(database, api) {
      * @returns Boolean
      */
     async function updateInfo(tid, data) {
-        if (!tid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!tid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         tid = String(tid);
         if (data?.hasOwnProperty("imageSrc")) {
             if (data.imageSrc) {
@@ -164,18 +155,13 @@ export default function getCThread(database, api) {
 
         let invalidIDs = [];
         for (const mem of data.members) {
-            if (
-                data.participantIDs &&
-                !data.participantIDs.includes(mem.userID)
-            ) {
+            if (data.participantIDs && !data.participantIDs.includes(mem.userID)) {
                 invalidIDs.push(mem.userID);
             }
         }
 
         if (invalidIDs.length > 0) {
-            data.members = data.members.filter(
-                (e) => !invalidIDs.includes(e.userID)
-            );
+            data.members = data.members.filter((e) => !invalidIDs.includes(e.userID));
         }
 
         delete data.participantIDs;
@@ -198,8 +184,7 @@ export default function getCThread(database, api) {
      * @returns Boolean
      */
     async function updateData(tid, data) {
-        if (!tid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!tid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         tid = String(tid);
         const threadData = await get(tid);
         if (threadData !== null) {
@@ -227,7 +212,7 @@ export default function getCThread(database, api) {
             global.data.threads.set(tid, {
                 threadID: tid,
                 info: data,
-                data: {},
+                data: { prefix: null },
             });
 
             if (DATABASE === "JSON") {

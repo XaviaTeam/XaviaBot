@@ -56,44 +56,32 @@ export class XDatabase {
 
     /**
      * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+     * @param {"JSON" | "MONGO"} database
      */
-    constructor(api) {
+    constructor(api, database = "JSON") {
         this.#api = api;
+        this.#database = database;
+        if (database != "JSON" && database != "MONGO") {
+            logger.warn(`Database ${database} is invalid, fallback to JSON`);
+            this.#database = "JSON";
+        }
+
         this.#threads = getCThread(this, this.#api);
         this.#users = getCUser(this, this.#api);
         this.#effects = effects;
     }
 
-    /**
-     * @param {"JSON" | "MONGO"} database
-     */
-    async init(database = "JSON") {
-        logger.custom(
-            global.getLang(`database.init`, { database: database }),
-            "DATABASE"
-        );
+    async init() {
+        logger.custom(global.getLang(`database.init`, { database: this.#database }), "DATABASE");
 
-        const isValidDatabase = ["JSON", "MONGO"].includes(database);
-        if (!isValidDatabase) {
-            logger.warn(`Database ${database} not found, fallback to JSON`);
-        }
-        this.#database = isValidDatabase ? database : "JSON";
-
-        this.#ensureNecessaryFoldersExist([
-            this.#dataPath,
-            this.#cachePath,
-            this.#tPath,
-        ]);
+        this.#ensureNecessaryFoldersExist([this.#dataPath, this.#cachePath, this.#tPath]);
         this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
 
         await this.#handleMongoDB();
     }
 
     #updateJSON() {
-        logger.custom(
-            global.getLang("database.updating", { database: "JSON" }),
-            "JSON-DB"
-        );
+        logger.custom(global.getLang("database.updating", { database: "JSON" }), "JSON-DB");
 
         const threads = this.threads.getAll();
         const users = this.users.getAll();
@@ -103,9 +91,7 @@ export class XDatabase {
         const { DATABASE_JSON_BEAUTIFY } = global.config;
 
         const formatData = (data) =>
-            DATABASE_JSON_BEAUTIFY
-                ? JSON.stringify(data, null, 4)
-                : JSON.stringify(data);
+            DATABASE_JSON_BEAUTIFY ? JSON.stringify(data, null, 4) : JSON.stringify(data);
 
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "threads.bak.json"),
@@ -115,9 +101,7 @@ export class XDatabase {
             resolve(process.cwd(), "core", "var", "data", "threads.json"),
             formatData(threads)
         );
-        unlinkSync(
-            resolve(process.cwd(), "core", "var", "data", "threads.bak.json")
-        );
+        unlinkSync(resolve(process.cwd(), "core", "var", "data", "threads.bak.json"));
         logger.custom(`THREAD DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
         now = Date.now();
 
@@ -129,9 +113,7 @@ export class XDatabase {
             resolve(process.cwd(), "core", "var", "data", "users.json"),
             formatData(users)
         );
-        unlinkSync(
-            resolve(process.cwd(), "core", "var", "data", "users.bak.json")
-        );
+        unlinkSync(resolve(process.cwd(), "core", "var", "data", "users.bak.json"));
         logger.custom(`USER DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
         now = Date.now();
 
@@ -143,9 +125,7 @@ export class XDatabase {
             resolve(process.cwd(), "core", "var", "data", "effects.json"),
             formatData(effects.values())
         );
-        unlinkSync(
-            resolve(process.cwd(), "core", "var", "data", "effects.bak.json")
-        );
+        unlinkSync(resolve(process.cwd(), "core", "var", "data", "effects.bak.json"));
         logger.custom(`EFFECT DATA UPDATED: ${Date.now() - now}ms`, "JSON-DB");
         now = Date.now();
 
@@ -154,10 +134,7 @@ export class XDatabase {
     }
 
     async #updateMONGO() {
-        logger.custom(
-            global.getLang("database.updating", { database: "MONGO" }),
-            "MONGO-DB"
-        );
+        logger.custom(global.getLang("database.updating", { database: "MONGO" }), "MONGO-DB");
 
         const threads = this.threads.getAll();
         const users = this.users.getAll();
@@ -188,10 +165,7 @@ export class XDatabase {
 
             await models.Threads.bulkWrite(bulkOps, { ordered: false });
 
-            logger.custom(
-                `THREAD DATA UPDATED: ${Date.now() - now}ms`,
-                "MONGO-DB"
-            );
+            logger.custom(`THREAD DATA UPDATED: ${Date.now() - now}ms`, "MONGO-DB");
 
             bulkOps.length = 0;
             now = Date.now();
@@ -214,10 +188,7 @@ export class XDatabase {
 
             await models.Users.bulkWrite(bulkOps, { ordered: false });
 
-            logger.custom(
-                `USER DATA UPDATED: ${Date.now() - now}ms`,
-                "MONGO-DB"
-            );
+            logger.custom(`USER DATA UPDATED: ${Date.now() - now}ms`, "MONGO-DB");
 
             bulkOps.length = 0;
             now = Date.now();
@@ -240,10 +211,7 @@ export class XDatabase {
 
             await models.Effects.bulkWrite(bulkOps, { ordered: false });
 
-            logger.custom(
-                `EFFECT DATA UPDATED: ${Date.now() - now}ms`,
-                "MONGO-DB"
-            );
+            logger.custom(`EFFECT DATA UPDATED: ${Date.now() - now}ms`, "MONGO-DB");
 
             const total = Date.now() - start;
             logger.custom(`FINISHED UPDATING: ${total}ms`, "MONGO-DB");
@@ -283,14 +251,10 @@ export class XDatabase {
                     this.#saveFile(filePath, "[]");
                 }
 
-                let parsedData = JSON.parse(
-                    isValidJSON ? jsonStringData : "[]"
-                );
+                let parsedData = JSON.parse(isValidJSON ? jsonStringData : "[]");
 
                 if (!Array.isArray(parsedData)) {
-                    logger.warn(
-                        `${filename} - object based is deprecated, converting...`
-                    );
+                    logger.warn(`${filename} - object based is deprecated, converting...`);
 
                     parsedData = Object.values(parsedData);
                 }
@@ -300,9 +264,7 @@ export class XDatabase {
                     for (const tData of parsedData) {
                         // backward compatibility for old data
                         if (tData.info.hasOwnProperty("adminIDs")) {
-                            tData.info.adminIDs = tData.info.adminIDs.map(
-                                (e) => e?.id || e
-                            );
+                            tData.info.adminIDs = tData.info.adminIDs.map((e) => e?.id || e);
                         }
 
                         global.data.threads.set(tData.threadID, tData, true);
@@ -322,21 +284,13 @@ export class XDatabase {
 
                             for (const eD of expData) {
                                 for (const efD of eD.effects) {
-                                    pluginEffects.exp.add(
-                                        eD.userID,
-                                        efD.name,
-                                        efD.value
-                                    );
+                                    pluginEffects.exp.add(eD.userID, efD.name, efD.value);
                                 }
                             }
 
                             for (const eD of moneyData) {
                                 for (const efD of eD.effects) {
-                                    pluginEffects.money.add(
-                                        eD.userID,
-                                        efD.name,
-                                        efD.value
-                                    );
+                                    pluginEffects.money.add(eD.userID, efD.name, efD.value);
                                 }
                             }
                         }
@@ -353,13 +307,10 @@ export class XDatabase {
     async #handleMongoDB() {
         if (this.#database == "JSON") return;
 
-        if (!process.env.MONGO_URL)
-            throw new Error(global.getLang("database.mongo_url_not_found"));
+        if (!process.env.MONGO_URL) throw new Error(global.getLang("database.mongo_url_not_found"));
 
         mongoose.set("strictQuery", false);
-        this.#mongoConnection = (
-            await mongoose.connect(process.env.MONGO_URL)
-        ).connection;
+        this.#mongoConnection = (await mongoose.connect(process.env.MONGO_URL)).connection;
 
         const threadsData = await models.Threads.find({});
         const usersData = await models.Users.find({});

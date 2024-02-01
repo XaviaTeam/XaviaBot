@@ -40,15 +40,12 @@ async function onCall({ message, args, getLang, xDB: xDatabase }) {
     try {
         const query = args[0]?.toLowerCase();
         if (query === "reload") {
-            delete global.plugins;
-            global.plugins = new Object({
-                commands: new Map(),
-                commandsAliases: new Map(),
-                commandsConfig: new Map(),
-                customs: new Number(0),
-                events: new Map(),
-                onMessage: new Map(),
-            });
+            global.plugins.commands.clear();
+            global.plugins.commandsAliases.clear();
+            global.plugins.commandsConfig.clear();
+            global.plugins.customs = 0;
+            global.plugins.events.clear();
+            global.plugins.onMessage.clear();
 
             for (const lang in global.data.langPlugin) {
                 for (const plugin in global.data.langPlugin[lang]) {
