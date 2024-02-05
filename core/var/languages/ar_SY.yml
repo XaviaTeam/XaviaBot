@@ -2,9 +2,9 @@
 build.start.varLoaded: "تم تحميل متغير البيئة بنجاح."
 build.start.exit: "التنظيف والخروج..."
 build.start.serverStarted: "تمت تهيئة الخادم في البوابة {port} بكلمة سر: {serverAdminPassword}"
-
-build.booting.logging: "مسجل حاليا..."
-build.booting.logged: "تم تسجيل الدخول بنجاح - {botID}."
+build.start.logging: "مسجل حاليا..."
+build.start.logged: "تم تسجيل الدخول بنجاح - {botID}."
+build.start.plugin.loading: "تحضير plugins"
 
 build.startxConsole.terminalNotSupported: "Terminal {term} غير مدعوم."
 build.startxConsole.platformNotSupported: "لايوجد دعم لتشغيل xConsole على المنصة {platform}."
@@ -57,6 +57,7 @@ plugins.resend.unsendMessage: "• {author} أزلت للتو رسالة:\n\n{me
 # Database
 database.mongo_url_not_found: "متغير البيئة غير موجود MONGO_URL"
 database.init: "تهيئة قاعدة البيانات {database}..."
+database.init.done: "متصل بقاعدة البيانات {database}."
 database.thread.get.success: "{threadID} - مجموعة جديدة"
 database.user.get.success: "{userID} - مستخدم جديد"
 database.error: "حدث خطأ أثناء الوصول إلى قاعدة البيانات: {error}"

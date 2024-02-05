@@ -2,9 +2,9 @@
 build.start.varLoaded: "Tải thành công biến môi trường."
 build.start.exit: "Đang dọn dẹp và thoát..."
 build.start.serverStarted: "Đã khởi tạo server tại cổng {port} với mật khẩu: {serverAdminPassword}"
-
-build.booting.logging: "Đang đăng nhập..."
-build.booting.logged: "Đã đăng nhập thành công - {botID}."
+build.start.logging: "Đang đăng nhập..."
+build.start.logged: "Đã đăng nhập thành công - {botID}."
+build.start.plugin.loading: "Đang chuẩn bị các plugin"
 
 build.startxConsole.terminalNotSupported: "Terminal {term} không được hỗ trợ."
 build.startxConsole.platformNotSupported: "Không hỗ trợ tự động khởi chạy xConsole trên nền tảng {platform}."
@@ -56,7 +56,8 @@ plugins.resend.unsendMessage: "• {author} vừa gỡ một tin nhắn:\n\n{mes
 
 # Database
 database.mongo_url_not_found: "Không tìm thấy biến môi trường MONGO_URL"
-database.init: "Đang khởi tạo cơ sở dữ liệu {database}..."
+database.init: "Đang kết nối tới CSDL {database}..."
+database.init.done: "Kết nối thành công CSDL {database}."
 database.thread.get.success: "{threadID} - Nhóm mới"
 database.user.get.success: "{userID} - Người dùng mới"
 database.error: "Đã có lỗi xảy ra khi truy cập cơ sở dữ liệu: {error}"

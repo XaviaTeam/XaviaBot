@@ -10,7 +10,7 @@ import startServer from "./dashboard/server/app.js";
 import handleListen from "./handlers/listen.js";
 import { isGlitch, isReplit } from "./var/modules/environments.get.js";
 import initializeVar from "./var/_init.js";
-import { loadPlugins } from "./var/modules/loader.js";
+import { getLang, loadPlugins } from "./var/modules/loader.js";
 
 import * as aes from "./var/modules/aes.js";
 
@@ -51,13 +51,22 @@ await initializeVar();
 
 async function start() {
     try {
+        console.clear();
         logger.system(getLang("build.start.varLoaded"));
+        logger.custom(getLang("build.start.logging"), "LOGIN");
 
         const api = await loginState();
+        global.api = api;
+        global.botID = api.getCurrentUserID();
 
+        logger.custom(getLang("build.start.logged", { botID }), "LOGIN");
+
+        console.log();
         const xDatabase = new XDatabase(api, global.config.DATABASE);
         await xDatabase.init();
+        console.log();
 
+        logger.custom(getLang("build.start.plugin.loading"), "LOADER")
         await loadPlugins(xDatabase);
 
         const serverAdminPassword = getRandomPassword(8);
@@ -79,18 +88,11 @@ global.listenerID = null;
  * @param {xDatabase} xDatabase
  */
 async function booting(api, xDatabase) {
-    logger.custom(getLang("build.booting.logging"), "LOGIN");
-
     try {
         global.controllers = {
             Threads: xDatabase.threads,
             Users: xDatabase.users,
         };
-
-        global.api = api;
-        global.botID = api.getCurrentUserID();
-
-        logger.custom(getLang("build.booting.logged", { botID }), "LOGIN");
 
         refreshState();
         const refreshDelay = parseInt(global.config.REFRESH);
