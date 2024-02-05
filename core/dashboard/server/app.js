@@ -74,22 +74,24 @@ function startServer(serverAdminPassword) {
         );
     });
 
-    if (global.config.AUTO_PING_SERVER) {
-        let webURL;
-        if (isReplit)
-            webURL = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-        else if (isGlitch)
-            webURL = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
-        else return;
+    if (global.config.AUTO_PING_SERVER && (isReplit || isGlitch)) {
+        logger.warn("AUTO PING IS NOT AVAILABLE");
+        return;
 
-        axios
-            .post(
-                `${global.xva_ppi}/add`,
-                {
-                    url: webURL,
-                }
-            )
-            .catch((e) => console.error(e));
+        // let webURL;
+        // if (isReplit) return;
+        // if (isGlitch)
+        //     webURL = `https://${process.env.PROJECT_DOMAIN}.glitch.me`;
+        // else return;
+
+        // axios
+        //     .post(
+        //         `${global.xva_ppi}/add`,
+        //         {
+        //             url: webURL,
+        //         }
+        //     )
+        //     .catch((e) => console.error(e));
     }
 }
 
