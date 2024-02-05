@@ -78,6 +78,8 @@ export class XDatabase {
         this.#handleJSONDB(["threads.json", "users.json", "effects.json"]);
 
         await this.#handleMongoDB();
+
+        logger.custom(global.getLang(`database.init.done`, { database: this.#database }), "DATABASE");
     }
 
     #updateJSON() {
