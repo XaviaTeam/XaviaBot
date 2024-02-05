@@ -5,7 +5,7 @@ import { pathToFileURL } from "url";
 import initializeGlobal from "./_global_info.js";
 import * as utils from "./utils.js";
 
-import { loadConfig, loadLang, getLang } from "./modules/loader.js";
+import { loadConfig, loadLang, getLang, loadDisabledPlugins } from "./modules/loader.js";
 
 async function loadModules() {
     // global modules will soon be deprecated
@@ -34,6 +34,7 @@ async function initializeVar() {
         Object.assign(global, utils); // will soon be deprecated
         global.utils = utils;
 
+        global.plugins.disabled = loadDisabledPlugins();
         global.config = loadConfig();
 
         // will soon be deprecated

@@ -24,6 +24,15 @@ const _global = {
         events: new Map(),
         onMessage: new Map(),
         effects: effects,
+        disabled: new Object({
+            commands: new Object({
+                byName: new Array(),
+                byFilename: new Array(),
+            }),
+            customs: new Array(),
+            events: new Array(),
+            onMessage: new Array(),
+        }),
     }),
     client: new Object({
         cooldowns: new Map(),

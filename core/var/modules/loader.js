@@ -6,6 +6,27 @@ import cron from "node-cron";
 
 import logger from "./logger.js";
 
+function loadDisabledPlugins() {
+    const filePath = resolvePath(global.mainPath, "config", "config.plugins.disabled.json");
+    if (!global.utils.isExists(filePath, "file")) {
+        writeFileSync(
+            filePath,
+            JSON.stringify(
+                {
+                    commands: ["bard", "gpt"],
+                    customs: [],
+                    events: [],
+                    onMessage: [],
+                },
+                null,
+                2
+            )
+        );
+    }
+
+    return JSON.parse(readFileSync(filePath, "utf8"));
+}
+
 function loadConfig() {
     const config = JSON.parse(
         readFileSync(resolvePath(global.mainPath, "config", "config.main.json"), "utf8")
@@ -188,7 +209,9 @@ async function loadCommands() {
             continue;
         const categoryPath = resolvePath(commandsPath, category);
         const categoryFiles = readdirSync(categoryPath).filter(
-            (file) => file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")
+            (file) =>
+                (file.endsWith(".js") || file.endsWith(".mjs") || file.endsWith(".cjs")) &&
+                !global.plugins.disabled.commands.byFilename.includes(file)
         );
         total += categoryFiles.length;
 
@@ -210,7 +233,7 @@ async function loadCommands() {
                     pluginExport !== null &&
                     !Array.isArray(pluginExport)
                 ) {
-                    var { config, onLoad, langData, onCall } = pluginExport;
+                    const { config, onLoad, langData, onCall } = pluginExport;
                     if (!config || typeof config !== "object" || Array.isArray(config)) {
                         config = {
                             name: pluginName,
@@ -220,6 +243,8 @@ async function loadCommands() {
 
                     if (!config.name) config.name = pluginName;
                     if (!config.aliases) config.aliases = [config.name];
+
+                    if (global.plugins.disabled.commands.byName.includes(config.name)) continue;
 
                     config.category = category;
 
@@ -270,7 +295,7 @@ async function loadCommands() {
                     global.plugins.commandsConfig.set(config.name, config);
                     global.plugins.commandsAliases.set(config.name, config.aliases);
                 } else if (typeof pluginExport === "function") {
-                    var config = {
+                    const config = {
                         name: pluginName,
                         aliases: [pluginName],
                         category: category,
@@ -281,6 +306,7 @@ async function loadCommands() {
                             name: config.name,
                         });
                     }
+                    if (global.plugins.disabled.commands.byName.includes(config.name)) continue;
 
                     config.aliases = aliasesValidator(config.name, config.aliases);
                     if (config.aliases.length === 0) {
@@ -334,6 +360,9 @@ async function loadCustoms(xDatabase) {
 
     for (const plugin of customsFiles) {
         const fileName = plugin;
+        if (global.plugins.disabled.customs.includes(fileName.slice(0, fileName.lastIndexOf("."))))
+            continue;
+
         try {
             const pluginPath = resolvePath(customsPath, fileName);
             const pluginURL = pathToFileURL(pluginPath);
@@ -350,7 +379,7 @@ async function loadCustoms(xDatabase) {
                 pluginExport !== null &&
                 !Array.isArray(pluginExport)
             ) {
-                var { langData, onCall } = pluginExport;
+                const { langData, onCall } = pluginExport;
                 if (!onCall) {
                     throw getLang("modules.loader.plugins.default.error.onCallNotExists");
                 }
@@ -416,6 +445,11 @@ async function loadOnMessage() {
 
     for (const plugin of onMessageFiles) {
         const fileName = plugin;
+        if (
+            global.plugins.disabled.onMessage.includes(fileName.slice(0, fileName.lastIndexOf(".")))
+        )
+            continue;
+
         try {
             const pluginPath = resolvePath(onMessagePath, fileName);
             const pluginURL = pathToFileURL(pluginPath);
@@ -528,6 +562,9 @@ async function loadEvents() {
 
     for (const plugin of eventsFiles) {
         const fileName = plugin;
+        if (global.plugins.disabled.events.includes(fileName.slice(0, fileName.lastIndexOf("."))))
+            continue;
+
         try {
             const pluginPath = resolvePath(eventsPath, fileName);
             const pluginURL = pathToFileURL(pluginPath);
@@ -598,4 +635,4 @@ async function loadPlugins(xDatabase) {
     await loadEvents();
 }
 
-export { loadConfig, loadConfigPlugins, getLang, loadLang, loadPlugins };
+export { loadDisabledPlugins, loadConfig, loadConfigPlugins, getLang, loadLang, loadPlugins };

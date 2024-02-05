@@ -153,10 +153,7 @@ declare global {
         IFCAU_ListenMessage,
         Extract<keyof IFCAU_ListenMessage, "type">
     > extends infer R
-        ? Extract<
-              IFCAU_ListenMessage,
-              { type: "message" | "message_reply" }
-          > extends infer S
+        ? Extract<IFCAU_ListenMessage, { type: "message" | "message_reply" }> extends infer S
             ? R & S
             : never
         : never;
@@ -165,10 +162,7 @@ declare global {
         IFCAU_ListenMessage,
         Extract<keyof IFCAU_ListenMessage, "type">
     > extends infer R
-        ? Extract<
-              IFCAU_ListenMessage,
-              { type: "message_reply" }
-          > extends infer S
+        ? Extract<IFCAU_ListenMessage, { type: "message_reply" }> extends infer S
             ? R & S
             : never
         : never;
@@ -177,10 +171,7 @@ declare global {
         IFCAU_ListenMessage,
         Extract<keyof IFCAU_ListenMessage, "type">
     > extends infer R
-        ? Extract<
-              IFCAU_ListenMessage,
-              { type: "message_reaction" }
-          > extends infer S
+        ? Extract<IFCAU_ListenMessage, { type: "message_reaction" }> extends infer S
             ? R & S
             : never
         : never;
@@ -207,9 +198,7 @@ declare global {
         unsend: (delay?: number) => void;
     }>;
 
-    export type TMessageReplyFunc = (
-        message: string | MessageObject
-    ) => Promise<{
+    export type TMessageReplyFunc = (message: string | MessageObject) => Promise<{
         threadID: string;
         messageID: string;
         timestamp: number;
@@ -255,9 +244,7 @@ declare global {
         xDB: xDatabase;
     }) => void | Promise<void>;
 
-    export type TOnCallEvents = (props: {
-        event: TEventObject;
-    }) => void | Promise<void>;
+    export type TOnCallEvents = (props: { event: TEventObject }) => void | Promise<void>;
 
     export type TOnCallCustom = (props: {
         getLang: (key: string, objectData: { [p: string]: any }) => string;
@@ -332,5 +319,14 @@ declare global {
         events: Map<string, TOnCallEvents>;
         onMessage: Map<string, TOnCallOnMessage>;
         effects: EffectsGlobal;
+        disabled: {
+            commands: {
+                byName: string[];
+                byFilename: string[]
+            };
+            customs: string[];
+            events: string[];
+            onMessage: string[];
+        };
     }
 }
