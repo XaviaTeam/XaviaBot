@@ -100,13 +100,13 @@ export function createDir(path) {
  * Download a file from an url which could be video, audio, json, etc.
  *
  * @param {string} path - a path to a file
- * @param {string} url - an url to a file
- * @param {Object} headers - custom headers (optional)
- * @returns {Promise<String>} path
+ * @param {string} src - an src to a file
+ * @param {Record<string, string>} headers - custom headers (optional)
+ * @returns {Promise<string>} path
  */
-export function downloadFile(path, url, headers = {}) {
+export function downloadFile(path, src, headers = {}) {
     return new Promise((resolve, reject) => {
-        GET(url, { responseType: "stream", headers })
+        GET(src, { responseType: "stream", headers })
             .then((res) => {
                 const _writer = writer(path);
 

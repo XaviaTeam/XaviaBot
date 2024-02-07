@@ -5,6 +5,7 @@ import { join, resolve as resolvePath } from "path";
 import cron from "node-cron";
 
 import logger from "./logger.js";
+import { Assets } from "../../handlers/assets.js";
 
 function loadDisabledPlugins() {
     const filePath = resolvePath(global.mainPath, "config", "config.plugins.disabled.json");
@@ -196,6 +197,7 @@ function aliasesValidator(commandName, aliases, _name = {}) {
 async function loadCommands() {
     let total = 0;
     const commandsPath = resolvePath(global.pluginsPath, "commands");
+    const assets = Assets.gI();
 
     const pluginCategories = readdirSync(commandsPath);
     for (let i = 0; i < pluginCategories.length; i++) {
@@ -283,7 +285,13 @@ async function loadCommands() {
 
                     if (typeof onLoad === "function") {
                         try {
-                            await onLoad({ extra: config.extra });
+                            await onLoad({
+                                extra: config.extra,
+                                assets: {
+                                    from: assets.from,
+                                    ...assets.from(config.name),
+                                },
+                            });
                         } catch (error) {
                             throw getLang("modules.loader.plugins.default.error.onLoadFailed", {
                                 error,

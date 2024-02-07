@@ -2,6 +2,7 @@ import { resolve as resolvePath } from "path";
 import axios from "axios";
 
 import { EffectsGlobal } from "../effects/index.js";
+import { Assets } from "../handlers/assets.js";
 
 export const effects = new EffectsGlobal();
 
@@ -123,6 +124,7 @@ async function initializeGlobal() {
 async function clear() {
     clearInterval(global.refreshState);
     clearInterval(global.refreshMqtt);
+    Assets.gI().dispose();
 
     try {
         if (global.server) global.server.close();

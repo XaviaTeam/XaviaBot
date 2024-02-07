@@ -1,3 +1,4 @@
+import { Assets } from "../../../core/handlers/assets.js";
 import { loadPlugins } from "../../../core/var/modules/loader.js";
 
 const config = {
@@ -57,7 +58,7 @@ async function onCall({ message, args, getLang, xDB: xDatabase }) {
             delete global.data.temps;
             global.data.temps = new Array();
 
-            await loadPlugins(xDatabase);
+            await loadPlugins(xDatabase, Assets.gI());
             return message.reply(getLang("result.reload"));
         } else if (query == "list") {
             return message.reply(

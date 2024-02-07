@@ -19,6 +19,7 @@ import { checkAppstate } from "./var/modules/checkAppstate.js";
 import replitDB from "@replit/database";
 import { execSync } from "child_process";
 import { XDatabase } from "./handlers/database.js";
+import { Assets } from "./handlers/assets.js";
 
 import crypto from "crypto";
 
@@ -66,7 +67,8 @@ async function start() {
         await xDatabase.init();
         console.log();
 
-        logger.custom(getLang("build.start.plugin.loading"), "LOADER")
+        new Assets();
+        logger.custom(getLang("build.start.plugin.loading"), "LOADER");
         await loadPlugins(xDatabase);
 
         const serverAdminPassword = getRandomPassword(8);

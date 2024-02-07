@@ -1,3 +1,5 @@
+import { Assets } from "./assets.js";
+
 var resend;
 
 function checkBanStatus(data = {}, userID) {
@@ -216,11 +218,16 @@ async function handleCommand(event, xDatabase) {
                         Object.assign(event, extraEventProperties);
 
                         const extra = commandInfo.extra || {};
+                        const assets = Assets.gI();
 
                         try {
                             command({
                                 message: event,
                                 args: args.slice(1),
+                                assets: {
+                                    from: assets.from,
+                                    ...assets.from(commandInfo.name),
+                                },
                                 getLang: getLangForCommand,
                                 extra,
                                 data,
