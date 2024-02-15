@@ -9,6 +9,7 @@ import type {
 import * as _utils from "../core/var/utils.js";
 import type { Server } from "http";
 import { XDatabase } from "../core/handlers/database.js";
+import { Assets as _Assets } from "../core/handlers/assets.js";
 import { EffectsGlobal } from "../core/effects/index.js";
 
 import getCUser from "../core/var/controllers/user.js";
@@ -16,6 +17,7 @@ import getCThread from "../core/var/controllers/thread.js";
 
 declare global {
     export type xDatabase = XDatabase;
+    export type Assets = _Assets;
 
     namespace NodeJS {
         interface Global {
@@ -209,6 +211,11 @@ declare global {
 
     export type TMessageReactFunc = (emoji: string) => Promise<void>;
 
+    export type TOnLoadCommand = (props: {
+        extra: Record<string, any>;
+        assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
+    }) => void | Promise<void>;
+
     // TODO: Update data types
     export type TOnCallCommand = (props: {
         message: TMessageObject & {
@@ -217,6 +224,7 @@ declare global {
             react: TMessageReactFunc;
         };
         args: string[];
+        assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         extra: {
             [p: string]: any;
@@ -236,6 +244,7 @@ declare global {
             reply: TMessageReplyFunc;
             react: TMessageReactFunc;
         };
+        assets: { from: Assets["from"] };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
@@ -266,6 +275,7 @@ declare global {
             reply: TMessageReplyFunc;
             react: TMessageReactFunc;
         };
+        assets: { from: Assets["from"] };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
@@ -279,6 +289,7 @@ declare global {
         message: TReactionObject & {
             send: TMessageSendFunc;
         };
+        assets: { from: Assets["from"] };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
@@ -322,7 +333,7 @@ declare global {
         disabled: {
             commands: {
                 byName: string[];
-                byFilename: string[]
+                byFilename: string[];
             };
             customs: string[];
             events: string[];

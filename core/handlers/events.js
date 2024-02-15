@@ -308,6 +308,7 @@ async function handleReaction(event, xDatabase) {
         try {
             eventData.callback({
                 message: event,
+                assets: { from: Assets.gI().from },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,
@@ -366,6 +367,7 @@ async function handleReply(event, xDatabase) {
         try {
             eventData.callback({
                 message: event,
+                assets: { from: Assets.gI().from },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,
@@ -413,6 +415,7 @@ async function handleMessage(event, xDatabase) {
 
             callback({
                 message: event,
+                assets: { from: Assets.gI().from },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,
