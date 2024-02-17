@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const config = {
     name: "getlink",
     description: "getlink",
@@ -33,25 +35,19 @@ const langData = {
 
 const supportedType = ["photo", "animated_image"];
 
-function upload(url) {
-    return new Promise(resolve => {
-        global.request(`${global.xva_api.main}/imgbb`, {
-            method: "POST",
-            data: {
-                url: url
-            }
-        }, async (error, res, data) => {
-            if (error) {
-                console.error(error);
-                return resolve(null);
-            }
-
-            return resolve(data.url);
-        })
-    })
+async function upload(url) {
+    return axios.post(
+        `${global.xva_api.main}/imgbb`,
+        {
+            url: url,
+            apikey: process.env.IMGBB_KEY
+        }
+    );
 }
 
 async function onCall({ message, getLang }) {
+    if (!process.env.IMGBB_KEY) return message.reply("Please set IMGBB_KEY in the environment variables");
+
     try {
         const { type, messageReply } = message;
 

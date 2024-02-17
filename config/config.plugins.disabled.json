@@ -1,0 +1,9 @@
+{
+    "commands": {
+        "byName": [],
+        "byFilename": []
+    },
+    "customs": [],
+    "events": [],
+    "onMessage": []
+}

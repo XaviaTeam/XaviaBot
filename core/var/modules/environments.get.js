@@ -1,23 +1,21 @@
 //source: Github
 
-const isGlitch = (
+const isGlitch =
     process.env.PROJECT_DOMAIN !== undefined &&
     process.env.PROJECT_INVITE_TOKEN !== undefined &&
     process.env.API_SERVER_EXTERNAL !== undefined &&
-    process.env.PROJECT_REMIX_CHAIN !== undefined
-);
+    process.env.PROJECT_REMIX_CHAIN !== undefined;
 
-const isReplit = (
+const isReplit =
     process.env.REPLIT_DB_URL !== undefined &&
     process.env.REPL_ID !== undefined &&
     process.env.REPL_IMAGE !== undefined &&
     process.env.REPL_LANGUAGE !== undefined &&
     process.env.REPL_OWNER !== undefined &&
     process.env.REPL_PUBKEYS !== undefined &&
-    process.env.REPL_SLUG !== undefined
-)
+    process.env.REPL_SLUG !== undefined;
 
-const isGitHub = (
+const isGitHub =
     process.env.GITHUB_ENV !== undefined &&
     process.env.GITHUB_EVENT_PATH !== undefined &&
     process.env.GITHUB_REPOSITORY_OWNER !== undefined &&
@@ -42,10 +40,9 @@ const isGitHub = (
     process.env.GITHUB_ACTOR !== undefined &&
     process.env.GITHUB_PATH !== undefined &&
     process.env.GITHUB_EVENT_NAME !== undefined &&
-    process.env.GITHUB_SERVER_URL !== undefined
-)
+    process.env.GITHUB_SERVER_URL !== undefined;
 
 const isWin = process.platform === "win32";
 const isLinux = process.platform === "linux";
 
-export default { isGlitch, isReplit, isGitHub, isWin, isLinux };
+export { isGlitch, isReplit, isGitHub, isWin, isLinux };

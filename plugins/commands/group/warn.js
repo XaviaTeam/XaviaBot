@@ -215,7 +215,7 @@ async function warnConfirmCallback({ message, data, getLang, eventData }) {
                             }
                         });
 
-                    global.sleep(300);
+                    await global.utils.sleep(300);
                 }
             }
         }

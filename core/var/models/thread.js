@@ -9,7 +9,7 @@ const Threads = new mongoose.Schema({
         validate: {
             validator: v => !isNaN(parseInt(v)),
             message: props => `${props.value} is not a valid threadID`
-        }
+        },
     },
     info: {
         type: Object

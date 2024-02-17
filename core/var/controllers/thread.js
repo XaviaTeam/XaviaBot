@@ -1,77 +1,78 @@
-import { resolve as resolvePath } from "path";
+import { join } from "path";
+import logger from "../modules/logger.js";
+import models from "../models/index.js";
+
 const _4HOURS = 1000 * 60 * 60 * 4;
 
-async function saveImg(url) {
+async function saveImg(url, threadID) {
     if (!url) return null;
+    const { utils } = global;
     try {
         if (process.env.IMGBB_KEY) {
-            const base64Data = await global
-                .getBase64(url)
-                .then((base64) => base64)
+            const imgURL = await utils
+                .uploadImgbb(url)
+                .then((url) => url)
                 .catch((err) => null);
-            if (base64Data) {
-                const imgURL = await global
-                    .uploadImgbb(base64Data)
-                    .then((url) => url)
-                    .catch((err) => null);
-                if (imgURL) return imgURL;
-            }
+
+            if (imgURL) return imgURL;
         }
 
-        const tempPath = resolvePath(global.cachePath, `${Date.now()}temp.png`);
-        await global.downloadFile(tempPath, url);
-        let returnData = global.saveToBase64(tempPath);
-        global.deleteFile(tempPath);
+        const imgPath = join(global.tPath, `${threadID}.jpg`);
+        await utils.downloadFile(imgPath, url);
 
-        return returnData;
+        return imgPath;
     } catch (e) {
         console.error(e);
         return null;
     }
 }
 
-export default function () {
-    const { DATABASE } = global.config;
-    const logger = global.modules.get("logger");
-
+/**
+ *
+ * @param {xDatabase} database
+ * @param {import("@xaviabot/fca-unofficial").IFCAU_API} api
+ * @returns
+ */
+export default function getCThread(database, api) {
+    const { DATABASE } = database;
     /**
      * Get thread info from api
      * @param {String} tid
-     * @returns Object info or null
+     * @returns {Promise<import('@xaviabot/fca-unofficial').IFCAU_Thread | null>} Object info or null
      */
     async function getInfoAPI(tid) {
         if (!tid) return null;
         tid = String(tid);
-        const info = await global.api.getThreadInfo(tid).catch((_) => null);
-        if (info) {
-            if (info.adminIDs) {
-                // backward compatibility for older fca versions
-                info.adminIDs = info.adminIDs.map((e) => e?.id || e);
-            }
-
-            let _info = { ...info };
-            delete _info.userInfo;
-
-            for (const userObj of info.userInfo) {
-                global.controllers.Users.create(userObj.id, userObj);
-            }
-
-            if (info.isGroup === true) {
-                await updateInfo(tid, _info);
-            }
-
-            return info;
-        } else {
+        const info = await api.getThreadInfo(tid).catch((_) => null);
+        if (!info) {
             create(tid, {});
 
             return null;
         }
+
+        if (info.adminIDs) {
+            // backward compatibility for older fca versions
+            info.adminIDs = info.adminIDs.map((e) => e?.id || e);
+        }
+
+        let _info = { ...info };
+        delete _info.userInfo;
+
+        for (const userObj of info.userInfo) {
+            global.controllers.Users.create(userObj.id, userObj);
+        }
+
+        if (info.isGroup === true) {
+            await updateInfo(tid, _info);
+        }
+
+        return info;
     }
 
     /**
      * Get full thread data from Database, if not exist, run create
      * @param {String} tid
-     * @returns Object data or null
+     * @returns {Promise<Thread | null>} Object info or null
      */
     async function get(tid) {
         if (!tid) return null;
@@ -79,14 +80,8 @@ export default function () {
         const threadData = global.data.threads.get(tid) || null;
 
         if (threadData === null || !threadData?.info?.threadID) {
-            if (
-                threadData === null ||
-                threadData?.hasOwnProperty("lastUpdated")
-            ) {
-                if (
-                    threadData === null ||
-                    threadData.lastUpdated + _4HOURS < Date.now()
-                ) {
+            if (threadData === null || threadData?.hasOwnProperty("lastUpdated")) {
+                if (threadData === null || threadData.lastUpdated + _4HOURS < Date.now()) {
                     await getInfoAPI(tid);
                 }
             }
@@ -97,14 +92,12 @@ export default function () {
 
     /**
      * Get full threads data from Database
-     * @param {Array} tids
-     * @returns Array of thread data
+     * @param {string[]} tids
+     * @returns {(Thread | null)[]} Array of thread data
      */
     function getAll(tids) {
         if (tids && Array.isArray(tids))
-            return tids.map(
-                (tid) => global.data.threads.get(String(tid)) || null
-            );
+            return tids.map((tid) => global.data.threads.get(String(tid)) || null);
         else return Array.from(global.data.threads.values());
     }
 
@@ -141,15 +134,14 @@ export default function () {
      * @returns Boolean
      */
     async function updateInfo(tid, data) {
-        if (!tid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!tid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         tid = String(tid);
         if (data?.hasOwnProperty("imageSrc")) {
             if (data.imageSrc) {
-                data.imageSrc = await saveImg(data.imageSrc);
+                data.imageSrc = await saveImg(data.imageSrc, tid);
             }
         }
-        var threadData = global.data.threads.get(tid) || null;
+        const threadData = global.data.threads.get(tid) || null;
 
         data.members = threadData?.info?.members || [];
         if (data?.participantIDs)
@@ -163,18 +155,13 @@ export default function () {
 
         let invalidIDs = [];
         for (const mem of data.members) {
-            if (
-                data.participantIDs &&
-                !data.participantIDs.includes(mem.userID)
-            ) {
+            if (data.participantIDs && !data.participantIDs.includes(mem.userID)) {
                 invalidIDs.push(mem.userID);
             }
         }
 
         if (invalidIDs.length > 0) {
-            data.members = data.members.filter(
-                (e) => !invalidIDs.includes(e.userID)
-            );
+            data.members = data.members.filter((e) => !invalidIDs.includes(e.userID));
         }
 
         delete data.participantIDs;
@@ -197,8 +184,7 @@ export default function () {
      * @returns Boolean
      */
     async function updateData(tid, data) {
-        if (!tid || !data || typeof data !== "object" || Array.isArray(data))
-            return false;
+        if (!tid || !data || typeof data !== "object" || Array.isArray(data)) return false;
         tid = String(tid);
         const threadData = await get(tid);
         if (threadData !== null) {
@@ -217,7 +203,7 @@ export default function () {
      * @param {Object} data
      * @returns Boolean
      */
-    function create(tid, data) {
+    async function create(tid, data) {
         if (!tid || !data) return false;
         tid = String(tid);
         if (data.isGroup === false) return false;
@@ -226,11 +212,11 @@ export default function () {
             global.data.threads.set(tid, {
                 threadID: tid,
                 info: data,
-                data: {},
+                data: { prefix: null },
             });
 
             if (DATABASE === "JSON") {
-                global.updateJSON();
+                await database.update();
                 logger.custom(
                     global.getLang(`database.thread.get.success`, {
                         threadID: tid,
@@ -239,23 +225,24 @@ export default function () {
                 );
                 return true;
             } else if (DATABASE === "MONGO") {
-                global.data.models.Threads.create(
-                    {
+                try {
+                    await models.Threads.create({
                         threadID: tid,
                         info: data,
                         data: { prefix: null },
-                    },
-                    (err, doc) => {
-                        if (err) return false;
-                        logger.custom(
-                            global.getLang(`database.thread.get.success`, {
-                                threadID: tid,
-                            }),
-                            "DATABASE"
-                        );
-                        return true;
-                    }
-                );
+                    });
+
+                    logger.custom(
+                        global.getLang(`database.thread.get.success`, {
+                            threadID: tid,
+                        }),
+                        "DATABASE"
+                    );
+                    return true;
+                } catch (error) {
+                    console.error(error);
+                    return false;
+                }
             }
         } else return true;
     }

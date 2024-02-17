@@ -1,14 +1,18 @@
-// import moment from 'moment-timezone';
-
-// const logger = text => global.modules.get("logger").custom(text, moment().tz(global.config.timezone).format('YYYY-MM-DD_HH:mm:ss'));
-
-export default async function ({ event }) {
+/**
+ *
+ * @param {{ event: Extract<Parameters<TOnCallEvents>[0]["event"], { logMessageType: "log:subscribe" }> }} param0
+ * @returns
+ */
+export default async function subscribe({ event }) {
     const { api } = global;
     const { threadID, author, logMessageData } = event;
     const { Threads, Users } = global.controllers;
-    const getThread = (await Threads.get(threadID)) || {};
-    const getThreadData = getThread.data || {};
-    const getThreadInfo = getThread.info || {};
+    const getThread = await Threads.get(threadID);
+
+    if (getThread == null) return;
+
+    const getThreadData = getThread.data;
+    const getThreadInfo = getThread.info;
 
     if (Object.keys(getThreadInfo).length > 0) {
         for (const user of logMessageData.addedParticipants) {
@@ -24,13 +28,12 @@ export default async function ({ event }) {
     const authorName = (await Users.getInfo(author))?.name || author;
 
     if (logMessageData.addedParticipants.some((i) => i.userFbId == botID)) {
-        // logger(`${threadID} • ${author} added bot to thread`, 'EVENT');
         if (getThreadInfo.isSubscribed == false)
             getThreadInfo.isSubscribed = true;
         for (const adid of global.config.MODERATORS) {
-            global.sleep(300);
+            await global.utils.sleep(300);
             api.sendMessage(
-                getLang("plugins.events.subcribe.addSelf"),
+                getLang("plugins.events.subscribe.addSelf"),
                 {
                     threadName: getThreadInfo.name || threadID,
                     threadId: threadID,
@@ -47,7 +50,7 @@ export default async function ({ event }) {
             botID
         );
         api.sendMessage(
-            getLang("plugins.events.subcribe.connected", { PREFIX }),
+            getLang("plugins.events.subscribe.connected", { PREFIX }),
             threadID
         );
 
@@ -62,8 +65,8 @@ export default async function ({ event }) {
         //         tag: joinName
         //     })
         // }
-        // let atlertMsg = {
-        //     body: getLang("plugins.events.subcribe.addMembers", {
+        // let alertMsg = {
+        //     body: getLang("plugins.events.subscribe.addMembers", {
         //         authorName: authorName,
         //         authorId: author,
         //         membersLength: joinNameArray.length,
@@ -73,7 +76,7 @@ export default async function ({ event }) {
         // }
         // for (const rUID of getThreadData.notifyChange.registered) {
         //     global.sleep(300);
-        //     api.sendMessage(atlertMsg, rUID, (err) => console.error(err));
+        //     api.sendMessage(alertMsg, rUID, (err) => console.error(err));
         // }
     }
 
@@ -114,7 +117,7 @@ export default async function ({ event }) {
 
                     api.sendMessage(
                         {
-                            body: getLang("plugins.events.subcribe.warns", {
+                            body: getLang("plugins.events.subscribe.warns", {
                                 username,
                             }),
                             mentions: [
@@ -138,10 +141,10 @@ export default async function ({ event }) {
     let oldMembersLength = getThreadInfo.members.length - joinNameArray.length;
     let newCount = joinNameArray.map((_, i) => i + oldMembersLength + 1);
 
-    let atlertMsg = {
+    let alertMsg = {
         body: (getThreadData?.joinMessage
             ? getThreadData.joinMessage
-            : getLang("plugins.events.subcribe.welcome")
+            : getLang("plugins.events.subscribe.welcome")
         )
             .replace(/\{members}/g, joinNameArray.join(", "))
             .replace(/\{newCount}/g, newCount.join(", "))
@@ -149,58 +152,37 @@ export default async function ({ event }) {
         mentions,
     };
 
-    const gifPath = `${global.mainPath}/plugins/events/subcribeGifs/${threadID}.gif`;
+    const gifPath = `${global.mainPath}/plugins/events/subscribeGifs/${threadID}.gif`;
 
     if (logMessageData.addedParticipants.length == 1 && warns.length == 0) {
-        const profilePicUrl = global.getAvatarURL(
+        const profilePicUrl = global.utils.getAvatarURL(
             logMessageData.addedParticipants[0].userFbId
         );
 
-        await new Promise((resolve) => {
-            global.request(
-                `${global.xva_api.main}/imgbb`,
-                {
-                    method: "POST",
-                    data: {
-                        url: profilePicUrl,
-                    },
-                },
-                async (error, res, data) => {
-                    if (error) {
-                        console.error(error);
-                        return resolve();
-                    }
+        const username = logMessageData.addedParticipants[0].fullName;
+        const welcomeCard = await global.utils
+            .getStream(
+                `${
+                    global.xva_api.popcat
+                }/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(
+                    username
+                )}&text2=Welcome+To+${encodeURIComponent(
+                    getThreadInfo.name || threadID
+                )}&text3=Member+${newCount[0]}&avatar=${encodeURIComponent(
+                    profilePicUrl
+                )}`
+            )
+            .catch(() => null);
 
-                    const username =
-                        logMessageData.addedParticipants[0].fullName;
-                    const welcomeCard = await global
-                        .getStream(
-                            `${
-                                global.xva_api.popcat
-                            }/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(
-                                username
-                            )}&text2=Welcome+To+${encodeURIComponent(
-                                getThreadInfo.name || threadID
-                            )}&text3=Member+${newCount[0]}&avatar=${
-                                res.data.url
-                            }`
-                        )
-                        .catch(() => null);
-
-                    if (welcomeCard) atlertMsg.attachment = [welcomeCard];
-
-                    return resolve();
-                }
-            );
-        });
+        if (welcomeCard) alertMsg.attachment = [welcomeCard];
     }
 
-    if (!atlertMsg.attachment && global.isExists(gifPath)) {
-        atlertMsg.attachment = [await global.getStream(gifPath)];
+    if (!alertMsg.attachment && global.isExists(gifPath)) {
+        alertMsg.attachment = [await global.getStream(gifPath)];
     }
 
     if (joinNameArray.length > 0)
-        api.sendMessage(atlertMsg, threadID, (err) =>
+        api.sendMessage(alertMsg, threadID, (err) =>
             err ? console.error(err) : null
         );
 

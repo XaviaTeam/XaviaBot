@@ -36,3 +36,9 @@ fbstate.json
 *.bak
 !core/var/assets/*
 !core/var/assets/levelup_gifs/*
+plugins/commands/dev
+
+core/var/assets/links.bak.json
+core/var/assets/links.json
+
+backup

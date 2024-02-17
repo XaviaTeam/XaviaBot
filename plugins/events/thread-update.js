@@ -6,7 +6,7 @@ export default async function ({ event }) {
     const getThreadData = getThread.data || {};
     const getThreadInfo = getThread.info || {};
 
-    let atlertMsg = null,
+    let alertMsg = null,
         reversed = false;
 
     if (Object.keys(getThreadInfo).length === 0) return;
@@ -66,7 +66,7 @@ export default async function ({ event }) {
                 ) {
                     const authorName =
                         (await Users.getInfo(author))?.name || author;
-                    atlertMsg = getLang(
+                    alertMsg = getLang(
                         "plugins.events.thread-update.name.changed",
                         {
                             authorName: authorName,
@@ -75,7 +75,7 @@ export default async function ({ event }) {
                         }
                     );
                     if (reversed) {
-                        atlertMsg += getLang(
+                        alertMsg += getLang(
                             "plugins.events.thread-update.name.reversed"
                         );
                     }
@@ -100,7 +100,7 @@ export default async function ({ event }) {
                         const authorName =
                             (await Users.getInfo(author))?.name || author;
 
-                        atlertMsg = getLang(
+                        alertMsg = getLang(
                             "plugins.events.thread-update.color.changed",
                             {
                                 authorName: authorName,
@@ -114,7 +114,7 @@ export default async function ({ event }) {
                                 "theme_name_with_subtitle"
                             )
                         ) {
-                            atlertMsg += `\n • Theme: ${logMessageData.theme_name_with_subtitle}`;
+                            alertMsg += `\n • Theme: ${logMessageData.theme_name_with_subtitle}`;
                         }
                     }
                 }
@@ -132,7 +132,7 @@ export default async function ({ event }) {
                         const authorName =
                             (await Users.getInfo(author))?.name || author;
 
-                        atlertMsg = getLang(
+                        alertMsg = getLang(
                             "plugins.events.thread-update.emoji.changed",
                             {
                                 authorName: authorName,
@@ -157,7 +157,7 @@ export default async function ({ event }) {
                     const authorName =
                         (await Users.getInfo(author))?.name || author;
 
-                    atlertMsg = getLang(
+                    alertMsg = getLang(
                         "plugins.events.thread-update.approvalMode.changed",
                         {
                             authorName: authorName,
@@ -191,7 +191,7 @@ export default async function ({ event }) {
                 const targetName =
                     (await Users.getInfo(targetID))?.name || targetID;
 
-                atlertMsg = getLang(
+                alertMsg = getLang(
                     `plugins.events.thread-update.admins.${
                         typeofEvent == "remove_admin" ? "removed" : "added"
                     }`,
@@ -208,10 +208,10 @@ export default async function ({ event }) {
             break;
     }
 
-    if (atlertMsg) {
+    if (alertMsg) {
         for (const rUID of getThreadData.notifyChange.registered) {
-            global.sleep(300);
-            api.sendMessage(atlertMsg, rUID);
+            await global.utils.sleep(300);
+            api.sendMessage(alertMsg, rUID);
         }
     }
 

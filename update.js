@@ -1,275 +1,384 @@
-import { readFileSync, copyFileSync, existsSync, unlinkSync, mkdirSync, createWriteStream, statSync, rmSync } from 'fs';
-import logger from './core/var/modules/logger.js';
-import { resolve, dirname } from 'path';
-import axios from 'axios';
-import { createInterface } from 'readline';
+/**
+ * Update script for XaviaBot
+ * Feel free to modify the script to fit your needs as long as you don't remove the credits.
+ *
+ * @author RFS-ADRENO
+ */
 
-const baseURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBot/main";
-const allVersionsURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/_versions.json";
+import axios from "axios";
+import {
+    copyFileSync,
+    createWriteStream,
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    readdirSync,
+    rmSync,
+    statSync,
+    unlinkSync,
+    writeFileSync,
+} from "fs";
+import { dirname, resolve } from "path";
+import { createInterface } from "readline";
+import logger from "./core/var/modules/logger.js";
 
+const baseURL = "https://raw.githubusercontent.com/XaviaTeam/XaviaBot/";
+const allVersionsURL =
+    "https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/v-heads.json";
 
-const checkUpdate = async () => {
+/**
+ *
+ * @param {Record<string, any>} target
+ * @param {Record<string, any>} source
+ */
+function deepAssign(target, source) {
+    for (const key in source) {
+        if (typeof source[key] == "object") {
+            if (typeof target[key] == "object") deepAssign(target[key], source[key]);
+            else target[key] = source[key];
+        } else {
+            target[key] = source[key];
+        }
+    }
+}
+
+const getBaseHead = async () => {
     try {
         logger.custom("Checking for updates...", "UPDATE");
         const { data } = await axios.get(allVersionsURL);
-        const currentVersion = JSON.parse(readFileSync('./package.json')).version;
+        const currentVersion = JSON.parse(readFileSync("./package.json")).version;
 
-        const updateScriptsArr = [];
-        const newVersionIndex = Object.entries(data).findIndex(([versionFrom,]) => versionFrom == currentVersion);
-        if (newVersionIndex != -1) {
-            for (const [, versionAfter] of Object.entries(data).slice(newVersionIndex)) {
-                const scriptsURL = `https://raw.githubusercontent.com/XaviaTeam/XaviaBotUpdate/main/_${versionAfter}.json`;
-                const scripts = (await axios.get(scriptsURL)).data;
+        const currentVersionIndex = data.findIndex((el) => el.version == currentVersion);
+        if (currentVersionIndex <= 0) return null;
 
-                updateScriptsArr.push(scripts);
-            }
-        }
-
-        return updateScriptsArr;
+        return `${data[currentVersionIndex].head}...${data[0].head}`;
     } catch (err) {
-        logger.error('Failed to check for updates.');
-        logger.error(err);
+        console.error(err);
+        logger.error("Failed to check for updates.");
         process.exit(0);
     }
-}
+};
 
-const mergeScripts = (list = []) => {
-    const scripts = {
-        changed: [],
+const getDiffs = async (gotBaseHead) => {
+    const {
+        data: { files },
+    } = await axios.get(`https://api.github.com/repos/XaviaTeam/XaviaBot/compare/${gotBaseHead}`);
+    /**
+     * @type { { added: string[]; removed: string[]; modified: string[]; renamed: { old: string; new: string }[] } }
+     */
+    const diffs = {
         added: [],
-        removed: []
+        removed: [],
+        modified: [],
+        renamed: [],
     };
 
-    for (const item of list) {
-        for (const changed of item.changed) {
-            if (!scripts.changed.some(e => e == changed)) {
-                scripts.changed.push(changed);
-            }
-        }
+    for (const file of files) {
+        if (
+            file.filename == "config/config.plugins.json" ||
+            file.filename == "config/config.plugins.disabled.json"
+        )
+            continue;
 
-        for (const added of item.added) {
-            if (!scripts.added.some(e => e == added)) {
-                scripts.added.push(added);
-            }
-
-            let indexInRemoved = scripts.removed.findIndex(e => e == added);
-            if (indexInRemoved > -1) {
-                scripts.removed.splice(indexInRemoved, 1);
-            }
-        }
-
-        for (const removed of item.removed) {
-            if (!scripts.removed.some(e => e == removed)) {
-                scripts.removed.push(removed);
-            }
-
-            let indexInChanged = scripts.changed.findIndex(e => e == removed);
-            let indexInAdded = scripts.added.findIndex(e => e == removed);
-
-            if (indexInChanged > -1) {
-                scripts.changed.splice(indexInChanged, 1);
-            }
-            if (indexInAdded > -1) {
-                scripts.added.splice(indexInAdded, 1);
-            }
+        switch (file.status) {
+            case "added":
+                diffs.added.push(file.filename);
+                break;
+            case "removed":
+                diffs.removed.push(file.filename);
+                break;
+            case "modified":
+                diffs.modified.push(file.filename);
+                break;
+            case "renamed":
+                diffs.renamed.push({
+                    new: file.filename,
+                    old: file.previous_filename,
+                });
+                break;
         }
     }
 
-    for (const [key, value] of Object.entries(scripts)) {
-        scripts[key] = value.sort();
-    }
+    return diffs;
+};
 
-    return scripts;
-}
-
-const toStringScripts = (scripts = []) => {
-    const { changed, added, removed } = scripts;
+/**
+ *
+ * @param {{ added: string[]; removed: string[]; modified: string[]; renamed: { old: string; new: string }[] }} diffs
+ * @returns
+ */
+const toStringDiffs = (diffs) => {
+    const { added, removed, modified, renamed } = diffs;
     let text = "";
-
-    if (changed.length > 0) {
-        text += "Changed: \n";
-        changed.forEach(item => {
-            text += `- ${item}\n`;
-        });
-    }
 
     if (added.length > 0) {
         text += "Added: \n";
-        added.forEach(item => {
+        added.forEach((item) => {
             text += `- ${item}\n`;
         });
     }
 
     if (removed.length > 0) {
         text += "Removed: \n";
-        removed.forEach(item => {
+        removed.forEach((item) => {
             text += `- ${item}\n`;
         });
     }
 
+    if (modified.length > 0) {
+        text += "Modified: \n";
+        modified.forEach((item) => {
+            text += `- ${item}\n`;
+        });
+    }
+
+    if (renamed.length > 0) {
+        text += "Renamed: \n";
+        renamed.forEach((item) => {
+            text += `- ${item.old}\n  -> ${item.new}\n`;
+        });
+    }
+
     return text;
-}
+};
 
-
-const backupList = (lists = []) => {
+/**
+ *
+ * @param {string[]} filenames
+ */
+const backup = (filenames = []) => {
     try {
-        for (const list of lists) {
-            for (const item of list) {
-                const backupPath = resolve(`./backup/${item.slice(2)}`);
-                const backupFolder = dirname(backupPath);
+        for (const filename of filenames) {
+            const backupPath = resolve(`./backup/${filename}`);
+            const backupDir = dirname(backupPath);
 
-                if (!existsSync(backupFolder)) {
-                    mkdirSync(backupFolder, { recursive: true });
+            const filePath = resolve(filename);
+            if (existsSync(filePath)) {
+                if (!existsSync(backupDir)) {
+                    mkdirSync(backupDir, { recursive: true });
                 }
-
-                const path = resolve(item);
-                if (existsSync(path)) {
-                    copyFileSync(path, backupPath);
-                }
+                copyFileSync(filePath, backupPath);
             }
         }
-        copyFileSync("./package.json", "./backup/package.json");
     } catch (err) {
         console.error(err);
         logger.error("Failed to backup old files.");
         process.exit(0);
     }
-}
+};
 
-const __change__add = (lists = []) => {
-    for (const list of lists) {
-        for (const item of list) {
-            const path = resolve(item);
-            const Folder = dirname(path);
+const mergePackageJSON = (lock = false) => {
+    const oldPath = lock ? resolve("./backup/package-lock.json") : resolve("./backup/package.json");
+    const newPath = lock ? resolve("./package-lock.json") : resolve("./package.json");
 
-            if (!existsSync(Folder)) {
-                mkdirSync(Folder, { recursive: true });
-            }
+    const packageOld = JSON.parse(readFileSync(oldPath));
+    const packageNew = JSON.parse(readFileSync(newPath));
 
-            axios.get(`${baseURL}/${item.slice(2)}`, { responseType: 'stream' })
-                .then(res => {
-                    const writer = createWriteStream(path);
+    deepAssign(packageOld, packageNew);
+    writeFileSync(newPath, JSON.stringify(packageOld, null, 2));
+};
 
-                    res.data.pipe(writer);
+const mergePackageCONFIG = () => {
+    const oldPath = resolve("./backup/config/config.main.json");
+    const newPath = resolve("./config/config.main.json");
 
-                    writer.on('finish', () => {
-                        logger.custom(`Updated ${item}`, "UPDATE");
-                        writer.close();
-                    })
+    const configOld = JSON.parse(readFileSync(oldPath));
+    const configNew = JSON.parse(readFileSync(newPath));
 
-                    writer.on('error', err => {
-                        writer.close();
-                        throw err;
-                    })
-                })
-                .catch(err => {
+    deepAssign(configNew, configOld);
+    writeFileSync(newPath, JSON.stringify(configNew, null, 2));
+};
+
+/**
+ *
+ * @param {string[]} filenames
+ * @param {string} head
+ */
+const __change__add = (filenames = [], head) => {
+    for (const filename of filenames) {
+        const filePath = resolve(filename);
+        const fileDir = dirname(filePath);
+
+        if (!existsSync(fileDir)) {
+            mkdirSync(fileDir, { recursive: true });
+        }
+
+        axios
+            .get(`${baseURL}/${head}/${filename}`, { responseType: "stream" })
+            .then((res) => {
+                const writer = createWriteStream(filePath);
+
+                res.data.pipe(writer);
+
+                writer.on("finish", () => {
+                    if (filename == "package.json") mergePackageJSON();
+                    if (filename == "package-lock.json") mergePackageJSON(true);
+                    if (filename == "config/config.main.json") mergePackageCONFIG();
+                    logger.custom(`Updated ${filename}`, "UPDATE");
+                    writer.close();
+                });
+
+                writer.on("error", (err) => {
+                    writer.close();
                     throw err;
-                })
+                });
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+};
+
+const ensureNoEmptyFolder = (dirPath, init = true) => {
+    if (resolve(".") == dirPath) return;
+
+    const upperDir = resolve(dirPath, "..");
+    const procDir = resolve(".");
+
+    const upperDirItems = readdirSync(upperDir);
+
+    if (init == true && readdirSync(dirPath).length > 0) return;
+    if (upperDir != procDir && upperDirItems.length == 1) {
+        return ensureNoEmptyFolder(upperDir, false);
+    } else {
+        rmSync(dirPath, { recursive: true, force: true });
+    }
+
+    return;
+};
+
+/**
+ *
+ * @param {string[]} filenames
+ */
+const __remove = (filenames = [], log = true) => {
+    for (const filename of filenames) {
+        const filePath = resolve(filename);
+        if (existsSync(filePath)) {
+            let stat = statSync(filePath);
+            if (stat.isFile()) {
+                unlinkSync(filePath);
+                ensureNoEmptyFolder(dirname(filePath));
+                if (log) logger.custom(`Removed ${filename}`, "UPDATE");
+            }
         }
     }
-}
+};
 
-const __remove = (list = []) => {
-    for (const item of list) {
-        const path = resolve(item);
-        if (existsSync(path)) {
-            let stat = statSync(path);
-            if (stat.isDirectory()) {
-                rmSync(path, { recursive: true, force: true });
-            } else unlinkSync(path);
-            logger.custom(`Removed ${item}`, "UPDATE");
-        }
-    }
-}
-
-const restore = (lists = []) => {
+/**
+ *
+ * @param {string[]} filenames
+ */
+const restore = (filenames) => {
     logger.custom("Restoring...", "UPDATE");
-    const backup = resolve("./backup");
+    const backupDir = resolve("./backup");
 
-    if (existsSync(backup)) {
-        for (const list of lists) {
-            for (const item of list) {
-                const backupPath = resolve(`./backup/${item.slice(2)}`);
-                const backupFolder = dirname(backupPath);
-                const path = resolve(item);
-                const Folder = dirname(path);
+    if (existsSync(backupDir)) {
+        for (const filename of filenames) {
+            const backupPath = resolve(`./backup/${filename}`);
+            const backupFolder = dirname(backupPath);
+            const toRestorePath = resolve(filename);
+            const toRestoreFolder = dirname(path);
 
-                if (existsSync(backupFolder)) {
-                    if (!existsSync(Folder)) {
-                        mkdirSync(Folder, { recursive: true });
-                    }
-
-                    copyFileSync(backupPath, path);
+            if (existsSync(backupFolder)) {
+                if (!existsSync(toRestoreFolder)) {
+                    mkdirSync(toRestoreFolder, { recursive: true });
                 }
+
+                copyFileSync(backupPath, toRestorePath);
             }
         }
     }
-}
+};
 
-const update = (scripts, newPackage) => {
+/**
+ *
+ * @param {{ added: string[]; removed: string[]; modified: string[]; renamed: { old: string; new: string }[] }} diffs
+ * @param {string} head
+ */
+const update = (diffs, head) => {
+    const { added, removed, modified, renamed } = diffs;
     try {
-        const { changed, added, removed } = scripts;
-        logger.custom("Updating...", "UPDATE");
-        const backup = resolve("./backup");
+        const rl = createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
+        rl.question("\n» Clear the current backup folder? (y/n) ", (answer) => {
+            rl.close();
+            if (answer.toLowerCase() === "y") {
+                const backupPath = resolve("./backup");
+                rmSync(backupPath, { recursive: true, force: true });
 
-        if (!existsSync(backup)) {
-            mkdirSync(backup, { recursive: true });
-        }
+                console.log();
+                logger.custom("Updating...", "UPDATE");
 
-        backupList([changed, added, removed]);
+                mkdirSync(backupPath, { recursive: true });
 
-        __change__add([changed, added]);
-        __remove(removed);
+                backup(
+                    Object.entries(diffs).reduce((acc, cur) => {
+                        if (cur[0] == "renamed")
+                            return [
+                                ...acc,
+                                ...cur[1].reduce((acc, cur) => [...acc, cur.old, cur.new], []),
+                            ];
 
-        const packageWriter = createWriteStream("./package.json");
-        packageWriter.write(JSON.stringify(newPackage, null, 2), 'utf8', (e) => {
-            if (e) {
-                throw e;
+                        return [...acc, ...cur[1]];
+                    }, [])
+                );
+
+                __change__add(
+                    [...added, ...modified, ...renamed.reduce((acc, cur) => [...acc, cur.new], [])],
+                    head
+                );
+                __remove([...removed, ...renamed.reduce((acc, cur) => [...acc, cur.old], [])]);
+            } else {
+                console.log();
+                logger.warn("Update cancelled");
+                process.exit(0);
             }
-            packageWriter.close();
         });
     } catch (err) {
         console.error(err);
         logger.error("Failed to update, aborting.");
-        restore([changed, added, removed]);
-        process.exit(0);
-    }
-}
-
-const main = async () => {
-    try {
-        const updateScriptsArr = await checkUpdate() || [];
-        if (updateScriptsArr.length == 0) {
-            logger.custom("No update available...", "UPDATE");
-            process.exit(0);
-        } else {
-            const mergedScripts = mergeScripts(updateScriptsArr);
-            const text = toStringScripts(mergedScripts);
-            const newPackage = (await axios.get(`${baseURL}/package.json`)).data;
-            console.log(text);
-            logger.warn("Please check the above changes and backup if necessary.");
-            logger.warn("Folder 'backup' will be used to backup old files.");
-            const rl = createInterface({
-                input: process.stdin,
-                output: process.stdout
-            })
-
-            rl.question("» Do you want to update? (y/n) ", answer => {
-                if (answer.toLowerCase() === "y") {
-                    rl.close();
-                    update(mergedScripts, newPackage);
-                } else {
-                    rl.close();
-                    logger.warn("Xavia will not be updated.");
-                }
-            })
-        }
-    } catch (e) {
-        logger.error(e);
-        logger.error("An error occured, try again later..");
+        restore([...modified, ...removed, ...renamed.reduce((acc, cur) => [...acc, cur.old], [])]);
+        __remove([...added], false);
         process.exit(0);
     }
 };
 
+const main = async () => {
+    try {
+        const gotBaseHead = await getBaseHead();
+        if (gotBaseHead == null) {
+            logger.custom("No update available...", "UPDATE");
+            process.exit(0);
+        } else {
+            const diffs = await getDiffs(gotBaseHead);
+            const text = toStringDiffs(diffs);
+
+            console.log(text);
+            logger.warn("Please check the above changes and backup if necessary.");
+            logger.warn("Folder 'backup' will be used to store old files.");
+            const rl = createInterface({
+                input: process.stdin,
+                output: process.stdout,
+            });
+
+            rl.question("\n» Do you want to update? (y/n) ", (answer) => {
+                rl.close();
+                if (answer.toLowerCase() === "y") {
+                    update(diffs, gotBaseHead.split("...")[1]);
+                } else {
+                    console.log();
+                    logger.warn("Update cancelled.");
+                }
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        logger.error("An error occured, try again later..");
+        process.exit(0);
+    }
+};
 
 main();

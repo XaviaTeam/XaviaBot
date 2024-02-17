@@ -10,6 +10,7 @@ const langData = {
     }
 }
 
+/** @type {TOnCallCommand} */
 async function onCall({ message, args, getLang, extra, data, userPermissions, prefix }) {
     // Do something
     message.send(getLang("message"));
