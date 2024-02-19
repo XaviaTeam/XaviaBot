@@ -14,7 +14,10 @@ function loadDisabledPlugins() {
             filePath,
             JSON.stringify(
                 {
-                    commands: ["bard", "gpt"],
+                    commands: {
+                        byName: [],
+                        byFilename: [],
+                    },
                     customs: [],
                     events: [],
                     onMessage: [],
