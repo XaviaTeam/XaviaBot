@@ -6,6 +6,7 @@ import cron from "node-cron";
 
 import logger from "./logger.js";
 import { Assets } from "../../handlers/assets.js";
+import { Balance } from "../../handlers/balance.js";
 
 function loadDisabledPlugins() {
     const filePath = resolvePath(global.mainPath, "config", "config.plugins.disabled.json");
@@ -293,6 +294,10 @@ async function loadCommands() {
                                 assets: {
                                     from: assets.from,
                                     ...assets.from(config.name),
+                                },
+                                balance: {
+                                    from: Balance.from,
+                                    make: Balance.make
                                 },
                             });
                         } catch (error) {

@@ -1,9 +1,7 @@
 import logger from "../modules/logger.js";
-
 import models from "../models/index.js";
 
 const _4HOURS = 1000 * 60 * 60 * 4;
-const MAX_BALANCE = Number.MAX_SAFE_INTEGER;
 const MAX_EXP = Number.MAX_SAFE_INTEGER;
 
 /**
@@ -104,7 +102,7 @@ export default function getCUser(database, api) {
     }
 
     /**
-     * Update user info, if user not yet in database, try to create, if cant -> return false
+     * Update user info
      * @param {String} uid
      * @param {Record<string, any} data
      * @returns {Promise<Boolean>}
@@ -125,7 +123,7 @@ export default function getCUser(database, api) {
     }
 
     /**
-     * Update user data, if user not yet in database, try to create, if cant -> return false
+     * Update user data; money will not be included.
      * @param {String} uid
      * @param {Object} data
      * @returns Boolean
@@ -138,10 +136,7 @@ export default function getCUser(database, api) {
             const userData = await get(uid);
             if (userData !== null) {
                 if (data.hasOwnProperty("money")) {
-                    if (!global.utils.isAcceptableNumber(data.money)) return false;
-                    data.money = parseInt(data.money);
-                    if (data.money > MAX_BALANCE) data.money = MAX_BALANCE;
-                    else if (data.money < 0) data.money = 0;
+                    logger.warn("Updating money with updateData method is deprecated, please use Balance instead.")
                 }
 
                 Object.assign(userData.data, data);
@@ -307,89 +302,33 @@ export default function getCUser(database, api) {
     }
 
     /**
-     *
+     * @deprecated
      * @param {String} uid
      * @returns money as Number or null
      */
     function getMoney(uid) {
-        if (!uid) return null;
-        uid = String(uid);
-        const userData = global.data.users.get(uid) || null;
-        if (userData !== null) {
-            return parseInt(userData.data.money || 0);
-        } else return null;
+        throw new Error("Deprecated, please use Balance instead.");
     }
 
     /**
-     *
+     * @deprecated
      * @param {string} uid
      * @param {number} amount
      * @param {boolean} withEffect
      * @returns
      */
     function increaseMoney(uid, amount, withEffect = true) {
-        if (!uid || !amount) return false;
-        if (!global.utils.isAcceptableNumber(amount)) return false;
-
-        uid = String(uid);
-
-        try {
-            const userData = global.data.users.get(uid) || null;
-            if (userData !== null) {
-                let finalNumber = parseInt(userData.data.money || 0) + parseInt(amount);
-
-                if (withEffect) {
-                    const extraPercentFromEffect = global.plugins.effects.getCalculated(uid).money;
-                    finalNumber = parseInt(finalNumber * (1 + extraPercentFromEffect));
-                }
-
-                if (finalNumber > MAX_BALANCE) finalNumber = MAX_BALANCE;
-                else if (finalNumber < 0) finalNumber = 0;
-
-                userData.data.money = finalNumber;
-                global.data.users.set(uid, userData);
-
-                if (DATABASE === "JSON" || DATABASE === "MONGO") {
-                    return true;
-                }
-            } else return false;
-        } catch (e) {
-            console.error(e);
-            return false;
-        }
+        throw new Error("Deprecated, please use Balance instead.");
     }
 
     /**
-     *
+     * @deprecated
      * @param {string} uid
      * @param {number} amount
      * @returns
      */
     function decreaseMoney(uid, amount) {
-        if (!uid || !amount) return false;
-        if (!global.utils.isAcceptableNumber(amount)) return false;
-
-        uid = String(uid);
-
-        try {
-            const userData = global.data.users.get(uid) || null;
-            if (userData !== null) {
-                const finalNumber = parseInt(userData.data.money || 0) - parseInt(amount);
-
-                if (finalNumber > MAX_BALANCE) finalNumber = MAX_BALANCE;
-                else if (finalNumber < 0) finalNumber = 0;
-
-                userData.data.money = finalNumber;
-                global.data.users.set(uid, userData);
-
-                if (DATABASE === "JSON" || DATABASE === "MONGO") {
-                    return true;
-                }
-            } else return false;
-        } catch (e) {
-            console.error(e);
-            return false;
-        }
+        throw new Error("Deprecated, please use Balance instead.");
     }
 
     return {

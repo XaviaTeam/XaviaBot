@@ -1,4 +1,5 @@
 import { Assets } from "./assets.js";
+import { Balance } from "./balance.js";
 
 var resend;
 
@@ -228,6 +229,11 @@ async function handleCommand(event, xDatabase) {
                                     from: assets.from,
                                     ...assets.from(commandInfo.name),
                                 },
+                                balance: {
+                                    from: Balance.from,
+                                    make: Balance.make,
+                                    ...Balance.from(senderID),
+                                },
                                 getLang: getLangForCommand,
                                 extra,
                                 data,
@@ -308,7 +314,12 @@ async function handleReaction(event, xDatabase) {
         try {
             eventData.callback({
                 message: event,
-                assets: { from: Assets.gI().from },
+                assets: { from: Assets.gI().from, ...Assets.gI().from(eventData.name) },
+                balance: {
+                    from: Balance.from,
+                    make: Balance.make,
+                    ...Balance.from(senderID),
+                },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,
@@ -367,7 +378,12 @@ async function handleReply(event, xDatabase) {
         try {
             eventData.callback({
                 message: event,
-                assets: { from: Assets.gI().from },
+                assets: { from: Assets.gI().from, ...Assets.gI().from(eventData.name) },
+                balance: {
+                    from: Balance.from,
+                    make: Balance.make,
+                    ...Balance.from(senderID),
+                },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,
@@ -416,6 +432,11 @@ async function handleMessage(event, xDatabase) {
             callback({
                 message: event,
                 assets: { from: Assets.gI().from },
+                balance: {
+                    from: Balance.from,
+                    make: Balance.make,
+                    ...Balance.from(senderID),
+                },
                 getLang: getLangForCommand,
                 data,
                 xDB: xDatabase,

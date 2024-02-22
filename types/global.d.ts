@@ -10,6 +10,7 @@ import * as _utils from "../core/var/utils.js";
 import type { Server } from "http";
 import { XDatabase } from "../core/handlers/database.js";
 import { Assets as _Assets } from "../core/handlers/assets.js";
+import { Balance } from "../core/handlers/balance.js";
 import { EffectsGlobal } from "../core/effects/index.js";
 
 import getCUser from "../core/var/controllers/user.js";
@@ -211,9 +212,13 @@ declare global {
 
     export type TMessageReactFunc = (emoji: string) => Promise<void>;
 
+    type BalanceFromMethod = (typeof Balance)["from"];
+    type BalanceMakeMethod = (typeof Balance)["make"];
+
     export type TOnLoadCommand = (props: {
         extra: Record<string, any>;
         assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
+        balance: { from: BalanceFromMethod; make: BalanceMakeMethod };
     }) => void | Promise<void>;
 
     // TODO: Update data types
@@ -225,6 +230,10 @@ declare global {
         };
         args: string[];
         assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
+        balance: ReturnType<BalanceFromMethod> & {
+            from: BalanceFromMethod;
+            make: BalanceMakeMethod;
+        };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         extra: {
             [p: string]: any;
@@ -245,6 +254,10 @@ declare global {
             react: TMessageReactFunc;
         };
         assets: { from: Assets["from"] };
+        balance: ReturnType<BalanceFromMethod> & {
+            from: BalanceFromMethod;
+            make: BalanceMakeMethod;
+        };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
@@ -275,7 +288,11 @@ declare global {
             reply: TMessageReplyFunc;
             react: TMessageReactFunc;
         };
-        assets: { from: Assets["from"] };
+        assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
+        balance: ReturnType<BalanceFromMethod> & {
+            from: BalanceFromMethod;
+            make: BalanceMakeMethod;
+        };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
@@ -289,7 +306,11 @@ declare global {
         message: TReactionObject & {
             send: TMessageSendFunc;
         };
-        assets: { from: Assets["from"] };
+        assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
+        balance: ReturnType<BalanceFromMethod> & {
+            from: BalanceFromMethod;
+            make: BalanceMakeMethod;
+        };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
             thread: null | Thread;
