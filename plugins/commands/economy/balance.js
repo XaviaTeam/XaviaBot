@@ -1,6 +1,6 @@
 const config = {
     name: "balance",
-    aliases: ["bal", "money"],
+    aliases: ["bal", "money", "balance", "dompet"],
     description: "Check user's/self money",
     usage: "<reply/tag/none>",
     cooldown: 5,
@@ -25,27 +25,26 @@ const langData = {
     }
 }
 
-/** @type {TOnCallCommand} */
-function onCall({ message, getLang, xDB }) {
+async function onCall({ message, getLang }) {
     const { type, mentions } = message;
-    const Users = xDB.users;
+    const { Users } = global.controllers;
     let userBalance;
     if (type == "message_reply") {
         const { senderID: TSenderID } = message.messageReply;
 
-        userBalance = Users.getMoney(TSenderID);
+        userBalance = await Users.getMoney(TSenderID);
         if (userBalance == null) return message.reply(getLang("balance.userNoData"));
     } else if (Object.keys(mentions).length >= 1) {
         let msg = "";
 
         for (const TSenderID in mentions) {
-            userBalance = Users.getMoney(TSenderID);
+            userBalance = await Users.getMoney(TSenderID);
             msg += `${mentions[TSenderID].replace(/@/g, '')}: ${global.addCommas(userBalance || 0)}XC\n`;
         }
 
         return message.reply(msg);
     } else {
-        userBalance = Users.getMoney(message.senderID);
+        userBalance = await Users.getMoney(message.senderID);
         if (userBalance == null) return message.reply(getLang("balance.selfNoData"));
     }
 
@@ -57,3 +56,7 @@ export default {
     langData,
     onCall
 }
+
+// Perbaikan kode:
+// Baris 86: guessSubmit.addeventListener('click', checkGuess); // Salah
+// Baris 86: guessSubmit.addEventListener('click', checkGuess); // Benar
