@@ -17,7 +17,7 @@
 
 • [Install Xavia on Replit](https://www.youtube.com/watch?v=WUva_shyMqM)
 
-• Import to [Replit](https://replit.com/github/anisroosi/XaviaBot) / [Glitch](https://glitch.com/edit/#!/import/github/XaviaTeam/XaviaBot)
+• Import to [Replit](https://replit.com/github/XaviaTeam/XaviaBot) / [Glitch](https://glitch.com/edit/#!/import/github/XaviaTeam/XaviaBot)
 
 **OR**
 

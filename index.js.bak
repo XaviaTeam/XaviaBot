@@ -66,7 +66,7 @@ function upNodeReplit() {
 async function checkUpdate() {
     logger.custom("Checking for updates...", "UPDATE");
     try {
-        const res = await axios.get('https://raw.githubusercontent.com/anisroosi/XaviaBot/main/package.json');
+        const res = await axios.get('https://raw.githubusercontent.com/XaviaTeam/XaviaBot/main/package.json');
 
         const { version } = res.data;
         const currentVersion = JSON.parse(readFileSync('./package.json')).version;

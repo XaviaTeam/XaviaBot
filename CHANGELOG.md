@@ -1,24 +1,3 @@
-<!--
-## version - yyyy/mm/dd
- -->
-
-## 2.3.0-beta.2 2023/11/21
-
--   Refactor code
--   Reduced the use of global variables
--   Added [type definitions](https://github.com/XaviaTeam/XaviaBot/blob/main/types/global.d.ts) and [jsconfig](https://github.com/XaviaTeam/XaviaBot/blob/main/jsconfig.json) for VSCode IntelliSense
--   Moved all utils functions to `global.utils` object
--   Bug fixes, logics corrections and overall improvements
-
-## 2.3.0-beta.1 2023/10/26
-
--   OOP Support for Database
--   Brand new feature: **effects** (beta)
--   Duplicate listener fixed
--   Refactor code
--   More JSDoc for functions/methods
--   Better error handling
-
 ## 2.1.4 - 2023/07/02
 
 -   Adapted to new FCA version!

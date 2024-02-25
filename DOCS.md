@@ -1,5 +1,5 @@
 # XAVIABOT DOCS (v2)
-## UPDATED - 2023/11/14
+## UPDATED - 2022/11/28
 
 ### NEW XAVIABOT COMMANDS SNIPPET: [here](https://marketplace.visualstudio.com/items?itemName=XaviaTeam.xaviabot-snippets)
 
@@ -40,7 +40,7 @@
 + addCommas
 
 And more...<br />
-See [utils.js](https://github.com/XaviaTeam/XaviaBot/tree/main/core/var/utils.js) for more details.
+See [common.js](https://github.com/XaviaTeam/XaviaBot/tree/main/core/var/common.js) for more details.
 
 <hr />
 
