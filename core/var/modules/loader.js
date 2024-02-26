@@ -297,7 +297,8 @@ async function loadCommands() {
                                 },
                                 balance: {
                                     from: Balance.from,
-                                    make: Balance.make
+                                    make: Balance.make,
+                                    makeSafe: Balance.makeSafe
                                 },
                             });
                         } catch (error) {

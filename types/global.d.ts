@@ -214,11 +214,16 @@ declare global {
 
     type BalanceFromMethod = (typeof Balance)["from"];
     type BalanceMakeMethod = (typeof Balance)["make"];
+    type BalanceMakeSafeMethod = (typeof Balance)["makeSafe"];
 
     export type TOnLoadCommand = (props: {
         extra: Record<string, any>;
         assets: ReturnType<Assets["from"]> & { from: Assets["from"] };
-        balance: { from: BalanceFromMethod; make: BalanceMakeMethod };
+        balance: {
+            from: BalanceFromMethod;
+            make: BalanceMakeMethod;
+            makeSafe: BalanceMakeSafeMethod;
+        };
     }) => void | Promise<void>;
 
     // TODO: Update data types
@@ -233,6 +238,7 @@ declare global {
         balance: ReturnType<BalanceFromMethod> & {
             from: BalanceFromMethod;
             make: BalanceMakeMethod;
+            makeSafe: BalanceMakeSafeMethod;
         };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         extra: {
@@ -257,6 +263,7 @@ declare global {
         balance: ReturnType<BalanceFromMethod> & {
             from: BalanceFromMethod;
             make: BalanceMakeMethod;
+            makeSafe: BalanceMakeSafeMethod;
         };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
@@ -292,6 +299,7 @@ declare global {
         balance: ReturnType<BalanceFromMethod> & {
             from: BalanceFromMethod;
             make: BalanceMakeMethod;
+            makeSafe: BalanceMakeSafeMethod;
         };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {
@@ -310,6 +318,7 @@ declare global {
         balance: ReturnType<BalanceFromMethod> & {
             from: BalanceFromMethod;
             make: BalanceMakeMethod;
+            makeSafe: BalanceMakeSafeMethod;
         };
         getLang: (key: string, objectData: { [p: string]: any }) => string;
         data: {

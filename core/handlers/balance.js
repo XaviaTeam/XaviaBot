@@ -8,9 +8,21 @@ export class Balance {
      * @returns {bigint}
      */
     static make(...num) {
-        let bal = num.reduce((acc, cur) => acc + BigInt(cur), 0n);
+        return num.reduce((acc, cur) => acc + BigInt(cur), 0n);
+    }
 
-        return bal;
+    /**
+     * Make balance, return null if error instead
+     *
+     * @param  {...(number | bigint)} num
+     * @returns {bigint | null}
+     */
+    static makeSafe(...num) {
+        try {
+            return Balance.make(...num);
+        } catch {
+            return null;
+        }
     }
 
     /**
