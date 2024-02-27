@@ -1,10 +1,23 @@
+import { BalanceError } from "./exceptions.js";
+
 export class Balance {
     constructor() {}
+
+    static MAX_BALANCE_LIMIT = -1n; // -1: no limit (not safe)
+
+    /**
+     *
+     * @param {number | bigint | string} amount
+     */
+    static setLimit(amount) {
+        const parsedAmount = Balance.makeSafe(amount);
+        Balance.MAX_BALANCE_LIMIT = parsedAmount == null ? -1n : parsedAmount;
+    }
 
     /**
      * Make balance
      *
-     * @param  {...(number | bigint)} num
+     * @param  {...(number | bigint | string)} num
      * @returns {bigint}
      */
     static make(...num) {
@@ -14,7 +27,7 @@ export class Balance {
     /**
      * Make balance, return null if error instead
      *
-     * @param  {...(number | bigint)} num
+     * @param  {...(number | bigint | string)} num
      * @returns {bigint | null}
      */
     static makeSafe(...num) {
@@ -32,14 +45,20 @@ export class Balance {
      */
     static add(userID, ...amount) {
         const targetUser = global.data.users.get(userID);
-        if (!targetUser) throw new Error("User not exists");
+        if (!targetUser)
+            throw new BalanceError("USER_NOT_EXISTS", `User "${userID}" not available.`);
         if (!targetUser.data)
-            throw new Error(
-                "This should not happen, if you see this, please report to the creator."
+            throw new BalanceError(
+                "UNEXPECTED",
+                "This should not occur. If you encounter this issue, please report it to the creator."
             );
 
-        const newAmount = Balance.make(targetUser.data["money"], ...amount);
-        targetUser.data["money"] = newAmount;
+        let newAmount = Balance.make(targetUser.data["money"], ...amount);
+        if (Balance.MAX_BALANCE_LIMIT != -1n) {
+            newAmount =
+                newAmount > Balance.MAX_BALANCE_LIMIT ? Balance.MAX_BALANCE_LIMIT : newAmount;
+        }
+        targetUser.data["money"] = newAmount < 0 ? 0 : newAmount;
     }
 
     /**
@@ -49,17 +68,22 @@ export class Balance {
      */
     static sub(userID, ...amount) {
         const targetUser = global.data.users.get(userID);
-        if (!targetUser) throw new Error("User not exists");
+        if (!targetUser)
+            throw new BalanceError("USER_NOT_EXISTS", `User "${userID}" not available.`);
         if (!targetUser.data)
-            throw new Error(
-                "This should not happen, if you see this, please report to the creator."
+            throw new BalanceError(
+                "UNEXPECTED",
+                "This should not occur. If you encounter this issue, please report it to the creator."
             );
 
-        const newAmount = Balance.make(
+        let newAmount = Balance.make(
             targetUser.data["money"],
             ...amount.map((n) => BigInt(n) * -1n)
         );
-
+        if (Balance.MAX_BALANCE_LIMIT != -1n) {
+            newAmount =
+                newAmount > Balance.MAX_BALANCE_LIMIT ? Balance.MAX_BALANCE_LIMIT : newAmount;
+        }
         targetUser.data["money"] = newAmount < 0 ? 0 : newAmount;
     }
 
@@ -69,10 +93,12 @@ export class Balance {
      */
     static get(userID) {
         const targetUser = global.data.users.get(userID);
-        if (!targetUser) throw new Error("User not exists");
+        if (!targetUser)
+            throw new BalanceError("USER_NOT_EXISTS", `User "${userID}" not available.`);
         if (!targetUser.data)
-            throw new Error(
-                "This should not happen, if you see this, please report to the creator."
+            throw new BalanceError(
+                "UNEXPECTED",
+                "This should not occur. If you encounter this issue, please report it to the creator."
             );
 
         return BigInt(targetUser.data["money"] ?? 0);
@@ -85,14 +111,17 @@ export class Balance {
      */
     static set(userID, amount) {
         const targetUser = global.data.users.get(userID);
-        if (!targetUser) throw new Error("User not exists");
+        if (!targetUser)
+            throw new BalanceError("USER_NOT_EXISTS", `User "${userID}" not available.`);
         if (!targetUser.data)
-            throw new Error(
-                "This should not happen, if you see this, please report to the creator."
+            throw new BalanceError(
+                "UNEXPECTED",
+                "This should not occur. If you encounter this issue, please report it to the creator."
             );
 
-        if (amount < 0) throw new Error("Balance must not be lower than 0");
-        targetUser.data["money"] = Balance.make(amount);
+        const isLimitExceed =
+            Balance.MAX_BALANCE_LIMIT != -1n && amount > Balance.MAX_BALANCE_LIMIT;
+        targetUser.data["money"] = Balance.make(isLimitExceed ? Balance.MAX_BALANCE_LIMIT : amount);
     }
 
     /**

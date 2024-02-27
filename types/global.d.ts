@@ -149,6 +149,7 @@ declare global {
         PREFIX: string;
         timezone: string;
         REFRESH: string;
+        MAX_BALANCE_LIMIT: string | number;
         [key: string]: any;
     }
 

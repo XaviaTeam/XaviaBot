@@ -7,6 +7,8 @@ import * as utils from "./utils.js";
 
 import { loadConfig, loadLang, getLang, loadDisabledPlugins } from "./modules/loader.js";
 
+import { Balance } from "../handlers/balance.js";
+
 async function loadModules() {
     // global modules will soon be deprecated
     try {
@@ -40,6 +42,10 @@ async function initializeVar() {
         // will soon be deprecated
         global.data.langSystem = loadLang();
         global.getLang = getLang;
+
+        if (global.config.MAX_BALANCE_LIMIT != undefined) {
+            Balance.setLimit(global.config.MAX_BALANCE_LIMIT);
+        }
     } catch (error) {
         throw error;
     }
