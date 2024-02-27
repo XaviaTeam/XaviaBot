@@ -363,7 +363,8 @@ const replyForPicoPart = async ({ message, getLang, eventData }) => {
         .catch((err) => console.error(err));
 };
 
-const onCall = async ({ message, args, getLang, extra }) => {
+/** @type {TOnCallCommand} */
+const onCall = async ({ message, args, balance, getLang, extra }) => {
     if (!global.bandori?.isReady) return;
     const { Users } = global.controllers;
 
@@ -487,7 +488,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
         if (userData === null) return message.reply(getLang("pull.noData"));
 
         const bandori = userData.bandori || {};
-        const money = userData.money || 0;
+        const money = balance.get();
         const { pullRate, pullCost, refund } = extra;
 
         if (money < parseInt(pullCost))
@@ -528,11 +529,11 @@ const onCall = async ({ message, args, getLang, extra }) => {
         const card = storage[Math.floor(Math.random() * storage.length)];
         const { name, skill_name, art, rarity, attribute, id } = card;
 
+        balance.sub(pullCost);
+
         const inventory = bandori.inventory || [];
         if (inventory.some((card) => card.id == id)) {
-            await Users.updateData(message.senderID, {
-                money: money - parseInt(pullCost) + parseInt(refund),
-            });
+            balance.add(refund);
             return message.reply(getLang("pull.alreadyHave", { refund }));
         }
 
@@ -557,10 +558,7 @@ const onCall = async ({ message, args, getLang, extra }) => {
         };
 
         bandori.inventory = inventory;
-        await Users.updateData(message.senderID, {
-            bandori,
-            money: userData.money - parseInt(pullCost),
-        });
+        await Users.updateData(message.senderID, { bandori });
 
         return message.reply(msg);
     } else if (query == "inventory" || query == "inv") {

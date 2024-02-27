@@ -16,8 +16,7 @@ const langData = {
         missingMention: "You need to mention someone to send money to them",
         invalidAmount: "Invalid amount",
         lowerThanMin: "Minimum amount is {minAmount} XC",
-        notEnoughMoney:
-            "You don't have enough money, you need {amount} XC more",
+        notEnoughMoney: "You don't have enough money, you need {amount} XC more",
         sendSuccessFee: "You have sent {amount} XC to {name} (fee: {fee} XC)",
         error: "An error occurred, please try again later",
     },
@@ -33,54 +32,49 @@ const langData = {
         missingMention: "تحتاج إلى ذكر شخص ما لإرسال الأموال إليه",
         invalidAmount: "مبلغ غير صحيح",
         lowerThanMin: "الحد الأدنى للمبلغ هو {minAmount} XC",
-        notEnoughMoney:
-            "ليس لديك ما يكفي من المال ، فأنت بحاجة إلى المزيد {amount} XC",
+        notEnoughMoney: "ليس لديك ما يكفي من المال ، فأنت بحاجة إلى المزيد {amount} XC",
         sendSuccessFee: "لقد ارسلت {amount} XC الى {name} (مصاريف: {fee} XC)",
         error: "لقد حدث خطأ، رجاء أعد المحاولة لاحقا",
     },
 };
 
-async function onCall({ message, args, extra, getLang }) {
-    const { mentions, senderID, reply } = message;
-    if (Object.keys(mentions).length == 0)
-        return reply(getLang("missingMention"));
+/** @type {TOnCallCommand} */
+async function onCall({ message, args, balance, extra, getLang }) {
+    const { mentions, reply } = message;
+    const { addCommas } = global.utils;
+    
+    if (Object.keys(mentions).length == 0) return reply(getLang("missingMention"));
 
     try {
+        const feePercent = balance.make(extra.fee * 100);
         const targetID = Object.keys(mentions)[0];
         const targetNameLength = mentions[targetID].length;
 
-        let amount = args
-            .join(" ")
-            .slice(targetNameLength)
-            .trim()
-            .split(" ")
-            .shift();
-						
-        if (!global.isAcceptableNumber(amount))
-            return reply(getLang("invalidAmount"));
-        amount = parseInt(amount);
-        if (amount < parseInt(extra.minAmount))
-            return reply(
-                getLang("lowerThanMin", { minAmount: extra.minAmount })
-            );
+        const amount = balance.makeSafe(
+            args.join(" ").slice(targetNameLength).trim().split(" ").shift()
+        );
 
-        const { Users } = global.controllers;
+        if (amount == null) return reply(getLang("invalidAmount"));
 
-        const senderMoney = await Users.getMoney(senderID);
-        const fee = parseInt(amount * extra.fee);
+        if (amount < balance.make(extra.minAmount))
+            return reply(getLang("lowerThanMin", { minAmount: extra.minAmount }));
+
+        const senderMoney = balance.get();
+        const fee = (amount * feePercent) / 100n;
         const total = amount + fee;
-        if (senderMoney == null || parseInt(senderMoney) < total)
+
+        if (senderMoney < total)
             return reply(
                 getLang("notEnoughMoney", {
-                    amount: addCommas(total - parseInt(senderMoney)),
+                    amount: addCommas(total - senderMoney),
                 })
             );
 
-        const targetMoney = await Users.getMoney(targetID);
-        if (targetMoney == null) return reply(getLang("error"));
+        const targetBalance = balance.from(targetID);
+        if (targetBalance == null) return reply(getLang("error"));
 
-        await Users.decreaseMoney(senderID, total);
-        await Users.increaseMoney(targetID, amount);
+        balance.sub(total);
+        targetBalance.add(amount);
 
         return reply(
             getLang("sendSuccessFee", {
@@ -90,7 +84,7 @@ async function onCall({ message, args, extra, getLang }) {
             })
         );
     } catch (e) {
-        console.log(e);
+        console.error(e);
         return reply(getLang("error"));
     }
 }

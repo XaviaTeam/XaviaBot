@@ -26,30 +26,30 @@ const langData = {
 }
 
 /** @type {TOnCallCommand} */
-function onCall({ message, getLang, xDB }) {
+function onCall({ message, balance, getLang, xDB }) {
     const { type, mentions } = message;
-    const Users = xDB.users;
+
     let userBalance;
     if (type == "message_reply") {
         const { senderID: TSenderID } = message.messageReply;
 
-        userBalance = Users.getMoney(TSenderID);
+        userBalance = balance.from(TSenderID);
         if (userBalance == null) return message.reply(getLang("balance.userNoData"));
     } else if (Object.keys(mentions).length >= 1) {
         let msg = "";
 
         for (const TSenderID in mentions) {
-            userBalance = Users.getMoney(TSenderID);
-            msg += `${mentions[TSenderID].replace(/@/g, '')}: ${global.addCommas(userBalance || 0)}XC\n`;
+            userBalance = balance.from(TSenderID);
+            msg += `${mentions[TSenderID].replace(/@/g, '')}: ${global.addCommas(userBalance?.get() ?? 0)}XC\n`;
         }
 
         return message.reply(msg);
     } else {
-        userBalance = Users.getMoney(message.senderID);
+        userBalance = balance.from(message.senderID);
         if (userBalance == null) return message.reply(getLang("balance.selfNoData"));
     }
 
-    message.reply(getLang("balance.result", { money: global.addCommas(userBalance) }));
+    message.reply(getLang("balance.result", { money: global.utils.addCommas(userBalance.get()) }));
 }
 
 export default {

@@ -40,7 +40,8 @@ const langData = {
     },
 };
 
-async function confirm({ message, getLang, eventData, data }) {
+/** @type {TReactCallback} */
+async function confirm({ message, balance, getLang, eventData, data }) {
     try {
         const { reaction, userID } = message;
         if (reaction !== "👍") return;
@@ -48,7 +49,7 @@ async function confirm({ message, getLang, eventData, data }) {
         if (userData.data.lottery) return;
 
         const { numberBet, bet } = eventData;
-        global.controllers.Users.decreaseMoney(userID, bet);
+        balance.sub(bet);
 
         userData.data.lottery = {
             numberBet,
@@ -64,9 +65,8 @@ async function confirm({ message, getLang, eventData, data }) {
     }
 }
 
-async function onCall({ message, args, getLang, data }) {
-    const { senderID } = message;
-
+/** @type {TOnCallCommand} */
+async function onCall({ message, args, balance, getLang, data }) {
     const query = args[0];
     if (!query) return message.reply(getLang("anErrorHasOccurred"));
 
@@ -105,9 +105,9 @@ async function onCall({ message, args, getLang, data }) {
                     limitNumber: lotteryConfig.limitNumber,
                 })
             );
-        const bet = parseInt(args[2]);
-        const playerMoney = global.controllers.Users.getMoney(senderID);
-        if (!bet || bet < lotteryConfig.minBet || isNaN(bet))
+        const bet = balance.makeSafe(args[2]);
+        const playerMoney = balance.get();
+        if (bet == null || bet < lotteryConfig.minBet)
             return message.send(
                 getLang("invalidBet", { minBet: lotteryConfig.minBet })
             );
