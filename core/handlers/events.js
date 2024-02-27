@@ -320,7 +320,7 @@ async function handleReaction(event, xDatabase) {
                     from: Balance.from,
                     make: Balance.make,
                     makeSafe: Balance.makeSafe,
-                    ...Balance.from(senderID),
+                    ...Balance.from(userID),
                 },
                 getLang: getLangForCommand,
                 data,
