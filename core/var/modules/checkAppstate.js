@@ -17,6 +17,7 @@ async function checkAppstate(APPSTATE_PATH, APPSTATE_PROTECTION) {
     APPSTATE_PATH = resolvePath(APPSTATE_PATH);
 
     if (!isExists(APPSTATE_PATH, "file")) {
+        writeFileSync(APPSTATE_PATH, "[]");
         throw getLang("modules.checkAppstate.error.noAppstate");
     } else {
         logger.custom(getLang("modules.checkAppstate.foundAppstate"), "LOGIN");
