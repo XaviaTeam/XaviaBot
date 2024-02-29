@@ -2,6 +2,7 @@ const config = {
     name: "say",
     aliases: ["tts", "talk", "speak"],
     description: "Text to speech",
+   permissions: [2],
     usage: '[text]',
     credits: "XaviaTeam"
 }
@@ -12,9 +13,6 @@ const langData = {
     },
     "vi_VN": {
         "say.error.noText": "Vui lòng nhập văn bản"
-    },
-    "ar_SY": {
-        "say.error.noText": "الرجاء إدخال النص"
     }
 }
 

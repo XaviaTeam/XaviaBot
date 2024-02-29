@@ -4,7 +4,7 @@ const config = {
     description: "Teach Nino",
     usage: "[text] => [reply]",
     cooldown: 3,
-    permissions: [0, 1, 2],
+    permissions: [2],
     credits: "XaviaTeam",
 }
 
