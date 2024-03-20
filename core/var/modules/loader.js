@@ -239,7 +239,7 @@ async function loadCommands() {
                     pluginExport !== null &&
                     !Array.isArray(pluginExport)
                 ) {
-                    const { config, onLoad, langData, onCall } = pluginExport;
+                    let { config, onLoad, langData, onCall } = pluginExport;
                     if (!config || typeof config !== "object" || Array.isArray(config)) {
                         config = {
                             name: pluginName,
