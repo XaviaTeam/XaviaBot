@@ -92,12 +92,16 @@ export class XDatabase {
         const start = now;
         const { DATABASE_JSON_BEAUTIFY } = global.config;
 
-        const formatData = (data) =>
-            DATABASE_JSON_BEAUTIFY ? JSON.stringify(data, null, 4) : JSON.stringify(data);
+        const formatData = (data, isBak = false) =>
+            JSON.stringify(data, (k, v) => {
+                if (typeof v == "bigint") return v.toString();
+
+                return v;
+            }, DATABASE_JSON_BEAUTIFY && !isBak ? 4 : 0);
 
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "threads.bak.json"),
-            JSON.stringify(threads)
+            formatData(threads, true)
         );
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "threads.json"),
@@ -109,7 +113,7 @@ export class XDatabase {
 
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "users.bak.json"),
-            JSON.stringify(users)
+            formatData(users, true)
         );
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "users.json"),
@@ -121,7 +125,7 @@ export class XDatabase {
 
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "effects.bak.json"),
-            JSON.stringify(effects.values())
+            formatData(effects.values(), true)
         );
         this.#saveFile(
             resolve(process.cwd(), "core", "var", "data", "effects.json"),
@@ -273,6 +277,9 @@ export class XDatabase {
                     }
                 } else if (filename == "users.json") {
                     for (const uData of parsedData) {
+                        if (uData?.data?.hasOwnProperty("money")) {
+                            uData.data["money"] = BigInt(uData.data["money"] ?? 0);
+                        }
                         global.data.users.set(uData.userID, uData);
                     }
                 } else if (filename == "effects.json") {
