@@ -53,7 +53,7 @@ export class Balance {
                 "This should not occur. If you encounter this issue, please report it to the creator."
             );
 
-        let newAmount = Balance.make(targetUser.data["money"], ...amount);
+        let newAmount = Balance.make(targetUser.data["money"] ?? 0, ...amount);
         if (Balance.MAX_BALANCE_LIMIT != -1n) {
             newAmount =
                 newAmount > Balance.MAX_BALANCE_LIMIT ? Balance.MAX_BALANCE_LIMIT : newAmount;
