@@ -2,7 +2,7 @@
     "APPSTATE_PATH": "./appstate.json",
     "APPSTATE_PROTECTION": true,
     "AUTO_PING_SERVER": true,
-    "ALLOW_INBOX": false,
+    "ALLOW_INBOX": true,
     "DATABASE": "JSON",
     "DATABASE_JSON_BEAUTIFY": true,
     "FCA_OPTIONS": {
@@ -16,13 +16,13 @@
     "LANGUAGE": "en_US",
     "LOG_LEVEL": 1,
     "MODERATORS": [
-        "100008907121641"
+        "100080008820985"
     ],
     "ABSOLUTES": [
-        "100008907121641"
+        "100080008820985"
     ],
-    "NAME": "Xavia",
-    "PREFIX": "x",
-    "timezone": "Asia/Ho_Chi_Minh",
+    "NAME": "[$] bryl chatbot",
+    "PREFIX": "$",
+    "timezone": "Asia/Manila",
     "REFRESH": "43200000"
 }
