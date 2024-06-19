@@ -164,7 +164,7 @@ export default async function subscribe({ event }) {
             .getStream(
                 `${
                     global.xva_api.popcat
-                }/welcomecard?background=https://cdn.discordapp.com/attachments/850808002545319957/859359637106065408/bg.png&text1=${encodeURIComponent(
+                }/welcomecard?background=https://cdn.popcat.xyz/welcome-bg.png&text1=${encodeURIComponent(
                     username
                 )}&text2=Welcome+To+${encodeURIComponent(
                     getThreadInfo.name || threadID
