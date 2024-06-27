@@ -42,7 +42,7 @@ async function upload(url) {
             url: url,
             apikey: process.env.IMGBB_KEY
         }
-    );
+    ).then(d => d.data.url);
 }
 
 async function onCall({ message, getLang }) {
