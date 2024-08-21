@@ -16,13 +16,13 @@
     "LANGUAGE": "en_US",
     "LOG_LEVEL": 1,
     "MODERATORS": [
-        "100008907121641"
+        "61564523816700"
     ],
     "ABSOLUTES": [
-        "100008907121641"
+        "61564523816700"
     ],
-    "NAME": "Xavia",
-    "PREFIX": "x",
+    "NAME": "ArYan",
+    "PREFIX": "/",
     "timezone": "Asia/Ho_Chi_Minh",
     "REFRESH": "43200000",
     "MAX_BALANCE_LIMIT": "-1"
