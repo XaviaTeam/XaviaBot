@@ -1,6 +1,6 @@
 {
   "name": "xaviabot",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "A Facebook Messenger Bot",
   "main": "index.js",
   "type": "module",
@@ -45,6 +45,6 @@
     "semver": "^7.3.8",
     "string-similarity": "^4.0.4",
     "wikijs": "^6.4.0",
-    "ytdl-core": "^4.11.2"
+    "@distube/ytdl-core": "^4.14.4"
   }
 }

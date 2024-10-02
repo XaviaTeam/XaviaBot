@@ -1,6 +1,6 @@
 import ffmpegPath from "ffmpeg-static"
 import fluent from "fluent-ffmpeg"
-import ytdl from "ytdl-core"
+import ytdl from "@distube/ytdl-core"
 import { join } from "path";
 import { statSync } from "fs";
 
